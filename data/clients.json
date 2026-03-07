@@ -1,0 +1,29 @@
+[
+  {
+    "id": "17725140931552",
+    "name": "Jubileu rerere",
+    "phone": "5515151515151",
+    "address": "Rua de nerda",
+    "created_at": "2026-03-03T05:01:33.155Z",
+    "updated_at": "2026-03-03T05:01:33.155Z",
+    "coupons": []
+  },
+  {
+    "id": "1772514814560544",
+    "name": "Manu Manui",
+    "phone": "82965656565",
+    "address": "Rua das VBeia",
+    "created_at": "2026-03-03T05:13:34.560Z",
+    "updated_at": "2026-03-03T05:13:34.560Z",
+    "coupons": []
+  },
+  {
+    "id": "1772566875400494",
+    "name": "Jesus Meu Amor",
+    "phone": "51999999999",
+    "address": "Ruas dos Cèus",
+    "created_at": "2026-03-03T19:41:15.400Z",
+    "updated_at": "2026-03-03T19:46:46.374Z",
+    "coupons": []
+  }
+]
