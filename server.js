@@ -24,9 +24,6 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
-app.options("*", cors());
-
-
 
 // ====== DATA (JSON) ======
 const DATA_DIR = path.join(__dirname, "data");
