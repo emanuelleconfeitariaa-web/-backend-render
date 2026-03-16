@@ -1,10 +1,11 @@
 {
-  "name": "emanuelconfeitaria",
+  "name": "emanuelleconfeitariaa",
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "dist": "electron-builder",
+    "start": "node app/server/server.js",
+    "electron": "electron .",
+    "dev": "electron .",
     "import:mongo": "node app/server/scripts/import-json-to-mongo.js"
   },
   "devDependencies": {
