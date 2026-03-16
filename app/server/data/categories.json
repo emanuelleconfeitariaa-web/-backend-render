@@ -1,0 +1,24 @@
+[
+  {
+    "id": "1772567050109165",
+    "name": "Mini Salgados",
+    "created_at": "2026-03-03T19:44:10.109Z"
+  },
+  {
+    "id": "1773158902324691",
+    "name": "Milk Shake",
+    "featured": false,
+    "created_at": "2026-03-10T16:08:22.324Z"
+  },
+  {
+    "id": "1773158967330670",
+    "name": "Combo Salgados",
+    "featured": false,
+    "created_at": "2026-03-10T16:09:27.330Z"
+  },
+  {
+    "id": "177328042334666",
+    "name": "Pedras",
+    "created_at": "2026-03-12T01:53:43.346Z"
+  }
+]

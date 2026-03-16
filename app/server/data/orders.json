@@ -1,0 +1,1101 @@
+[
+  {
+    "id": "1772567206374695",
+    "created_at": "2026-03-03T19:46:46.374Z",
+    "status": "RECUSADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Jesus Meu Amor",
+    "customer_phone": "51999999999",
+    "address": "Ruas dos Cèus",
+    "payment": "Pix",
+    "notes": "Entregar ao Senhor Jesus",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 10,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 34,
+    "total": 44,
+    "items": [
+      {
+        "product_id": "1772566964260214",
+        "name": "Bolo de Chocolate (+ Recheio +)",
+        "price": 12,
+        "qty": 2
+      },
+      {
+        "product_id": "1772567050108942",
+        "name": "Bolinhas de Queijo",
+        "price": 5,
+        "qty": 2
+      }
+    ]
+  },
+  {
+    "id": "1772201032753235",
+    "created_at": "2026-02-27T14:03:52.753Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "Allan",
+    "customer_phone": "51996947334",
+    "address": "",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 10,
+    "total": 10,
+    "items": [
+      {
+        "product_id": "1771535273102983",
+        "name": "Bolo de Chocolate",
+        "price": 10,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1772084785745538",
+    "created_at": "2026-02-26T05:46:25.745Z",
+    "status": "NOVO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "sdff",
+    "customer_phone": "sdsad5838563783",
+    "address": "",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": "2026-02-26 08:00",
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 13.5,
+    "total": 13.5,
+    "items": [
+      {
+        "product_id": "17718795363959",
+        "name": "Bolode Leite Ninho",
+        "price": 13.5,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1772083960694846",
+    "created_at": "2026-02-26T05:32:40.694Z",
+    "status": "NOVO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "DSD",
+    "customer_phone": "5353535353553535",
+    "address": "",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": "2026-02-26 08:00",
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 17.5,
+    "total": 17.5,
+    "items": [
+      {
+        "product_id": "17718795363959",
+        "name": "Bolode Leite Ninho (+ Cobertura 1, Cobertura 2)",
+        "price": 17.5,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1772083868199549",
+    "created_at": "2026-02-26T05:31:08.199Z",
+    "status": "NOVO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "ALLAN",
+    "customer_phone": "51996947334",
+    "address": "",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": "2026-02-26 08:00",
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 13.5,
+    "total": 13.5,
+    "items": [
+      {
+        "product_id": "17718795363959",
+        "name": "Bolode Leite Ninho",
+        "price": 13.5,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "177205943861425",
+    "created_at": "2026-02-25T22:43:58.614Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Allan",
+    "customer_phone": "51996947334",
+    "address": "Rua Nova",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 20,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 27,
+    "total": 47,
+    "items": [
+      {
+        "product_id": "17718795363959",
+        "name": "Bolode Leite Ninho",
+        "price": 13.5,
+        "qty": 2
+      }
+    ]
+  },
+  {
+    "id": "1772057167987274",
+    "created_at": "2026-02-25T22:06:07.987Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Allan",
+    "customer_phone": "51996947334",
+    "address": "Rua Nova",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 10,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 13.5,
+    "total": 23.5,
+    "items": [
+      {
+        "product_id": "17718795363959",
+        "name": "Bolode Leite Ninho",
+        "price": 13.5,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1772053018678367",
+    "created_at": "2026-02-25T20:56:58.678Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Wemerson",
+    "customer_phone": "51992360134",
+    "address": "Rua do Centro",
+    "payment": "Dinheiro",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 10,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 27,
+    "total": 37,
+    "items": [
+      {
+        "product_id": "17718795363959",
+        "name": "Bolode Leite Ninho",
+        "price": 13.5,
+        "qty": 2
+      }
+    ]
+  },
+  {
+    "id": "1772052924692658",
+    "created_at": "2026-02-25T20:55:24.692Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Wemerson",
+    "customer_phone": "51992360134",
+    "address": "Rua do Centro",
+    "payment": "Dinheiro",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0.03,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 13.5,
+    "total": 13.53,
+    "items": [
+      {
+        "product_id": "17718795363959",
+        "name": "Bolode Leite Ninho",
+        "price": 13.5,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1771948809772601",
+    "created_at": "2026-02-24T16:00:09.772Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Allan",
+    "customer_phone": "51996947334",
+    "address": "Rua Nova",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 10,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 44,
+    "total": 54,
+    "items": [
+      {
+        "product_id": "17718795363959",
+        "name": "Bolode Leite Ninho (+ Cobertura 1)",
+        "price": 15.5,
+        "qty": 1
+      },
+      {
+        "product_id": "1771535273102983",
+        "name": "Bolo de Chocolate",
+        "price": 9.5,
+        "qty": 3
+      }
+    ]
+  },
+  {
+    "id": "1771901807951483",
+    "created_at": "2026-02-24T02:56:47.951Z",
+    "status": "RECUSADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Allan",
+    "customer_phone": "51996947334",
+    "address": "Rua Nova",
+    "payment": "Pix",
+    "notes": "Trazer Maquina!",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 10,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 24.5,
+    "total": 34.5,
+    "items": [
+      {
+        "product_id": "1771535273102983",
+        "name": "Bolo de Chocolate",
+        "price": 9.5,
+        "qty": 1
+      },
+      {
+        "product_id": "1771535409526802",
+        "name": "Coxinha",
+        "price": 15,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1771884510562498",
+    "created_at": "2026-02-23T22:08:30.562Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "Allan",
+    "customer_phone": "2345345345345344",
+    "address": "",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 17.5,
+    "total": 17.5,
+    "items": [
+      {
+        "product_id": "1771535273102983",
+        "name": "Bolo de Chocolate",
+        "price": 9.5,
+        "qty": 1
+      },
+      {
+        "product_id": "1771535352730727",
+        "name": "Coca Cola",
+        "price": 8,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1771884446815323",
+    "created_at": "2026-02-23T22:07:26.815Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Allan",
+    "customer_phone": "51996947334",
+    "address": "Rua sem Saida",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 5,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 32.5,
+    "total": 37.5,
+    "items": [
+      {
+        "product_id": "1771535352730727",
+        "name": "Coca Cola",
+        "price": 8,
+        "qty": 1
+      },
+      {
+        "product_id": "1771535273102983",
+        "name": "Bolo de Chocolate",
+        "price": 9.5,
+        "qty": 1
+      },
+      {
+        "product_id": "1771535409526802",
+        "name": "Coxinha",
+        "price": 15,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1771775235055427",
+    "created_at": "2026-02-22T15:47:15.055Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Allan",
+    "customer_phone": "5151515151515",
+    "address": "Bairro Tal",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 10,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 19,
+    "total": 29,
+    "items": [
+      {
+        "product_id": "1771535273102983",
+        "name": "Bolo de Chocolate",
+        "price": 9.5,
+        "qty": 2
+      }
+    ]
+  },
+  {
+    "id": "1771545250994440",
+    "created_at": "2026-02-19T23:54:10.994Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Allan",
+    "customer_phone": "51996947334",
+    "address": "Rua das Rias",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 10,
+    "discount": 10,
+    "coupon_applied": {
+      "id": "1771545125064561",
+      "type": "VALUE",
+      "value": 10,
+      "label": "OF10"
+    },
+    "subtotal": 23,
+    "total": 23,
+    "items": [
+      {
+        "product_id": "1771535352730727",
+        "name": "Coca Cola",
+        "price": 8,
+        "qty": 1
+      },
+      {
+        "product_id": "1771535409526802",
+        "name": "Coxinha",
+        "price": 15,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1771180812440470",
+    "created_at": "2026-02-15T18:40:12.440Z",
+    "status": "RECUSADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Allan",
+    "customer_phone": "51996947334",
+    "address": "Rua das Rias",
+    "payment": "Dinheiro",
+    "notes": "Pedido Teste",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 10,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 15,
+    "total": 25,
+    "items": [
+      {
+        "product_id": "1770923265164692",
+        "name": "Bolo de Chocolate",
+        "price": 15,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1771000429471745",
+    "created_at": "2026-02-13T16:33:49.471Z",
+    "status": "NOVO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Allan",
+    "customer_phone": "51996947334",
+    "address": "Rua das Rias",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 30,
+    "total": 30,
+    "items": [
+      {
+        "product_id": "1770923265164692",
+        "name": "Bolo de Chocolate",
+        "price": 15,
+        "qty": 2
+      }
+    ]
+  },
+  {
+    "id": "177092285230075",
+    "created_at": "2026-02-12T19:00:52.300Z",
+    "status": "RECUSADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Silmara Emanuelle",
+    "customer_phone": "82996660736",
+    "address": "Rua Do Centro. N20",
+    "payment": "A combinar",
+    "notes": "Entregar na minha casa",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 10,
+    "coupon_applied": {
+      "id": "1770922756786665",
+      "type": "VALUE",
+      "value": 10,
+      "label": "OFF10"
+    },
+    "subtotal": 30,
+    "total": 20,
+    "items": [
+      {
+        "product_id": "1770849688356983",
+        "name": "Bolo de Cenoura",
+        "price": 10,
+        "qty": 3
+      }
+    ]
+  },
+  {
+    "id": "1770917290367936",
+    "created_at": "2026-02-12T17:28:10.367Z",
+    "status": "RECUSADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Allan",
+    "customer_phone": "51996947334",
+    "address": "Rua dos Mares. Numero 21",
+    "payment": "Pix",
+    "notes": "Entregar para Mim Pessoalmente",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 10,
+    "coupon_applied": {
+      "id": "1770916615980462",
+      "type": "VALUE",
+      "value": 10,
+      "label": "BOLO10"
+    },
+    "subtotal": 10,
+    "total": 0,
+    "items": [
+      {
+        "product_id": "1770857279548764",
+        "name": "Bolo de Chocolate",
+        "price": 10,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1770917116628261",
+    "created_at": "2026-02-12T17:25:16.628Z",
+    "status": "RECUSADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "Wemerson",
+    "customer_phone": "51992360134",
+    "address": "",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 5,
+    "coupon_applied": {
+      "id": "1770917061487993",
+      "type": "VALUE",
+      "value": 5,
+      "label": "R$ 5 OFF"
+    },
+    "subtotal": 20,
+    "total": 15,
+    "items": [
+      {
+        "product_id": "1770857279548764",
+        "name": "Bolo de Chocolate",
+        "price": 10,
+        "qty": 2
+      }
+    ]
+  },
+  {
+    "id": "1770916832000945",
+    "created_at": "2026-02-12T17:20:32.000Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "Wemerson",
+    "customer_phone": "51992360134",
+    "address": "",
+    "payment": "Pix",
+    "notes": "Entregar na casa rosa",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 20,
+    "total": 20,
+    "items": [
+      {
+        "product_id": "1770857279548764",
+        "name": "Bolo de Chocolate",
+        "price": 10,
+        "qty": 2
+      }
+    ]
+  },
+  {
+    "id": "1770916695146224",
+    "created_at": "2026-02-12T17:18:15.146Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "Allan",
+    "customer_phone": "51996947334",
+    "address": "",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 10,
+    "coupon_applied": {
+      "id": "1770916615980462",
+      "type": "VALUE",
+      "value": 10,
+      "label": "BOLO10"
+    },
+    "subtotal": 30,
+    "total": 20,
+    "items": [
+      {
+        "product_id": "1770857279548764",
+        "name": "Bolo de Chocolate",
+        "price": 10,
+        "qty": 3
+      }
+    ]
+  },
+  {
+    "id": "1770913004461129",
+    "created_at": "2026-02-12T16:16:44.461Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Silmara Emanuelle",
+    "customer_phone": "82996660736",
+    "address": "AL 101 Norte",
+    "payment": "Cartão",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 5,
+    "coupon_applied": {
+      "id": "1770912606632391",
+      "type": "VALUE",
+      "value": 5,
+      "label": "Desconto de Cinco reais"
+    },
+    "subtotal": 20,
+    "total": 15,
+    "items": [
+      {
+        "product_id": "1770857279548764",
+        "name": "Bolo de Chocolate",
+        "price": 10,
+        "qty": 2
+      }
+    ]
+  },
+  {
+    "id": "1770912685746544",
+    "created_at": "2026-02-12T16:11:25.746Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Silmara Emanuelle",
+    "customer_phone": "82996660736",
+    "address": "AL -101 Norte",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 5,
+    "coupon_applied": {
+      "id": "1770912606632391",
+      "type": "VALUE",
+      "value": 5,
+      "label": "Desconto de Cinco reais"
+    },
+    "subtotal": 20,
+    "total": 15,
+    "items": [
+      {
+        "product_id": "1770849688356983",
+        "name": "Bolo de Cenoura",
+        "price": 10,
+        "qty": 2
+      }
+    ]
+  },
+  {
+    "id": "177085697838765",
+    "created_at": "2026-02-12T00:42:58.387Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Allan",
+    "customer_phone": "51996947334",
+    "address": "Rua das Entregas, Numero 20",
+    "payment": "Dinheiro",
+    "notes": "Entregar no Predio, Segundo Andar",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 5,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 10,
+    "total": 15,
+    "items": [
+      {
+        "product_id": "1770849688356983",
+        "name": "Bolo de Cenoura",
+        "price": 10,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "177085685646786",
+    "created_at": "2026-02-12T00:40:56.467Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Allan",
+    "customer_phone": "51996947334",
+    "address": "Rua das Entregas, Numero 20",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 20,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 10,
+    "total": 30,
+    "items": [
+      {
+        "product_id": "1770849688356983",
+        "name": "Bolo de Cenoura",
+        "price": 10,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1770851682480121",
+    "created_at": "2026-02-11T23:14:42.480Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "",
+    "customer_phone": "",
+    "address": "",
+    "payment": "",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 10,
+    "total": 10,
+    "items": [
+      {
+        "name": "Bolo de Cenoura",
+        "qty": 1,
+        "price": 10
+      }
+    ]
+  },
+  {
+    "id": "1770849855552181",
+    "created_at": "2026-02-11T22:44:15.552Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "",
+    "customer_phone": "",
+    "address": "",
+    "payment": "",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 10,
+    "total": 10,
+    "items": [
+      {
+        "name": "Bolo de Cenoura",
+        "qty": 1,
+        "price": 10
+      }
+    ]
+  },
+  {
+    "id": "1770849768191484",
+    "created_at": "2026-02-11T22:42:48.191Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "",
+    "customer_phone": "",
+    "address": "",
+    "payment": "",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 10,
+    "total": 10,
+    "items": [
+      {
+        "name": "Bolo de Cenoura",
+        "qty": 1,
+        "price": 10
+      }
+    ]
+  },
+  {
+    "id": "1773430244971756",
+    "created_at": "2026-03-13T19:30:44.971Z",
+    "status": "RECUSADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Teste Frete",
+    "customer_phone": "82999999999",
+    "address": "ENDEREÇO DE TESTE AQUI",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 10,
+    "total": 10,
+    "items": [
+      {
+        "product_id": "COLOQUE_ID_REAL",
+        "name": "Produto Teste",
+        "price": 10,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1773431419860727",
+    "created_at": "2026-03-13T19:50:19.861Z",
+    "status": "RECUSADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "ENTREGA",
+    "customer_name": "Teste Frete",
+    "customer_phone": "82999999999",
+    "address": "Rodovia AL 101 Norte, Paripueira, Alagoas, Brazil",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": 0,
+    "shipping": 4,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 10,
+    "total": 14,
+    "items": [
+      {
+        "product_id": "1772567050108942",
+        "name": "Produto Teste",
+        "price": 10,
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "id": "1773453380930129",
+    "created_at": "2026-03-14T01:56:20.930Z",
+    "status": "RECUSADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "Fabricio",
+    "customer_phone": "51996699669",
+    "address": "",
+    "payment": "Pix",
+    "notes": "dfasfd",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 45,
+    "total": 45,
+    "items": [
+      {
+        "product_id": "1773266092221876",
+        "name": "Salgados em Combo",
+        "price": 15,
+        "qty": 3
+      }
+    ]
+  },
+  {
+    "id": "1773525785668742",
+    "created_at": "2026-03-14T22:03:05.668Z",
+    "status": "RECUSADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "caio",
+    "customer_phone": "82998887998",
+    "address": "",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 0,
+    "coupon_applied": null,
+    "subtotal": 25,
+    "total": 25,
+    "items": [
+      {
+        "product_id": "69b5ca0848145cbd0b062bb4",
+        "name": "Bolo vulção Chocolate",
+        "price": 12.5,
+        "qty": 2
+      }
+    ]
+  },
+  {
+    "id": "1773526555551195",
+    "created_at": "2026-03-14T22:15:55.551Z",
+    "status": "CANCELADO",
+    "paid": false,
+    "paid_at": null,
+    "type": "RETIRADA",
+    "customer_name": "caio",
+    "customer_phone": "82998887998",
+    "address": "",
+    "payment": "Pix",
+    "notes": "",
+    "scheduled_for": null,
+    "need_nfce": false,
+    "cpf": "",
+    "distance_km": null,
+    "shipping": 0,
+    "discount": 5,
+    "coupon_applied": {
+      "id": "1773526533292652",
+      "type": "VALUE",
+      "value": 5,
+      "label": "OFF5"
+    },
+    "subtotal": 25,
+    "total": 20,
+    "items": [
+      {
+        "product_id": "69b5ca0848145cbd0b062bb4",
+        "name": "Bolo vulção Chocolate",
+        "price": 12.5,
+        "qty": 2
+      }
+    ]
+  }
+]

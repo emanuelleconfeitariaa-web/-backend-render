@@ -1,0 +1,39 @@
+const { app, BrowserWindow, ipcMain } = require("electron");
+const path = require("path");
+
+let server;
+
+function createWindow(relativeFile) {
+  const win = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    backgroundColor: "#f6ebe5",
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  });
+
+  // ✅ SEMPRE carrega HTML da pasta renderer
+  win.loadFile(path.join(__dirname, relativeFile));
+  return win;
+}
+
+app.whenReady().then(async () => {
+  // ✅ inicia a API (não abre como página)
+  server = require(path.join(__dirname, "app/server/server.js"));
+  await server.start();
+
+  // ✅ abre o ADMIN (tela certa)
+  createWindow("app/renderer/admin/index.html");
+
+  ipcMain.handle("open-store", async () => {
+    createWindow("app/renderer/store/index.html");
+  });
+});
+
+app.on("window-all-closed", async () => {
+  if (server) await server.stop();
+  app.quit();
+});

@@ -1,12 +1,30 @@
 {
-  "name": "emanuele-backend",
+  "name": "emanuelconfeitaria",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "main.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "electron .",
+    "dist": "electron-builder",
+    "import:mongo": "node app/server/scripts/import-json-to-mongo.js"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.emanuelleconfeitaria.app",
+    "productName": "Emanuelle Confeitaria",
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    }
   },
   "dependencies": {
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "mongoose": "^9.3.0",
+    "node-fetch": "^3.3.2"
   }
 }

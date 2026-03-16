@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Emanuelle Confeitaria • Pedido</title>
+
+  <!-- =========================
+       PREVIEW DO WHATSAPP (Open Graph)
+       1) Troque "YOUR_DOMAIN" pela URL pública do GitHub Pages
+       2) Coloque a imagem share em /assets/share.png (1200x630 recomendado)
+  ========================== -->
+  
+<meta property="og:type" content="website">
+<meta property="og:title" content="Emanuelle Confeitaria — Pedido">
+<meta property="og:description" content="Confira o resumo do seu pedido e finalize pelo WhatsApp.">
+<meta property="og:image" content="https://emanueleconfeitariaa-web.github.io/emanuele-preview/preview-whatsapp/assets/share.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://emanueleconfeitariaa-web.github.io/emanuele-preview/preview-whatsapp/pedido.html">
+
+<!-- Twitter (ajuda alguns apps) -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Emanuelle Confeitaria — Pedido">
+<meta name="twitter:description" content="Confira o resumo do seu pedido e finalize pelo WhatsApp.">
+<meta name="twitter:image" content="https://emanueleconfeitariaa-web.github.io/emanuele-preview/preview-whatsapp/assets/share.png">
+
+  <!-- Ajuda em alguns apps -->
+  <meta name="twitter:card" content="summary_large_image"/>
+
+  <style>
+    :root{
+      --primary:#7a4a3e;
+      --secondary:#d9a5b2;
+      --soft:#f4d4d7;
+      --bg:#f6ebe5;
+      --text:#2a1a16;
+      --muted: rgba(42,26,22,.72);
+      --card: rgba(255,255,255,.92);
+      --border: rgba(0,0,0,.10);
+      --radius: 18px;
+      --shadow: 0 18px 60px rgba(0,0,0,.10);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, Segoe UI, Roboto, Arial;
+      background: var(--bg);
+      color: var(--text);
+      min-height:100vh;
+    }
+    .wrap{ max-width: 980px; margin: 22px auto; padding: 0 14px 26px; }
+    .hero{
+      background: linear-gradient(135deg, rgba(217,165,178,.55), rgba(246,235,229,.85));
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 22px;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      position:relative;
+    }
+    .banner{
+      height: 180px;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(122,74,62,.16), transparent 55%),
+        radial-gradient(circle at 80% 40%, rgba(217,165,178,.30), transparent 55%),
+        linear-gradient(135deg, rgba(122,74,62,.18), rgba(244,212,215,.55));
+      display:flex;
+      align-items:flex-end;
+      padding: 16px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 14px;
+      background: rgba(255,255,255,.70);
+      border: 1px solid rgba(0,0,0,.08);
+      backdrop-filter: blur(10px);
+      border-radius: 18px;
+      padding: 12px 14px;
+    }
+    .logo{
+      width:64px; height:64px;
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,.12);
+      background:#fff;
+      object-fit:contain;
+      padding: 8px;
+    }
+    .ttl b{font-size:18px; font-weight:1000; display:block; line-height:1.1}
+    .ttl span{font-size:12.5px; color:var(--muted); display:block; margin-top:4px}
+
+    .content{ padding: 16px; }
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.08);
+    }
+    .row{display:flex; gap:12px; flex-wrap:wrap}
+    .row > *{flex:1; min-width:240px}
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border-radius:999px;
+      padding: 8px 12px;
+      border: 1px solid rgba(0,0,0,.10);
+      background: rgba(244,212,215,.55);
+      font-weight: 900;
+      font-size: 12.5px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      text-decoration:none;
+      cursor:pointer;
+      border-radius:999px;
+      padding: 10px 14px;
+      font-weight: 1000;
+      border: 1px solid rgba(0,0,0,.12);
+      background:#fff;
+      color: var(--text);
+    }
+    .btnPrimary{
+      background: var(--primary);
+      border-color: rgba(0,0,0,.06);
+      color:#fff;
+    }
+    .hint{
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.35;
+      margin-top: 8px;
+    }
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: rgba(0,0,0,.04);
+      border: 1px solid rgba(0,0,0,.08);
+      padding: 10px 12px;
+      border-radius: 14px;
+      overflow:auto;
+      font-size: 12.5px;
+      white-space: pre-wrap;
+    }
+    .footer{
+      margin-top: 12px;
+      text-align:center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .small{font-size:12px; color:var(--muted)}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="banner">
+        <div class="brand">
+          <!-- Troque esse caminho para sua logo pública (ex: /assets/logo.png) -->
+          <img class="logo" src="./assets/logo.png" alt="Logo">
+          <div class="ttl">
+            <b>Emanuelle Confeitaria</b>
+            <span>Informações • Peça Online</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="row">
+          <div class="card">
+            <div class="pill">✅ Preview do WhatsApp</div>
+            <div class="hint">
+              Essa página existe para o WhatsApp mostrar o “cartão” com sua imagem/logo.
+              O pedido mesmo vai no texto da mensagem (abaixo do link).
+            </div>
+
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+              <a class="btn btnPrimary" href="#" onclick="copyLink(); return false;">Copiar link desta página</a>
+              <a class="btn" href="./" target="_blank" rel="noopener">Abrir página</a>
+            </div>
+
+            <div class="hint">
+              <b>Onde editar:</b><br/>
+              1) Suba esta página no GitHub Pages.<br/>
+              2) Troque <span class="mono" style="display:inline-block; padding:4px 8px; white-space:nowrap;">YOUR_DOMAIN</span> nas metas OG pelo seu link real.<br/>
+              3) Coloque a imagem do preview em <b>/assets/share.png</b> (1200×630).
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="pill">📩 Modelo do texto do pedido</div>
+            <div class="hint">Use o link desta página na primeira linha e cole o texto abaixo:</div>
+
+            <div class="mono" id="msgModel">https://YOUR_DOMAIN/pedido
+
+🍰 *Venho de https://seu-site.com*
+📌 *Pedido:* #3369137052
+🕒 07/02/2026 • 18:29
+
+*Tipo de serviço:* Delivery
+
+*Nome:* Victoria
+*Telefone:* 55 82991200448
+*Endereço:* R. Santa Cecília, 47, Paripueira - AL
+
+🧁 *Produtos*
+x1 Cenoura — R$ 12,70
+
+Subtotal: R$ 12,70
+Delivery: R$ 4,00
+*Total: R$ 16,70*
+
+💳 *Pagamento*
+Status: Não pago
+Forma: Cartão</div>
+
+            <div class="hint small">
+              Dica: deixe o link sozinho na 1ª linha para o WhatsApp gerar o cartão com a imagem.
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          Emanuelle Confeitaria • Página de prévia para WhatsApp
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function copyLink(){
+      const url = window.location.href;
+      navigator.clipboard.writeText(url).then(()=>{
+        alert("Link copiado ✅\n\n" + url);
+      }).catch(()=>{
+        prompt("Copie o link:", url);
+      });
+    }
+  </script>
+</body>
+</html>

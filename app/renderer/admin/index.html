@@ -1,0 +1,5243 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Admin • Emanuelle Confeitaria</title>
+  <style>
+
+
+.modalBack{
+  position:fixed; inset:0;
+  background: rgba(0,0,0,.35);
+  display:none;
+  z-index: 9999;
+}
+.modalBack.open{ display:flex; align-items:center; justify-content:center; padding: 10px; }
+
+.modalBox{
+  width:min(1100px, 96vw);
+  height:min(720px, 92vh);
+  background:#fff;
+  border-radius: 16px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+.modalBoxFull{ width: 98vw; height: 94vh; } /* fica bem “Olá Click” */
+
+.modalTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.95);
+}
+
+.pdvFrame{
+  border:0;
+  width:100%;
+  height:100%;
+}
+
+
+    :root{
+      --primary:#7a4a3e;
+      --secondary:#d9a5b2;
+      --soft:#f4d4d7;
+      --bg:#f6ebe5;
+      --text:#2a1a16;
+      --muted: rgba(42,26,22,.72);
+      --card: rgba(255,255,255,.92);
+      --border: rgba(0,0,0,.10);
+      --radius: 18px;
+      --shadow: 0 18px 60px rgba(0,0,0,.10);
+      --storeText: #2b1b17;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, Segoe UI, Roboto, Arial;
+      background: var(--bg);
+      color: var(--text);
+      color: var(--storeText);
+    }
+    .wrap{ max-width: 1200px; margin: 18px auto; padding: 0 12px 28px; }
+    .top{
+      display:flex; align-items:center; justify-content:space-between; gap: 12px; flex-wrap:wrap;
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .brand{ display:flex; align-items:center; gap: 12px; }
+    .logoBox{
+      width: 52px; height: 52px;
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,.10);
+      background: rgba(255,255,255,.88);
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+    }
+    .logoBox img{ width:100%; height:100%; object-fit:contain; padding: 6px; }
+    .ttl{ line-height:1.1; }
+    .ttl b{ font-size: 18px; font-weight: 1000; }
+    .ttl div{ font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+
+    .actions{ display:flex; gap: 10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
+    .btn{
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 1000;
+      cursor:pointer;
+      background:#fff;
+      border: 1px solid rgba(0,0,0,.12);
+      color: var(--text);
+    }
+    .btnPrimary{ background: var(--primary); color:#fff; border-color: rgba(0,0,0,.06); }
+    .btnGhost{ background: rgba(255,255,255,.85); }
+    .btn:active{ transform: translateY(1px); }
+
+    /* Tabs */
+    .tabs{
+      margin-top: 12px;
+      display:flex; gap: 8px; flex-wrap:wrap;
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: var(--radius);
+      padding: 10px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .tab{
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 1000;
+      font-size: 13px;
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(0,0,0,.10);
+      cursor:pointer;
+      user-select:none;
+      display:flex; align-items:center; gap: 8px;
+    }
+    .tab.active{
+      background: var(--primary);
+      color:#fff;
+      border-color: rgba(0,0,0,.06);
+    }
+    .badge{
+      background: #ff4d6d;
+      color:#fff;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 1000;
+      display:none;
+    }
+    .badge.show{ display:inline-flex; }
+    .badge.pulse{
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse{
+      0%{ transform: scale(1); box-shadow: 0 0 0 0 rgba(255,77,109,.35); }
+      60%{ transform: scale(1.05); box-shadow: 0 0 0 12px rgba(255,77,109,0); }
+      100%{ transform: scale(1); box-shadow: 0 0 0 0 rgba(255,77,109,0); }
+    }
+
+    .btnGhost.activeView{
+      background: var(--primary);
+      color:#fff;
+      border-color: rgba(0,0,0,.06);
+    }
+
+    /* Layout grid */
+    .grid{
+      margin-top: 12px;
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap: 12px;
+    }
+    @media(max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+    .card{
+      background: var(--card);
+      border: 1px solid rgba(0,0,0,.10);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+    .card h3{
+      margin: 0 0 10px;
+      font-size: 15px;
+      font-weight: 1000;
+    }
+    .muted{ color: var(--muted); font-size: 12.5px; line-height: 1.35; }
+    label{ font-weight: 1000; font-size: 12.5px; color: var(--muted); display:block; margin-top: 10px; }
+    input, select, textarea{
+      width: 100%;
+      margin-top: 6px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.14);
+      outline:none;
+      font-family: inherit;
+      background: rgba(255,255,255,.90);
+    }
+    textarea{ min-height: 92px; resize: vertical; }
+
+    .row{ display:flex; gap: 10px; }
+    .row > *{ flex:1; }
+
+    /* Lists */
+    .list{ display:flex; flex-direction:column; gap: 10px; }
+    .item{
+      border: 1px solid rgba(0,0,0,.10);
+      background: rgba(255,255,255,.92);
+      border-radius: 16px;
+      padding: 12px;
+      display:flex;
+      gap: 12px;
+      align-items:flex-start;
+      justify-content:space-between;
+    }
+    .item[role="button"]{ cursor:pointer; }
+    .itemLeft{ flex:1; min-width:0; }
+    .itemTitle{ font-weight: 1000; }
+    .itemSub{ color: var(--muted); font-size: 12px; margin-top: 4px; line-height: 1.25; }
+    .itemRight{ display:flex; gap: 8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+
+    .pill{
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid rgba(0,0,0,.12);
+      background: rgba(246,235,229,.70);
+      font-weight: 1000;
+      font-size: 12px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .pill.new{ background: rgba(255,77,109,.10); border-color: rgba(255,77,109,.22); color:#7b1b1b; }
+    .pill.accepted{ background: rgba(93,255,146,.12); border-color: rgba(93,255,146,.25); color:#165a2c; }
+    .pill.rejected{ background: rgba(0,0,0,.06); }
+    .pill.done{ background: rgba(108,143,255,.12); border-color: rgba(108,143,255,.25); color:#17306b; }
+
+    /* qty controls */
+    .qty{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      user-select:none;
+    }
+    .qbtn{
+      width: 32px; height: 32px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.12);
+      background:#fff;
+      cursor:pointer;
+      font-weight: 1000;
+      color: var(--primary);
+    }
+    .qbtn:active{ transform: translateY(1px); }
+
+    .smallBtn{
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.12);
+      background:#fff;
+      font-weight: 1000;
+      cursor:pointer;
+    }
+    .smallBtn.primary{ background: var(--primary); color:#fff; border-color: rgba(0,0,0,.06); }
+    .smallBtn.danger{ background: #ff4d6d; color:#fff; border-color: rgba(0,0,0,.06); }
+    .smallBtn.warn{ background: #ffb703; color:#1b130f; border-color: rgba(0,0,0,.06); }
+    .smallBtn:active{ transform: translateY(1px); }
+
+    /* Modal backdrop (reuso) */
+    .backdrop{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.35);
+      display:none;
+      align-items:center; justify-content:center;
+      padding: 14px;
+      z-index: 9999;
+    }
+    .backdrop.open{ display:flex; }
+        .modal{
+      width: min(980px, 100%);
+      background:#fff;
+      border-radius: 18px;
+      border: 1px solid rgba(0,0,0,.12);
+      box-shadow: 0 24px 70px rgba(0,0,0,.25);
+      overflow:hidden;
+
+      /* permite rolagem no conteúdo sem perder botões */
+      max-height: calc(100vh - 28px);
+      display:flex;
+      flex-direction:column;
+    }
+    .mHead{
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 14px 16px;
+      background: rgba(246,235,229,.75);
+      border-bottom: 1px solid rgba(0,0,0,.08);
+    }
+    .mHead b{ font-weight:1000; }
+        .mBody{
+      padding: 16px;
+      overflow:auto;
+      flex: 1 1 auto;
+    }
+    .mFoot{
+      display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(0,0,0,.08);
+      background: rgba(246,235,229,.55);
+    }
+    .hint{ font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .ok{ color: #165a2c; font-weight: 1000; }
+    .err{ color: #7b1b1b; font-weight: 1000; }
+
+    .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+    .chip{
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid rgba(0,0,0,.12);
+      background: rgba(255,255,255,.88);
+      cursor:pointer;
+      font-weight: 1000;
+      font-size: 12px;
+      user-select:none;
+    }
+    .chip.active{ background: var(--primary); color:#fff; border-color: rgba(0,0,0,.06); }
+    .line{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.85);
+      color:#fff;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 1000;
+      display:none;
+      z-index: 10000;
+    }
+    .toast.show{ display:block; }
+  
+    /* ====== Admin Background (separado da loja) ====== */
+    body::before{
+      content:"";
+      position: fixed; inset: 0;
+      background-image: var(--adminBgImg, none);
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      opacity: var(--adminBgOpacity, 0);
+      filter: blur(var(--adminBgBlur, 0px));
+      transform: scale(1.05);
+      z-index: -2;
+      pointer-events:none;
+    }
+    body::after{
+      content:"";
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,var(--adminBgDim, 0.0));
+      z-index: -1;
+      pointer-events:none;
+    }
+
+    /* ====== Animations ====== */
+    .tab{ transition: transform .15s ease, background .15s ease, color .15s ease; }
+    .tab:active{ transform: scale(.98); }
+    .btn,.smallBtn,.qbtn{ transition: transform .12s ease, filter .12s ease; }
+    .btn:hover,.smallBtn:hover,.qbtn:hover{ filter: brightness(.98); }
+    .btn:active,.smallBtn:active,.qbtn:active{ transform: translateY(1px) scale(.99); }
+    section{ animation: none; }
+    section.enter{ animation: slideIn .22s ease both; }
+    @keyframes slideIn{
+      from{ opacity:0; transform: translateY(8px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+
+/* Category cards */
+.catsCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}
+.catCard{background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.08);border-radius:18px;padding:12px;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease;}
+.catCard:hover{transform:translateY(-2px);box-shadow:0 12px 22px rgba(0,0,0,.10);}
+.catCard .title{font-weight:800;}
+.catCard .meta{font-size:12px;opacity:.75;margin-top:4px;}
+
+
+/* Modal (modalBackdrop) - usado em Categoria e Criar Pedido */
+.modalBackdrop{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.35);
+  display:none;
+  align-items:center; justify-content:center;
+  padding: 14px;
+  z-index: 9999;
+}
+.modalBackdrop.fadeIn .modal{ animation: slideIn .22s ease both; }
+.modalHead{
+  display:flex; justify-content:space-between; align-items:center;
+  padding: 14px 16px;
+  background: rgba(246,235,229,.75);
+  border-bottom: 1px solid rgba(0,0,0,.08);
+}
+    .modalBody{
+      padding: 16px;
+      overflow:auto;
+      flex: 1 1 auto;
+    }
+
+/* ===== Adicionais (Add-ons) ===== */
+.addonsList{ display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+.addonRow{ display:grid; grid-template-columns: 1fr 120px 44px; gap:8px; align-items:center; }
+.addonRow input{ width:100%; }
+.addonRemove{ height:38px; border-radius:12px; border:1px solid rgba(0,0,0,.12); background: rgba(255,255,255,.7); cursor:pointer; font-weight:1000; }
+
+
+.itemAddons{
+  margin-top: 6px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.addonChip{
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.06);
+}
+
+
+#authGate{
+  position: fixed;
+  inset: 0;
+  background: rgba(246,235,229,0.88);
+  z-index: 15000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#authGate.hidden{
+  display: none;
+}
+
+
+#adminLoginBack{
+  z-index: 20010 !important;
+}
+
+
+#cropCanvas{
+  touch-action: none;
+  cursor: grab;
+}
+
+#cropCanvas.dragging{
+  cursor: grabbing;
+}
+
+@media (max-width: 760px){
+  #cropGrid{
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+
+
+/* PDV - ocultar adicionar item manualmente (usa a loja modal) */
+#coSearchProduct,
+#coProduct,
+#coQty,
+#coAddItem{
+  display: none !important;
+}
+
+
+</style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <div class="logoBox"><img id="adminLogoImg" src="../assets/logo.png" alt="Logo"></div>
+        <div class="ttl">
+          <b id="shopName">Emanuelle Confeitaria</b>
+          <div>Admin • Pedidos • Produtos • Página de Vendas • Histórico • Clientes</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btnGhost" id="refreshBtn">Atualizar</button>
+        <button class="btn btnGhost" id="testSoundBtn">Testar Som</button>
+        <button class="btn btnPrimary" id="openStoreBtn">Abrir Página de Vendas</button>
+      </div>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-tab="pdv">🧾 Pedidos / PDV <span class="badge" id="newBadge">0</span></div>
+      <div class="tab" data-tab="products">🍰 Produtos / Cardápio</div>
+      <div class="tab" data-tab="store">🎨 Página de Vendas</div>
+      <div class="tab" data-tab="history">📊 Histórico</div>
+      <div class="tab" data-tab="clients">👥 Clientes</div>
+      <div class="tab" data-tab="settings">⚙️ Configurações</div>
+     <div class="tab" data-tab="delivery">🚚 Configuração de entrega</div>
+    </div>
+
+
+
+    <!-- PDV -->
+    <section id="tab_pdv" class="grid">
+      <div class="card">
+        <h3>Pedidos / PDV</h3>
+        <button class="btn btnPrimary" id="openCreateOrder" style="margin:10px 0;width:100%;">➕ Criar pedido manual</button>
+        <div class="hint">Nesta aba aparecem apenas os pedidos de <b>hoje</b>.</div>
+        <div class="muted">
+          - Pedidos novos aparecem com som.<br/>
+          - Clique no pedido para ver detalhes.<br/>
+          - Use <b>Aceitar</b>, <b>Recusar</b> ou <b>Pago</b> (finaliza e registra como pago).
+        </div>
+
+        <label>Filtro</label>
+        <select id="pdvFilter">
+          <option value="TODOS">Todos</option>
+          <option value="NOVO">Somente NOVOS</option>
+          <option value="ACEITO">Aceitos</option>
+          <option value="RECUSADO">Recusados</option>
+          <option value="CANCELADO">Cancelados</option>
+          <option value="CONCLUIDO">Concluídos</option>
+        </select>
+
+        <label>Som de notificação</label>
+        <input id="soundFile" type="file" accept="audio/*" />
+        <div class="hint">Escolha um MP3. Depois clique em “Salvar preferências do PDV”.</div>
+
+        <button class="btn btnPrimary" id="savePdvPrefs" style="margin-top:12px;width:100%;">Salvar preferências do PDV</button>
+      </div>
+
+      <div class="card">
+        <h3>Lista de pedidos</h3>
+        <div class="list" id="ordersList"></div>
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="tab_products" class="grid" style="display:none;">
+      <div class="card">
+        <h3>Cadastrar Produto</h3>
+
+        <div class="row">
+          <div>
+            <label>Nome</label>
+            <input id="pName" placeholder="Ex: Mini vulcão de chocolate"/>
+          </div>
+          <div>
+            <label>Preço (R$)</label>
+            <input id="pPrice" type="number" step="0.01" placeholder="Ex: 15.00"/>
+          </div>
+        </div>
+
+        <label>Desconto (%)</label>
+        <input id="pDiscount" type="number" min="0" max="99" value="0">
+
+        <div class="row">
+          <div>
+            <label>Categoria</label>
+            <select id="pCatSelect"></select>
+            <input id="pCatNew" placeholder="Digite a nova categoria" style="display:none;margin-top:8px;"/>
+          </div>
+          <div>
+            <label>Subcategoria (seção)</label>
+            <input id="pSub" placeholder="Ex: Mini Vulcão"/>
+          </div>
+        </div>
+
+        <label>Descrição</label>
+        <textarea id="pDesc" placeholder="Ex: Recheio, tamanho, observações..."></textarea>
+
+
+        <div class="row">
+          <div>
+            <label>Destaque</label>
+            <select id="pFeatured">
+              <option value="false">Não</option>
+              <option value="true">Sim</option>
+            </select>
+          </div>
+          <div>
+            <label>Controlar estoque?</label>
+            <select id="pStockEnabled">
+              <option value="true">Sim</option>
+              <option value="false">Não</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Estoque inicial</label>
+            <input id="pStockQty" type="number" step="1" value="0"/>
+          </div>
+          <div>
+            <label>Alerta estoque baixo</label>
+            <input id="pLowStock" type="number" step="1" value="5"/>
+          </div>
+        </div>
+
+        <label>Pausar produto?</label>
+        <select id="pPaused">
+          <option value="false">Não</option>
+          <option value="true">Sim (aparece como esgotado na loja)</option>
+        </select>
+        
+          <label style="margin-top:12px">Adicionais (opcional)</label>
+            <div class="muted">Ex.: Cobertura de chocolate (+5,00)</div>
+            <div id="pAddonsList" class="addonsList"></div>
+            <button class="btn btnGhost" type="button" id="pAddonsAdd" style="margin-top:8px;width:100%;">+ Adicionar adicional</button>
+
+<label>Imagens do produto</label>
+
+<div>
+  <label>Imagem 1</label>
+  <input id="pImgFile1" type="file" accept="image/*"/>
+</div>
+
+<div style="margin-top:8px">
+  <label>Imagem 2</label>
+  <input id="pImgFile2" type="file" accept="image/*"/>
+</div>
+
+<div class="hint">Você pode adicionar até 2 imagens. A primeira será a imagem principal do produto.</div>
+
+        <button class="btn btnPrimary" id="saveProductBtn" style="margin-top:12px;width:100%;">Salvar produto</button>
+      </div>
+
+      <div class="card">
+        <h3>Categorias</h3>
+        <div class="muted">Clique em uma categoria para filtrar os produtos. Você pode criar, renomear e excluir.</div>
+
+        <div class="row" style="margin-top:10px;">
+          <input id="newCatName" placeholder="Nova categoria (ex: Sobremesas)"/>
+          <button class="smallBtn primary" id="addCatBtn" style="white-space:nowrap;">Criar</button>
+        </div>
+
+        <div class="chips" id="catChips"></div>
+
+        <div class="list" id="catsList" style="margin-top:10px;"></div>
+</div>
+    </section>
+
+    <!-- STORE UI -->
+    <section id="tab_store" class="grid" style="display:none;">
+      <div class="card">
+        <h3>Personalização da Página de Vendas</h3>
+        <label>Imagem do Banner</label>
+        <input id="uiBannerImg" type="file" accept="image/*"/>
+        <div class="hint">Escolha uma imagem (JPG/PNG). Ela será salva e aparecerá no topo da loja.</div>
+        <label>Cor do fundo dos produtos</label>
+        <input id="uiProductsBg" type="color" value="#ffffff">
+        <div class="hint">Muda o fundo da área onde aparecem os produtos.</div>
+
+        <div style="margin-top:10px;">
+          <img id="uiBannerPreview" alt="Preview do banner"
+               style="width:100%;max-height:160px;object-fit:cover;border-radius:16px;border:1px solid rgba(0,0,0,.12);display:none;">
+        </div>
+
+<label style="margin-top:12px;">Logo da loja (upload)</label>
+<input type="file" id="uiLogoImg" accept="image/*">
+<img id="uiLogoPreview" style="display:none; margin-top:10px; max-height:56px; border-radius:12px;">
+<div class="hint">A logo fica salva e aparece no topo da loja.</div>
+
+<label style="margin-top:12px;"> Cor dos Textos </label>
+<input type="color" id="uiTextColor" value="#2b1b17">
+<div class="hint">Altera a cor padrão dos textos da loja.</div>
+
+        <div class="row" style="margin-top:10px;">
+          <div>
+            <label>Usar imagem no banner?</label>
+            <select id="uiUseBannerImg">
+              <option value="true">Sim</option>
+              <option value="false">Não</option>
+            </select>
+          </div>
+          <div>
+            <label>Escurecer a imagem</label>
+            <select id="uiBannerDim">
+              <option value="0.35">Leve</option>
+              <option value="0.50">Médio</option>
+              <option value="0.65">Forte</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="muted">Essas opções deixam a loja “no estilo Olá Click”.</div>
+
+        <div class="row">
+          <div>
+            <label>Fundo da página</label>
+            <input id="uiPageBg" type="color" value="#f4d4d7"/>
+          </div>
+          <div>
+            <label>Cor do banner</label>
+            <input id="uiBannerBg" type="color" value="#7a4a3e"/>
+          </div>
+        </div>
+
+          <label>Cor do carrinho e modais</label>
+          <input type="color" id="uiPanelsBg" value="#f6ebe5">
+          <div class="hint">Altera o fundo do carrinho e do modal de finalizar pedido.</div>
+
+        <div class="row">
+          <div>
+            <label>Altura do banner (px)</label>
+            <input id="uiBannerH" type="number" step="1" value="104"/>
+          </div>
+          <div>
+            <label>Avaliação (ex: 4.9)</label>
+            <input id="uiRating" placeholder="4.9"/>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Mostrar busca?</label>
+            <select id="uiShowSearch">
+              <option value="true">Sim</option>
+              <option value="false">Não</option>
+            </select>
+          </div>
+          <div>
+            <label>Mostrar destaques?</label>
+            <select id="uiShowFeatured">
+              <option value="true">Sim</option>
+              <option value="false">Não</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Texto do Banner</label>
+        <input id="uiTextBanner" type="color" value="#ffffff">
+
+        <label>Texto Categorias e Produtos</label>
+        <input id="uiTextMain" type="color" value="#2b1b17">
+
+        <label>Texto do Modal</label>
+        <input id="uiTextModal" type="color" value="#2b1b17">
+
+        <label>Texto do Carrinho</label>
+        <input id="uiTextCart" type="color" value="#2b1b17">
+
+
+        <hr style="border:none;border-top:1px solid rgba(0,0,0,.08); margin:14px 0;">
+<h3 style="margin:0;">Modal "Informação"</h3>
+<div class="muted">Cores do modal que abre ao clicar em “Aberto/Fechado”.</div>
+
+<div class="row" style="margin-top:10px;">
+  <div>
+    <label>Fundo do modal</label>
+    <input id="uiInfoBg" type="color" value="#ffffff">
+  </div>
+
+  <div>
+    <label>Cor do texto</label>
+    <input id="uiInfoText" type="color" value="#1f1f1f">
+  </div>
+</div>
+
+<div class="row" style="margin-top:10px;">
+  <div>
+    <label>Cor das bordas/linhas</label>
+    <input id="uiInfoBorder" type="color" value="#e9e9e9">
+  </div>
+
+  <div>
+    <label>Destaque do dia atual</label>
+    <input id="uiInfoTodayBg" type="color" value="#e8f1ff">
+  </div>
+</div>
+
+
+        <button class="btn btnPrimary" id="saveStoreUi" style="margin-top:12px;width:100%;">Aplicar na Loja</button>
+      </div>
+
+      <div class="card">
+        <h3>Cores do Tema</h3>
+        <div class="muted">Essas cores refletem no Admin e na loja.</div>
+
+        <div class="row">
+          <div><label>Primária</label><input id="thPrimary" type="color" value="#7a4a3e"/></div>
+          <div><label>Secundária</label><input id="thSecondary" type="color" value="#d9a5b2"/></div>
+        </div>
+
+        <div class="row">
+          <div><label>Soft</label><input id="thSoft" type="color" value="#f4d4d7"/></div>
+          <div><label>Background</label><input id="thBg" type="color" value="#f6ebe5"/></div>
+        </div>
+
+        <button class="btn btnPrimary" id="saveTheme" style="margin-top:12px;width:100%;">Salvar tema</button>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="tab_history" class="grid" style="display:none;">
+      <div class="card">
+        <h3>Histórico de vendas</h3>
+
+        <label>Status</label>
+        <select id="histFilter">
+          <option value="VENDAS">Vendas (Aceitos + Pagos)</option>
+          <option value="TODOS">Todos</option>
+          <option value="NOVO">NOVO</option>
+          <option value="ACEITO">ACEITO</option>
+          <option value="RECUSADO">RECUSADO</option>
+          <option value="CANCELADO">CANCELADO</option>
+          <option value="CONCLUIDO">CONCLUIDO</option>
+        </select>
+
+        <label style="margin-top:12px;">Visão</label>
+        <div class="row">
+          <button class="btn btnGhost" id="histTabDay"   style="width:100%;">📅 Diário</button>
+          <button class="btn btnGhost" id="histTabMonth" style="width:100%;">🗓️ Mensal</button>
+          <button class="btn btnGhost" id="histTabYear"  style="width:100%;">📆 Anual</button>
+        </div>
+
+        <div id="histFiltersDay" style="margin-top:10px;">
+          <label>Período (Diário)</label>
+          <div class="row">
+            <div>
+              <input id="histFrom" type="date"/>
+              <div class="hint">Data inicial</div>
+            </div>
+            <div>
+              <input id="histTo" type="date"/>
+              <div class="hint">Data final</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="histFiltersMonth" style="margin-top:10px; display:none;">
+          <label>Mês (Mensal)</label>
+          <input id="histMonth" type="month"/>
+          <div class="hint">Ex: 2026-02</div>
+        </div>
+
+        <div id="histFiltersYear" style="margin-top:10px; display:none;">
+          <label>Ano (Anual)</label>
+          <input id="histYear" type="number" min="2000" max="2100" step="1" placeholder="2026"/>
+        </div>
+
+        <button class="btn btnPrimary" id="refreshHist" style="margin-top:12px;width:100%;">Atualizar</button>
+        <div class="hint" id="histSummary" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="card">
+        <h3>Resultados</h3>
+        <div class="list" id="historyList"></div>
+      </div>
+    </section>
+
+    <!-- CLIENTS -->
+    <section id="tab_clients" class="grid" style="display:none;">
+      <div class="card">
+        <h3>Cadastro de clientes</h3>
+        <div class="muted">Clientes são cadastrados automaticamente quando fazem pedido (nome, telefone e endereço). Aqui você também pode criar manualmente e aplicar cupons.</div>
+
+        <label>Buscar</label>
+        <input id="cSearch" placeholder="Nome, telefone ou endereço"/>
+
+        <div class="row" style="margin-top:10px;">
+          <button class="btn btnGhost" id="reloadClients" style="width:100%;">Atualizar lista</button>
+          <button class="btn btnPrimary" id="newClientBtn" style="width:100%;">Novo cliente</button>
+        </div>
+
+        <hr style="border:none;border-top:1px solid rgba(0,0,0,.08); margin:14px 0;">
+
+        
+<h3 style="margin-top:0;">Como usar</h3>
+<div class="muted">Clique em um cliente na lista ao lado para abrir o modal com <b>dados</b>, <b>cupons</b> e <b>histórico</b> (com rolagem).</div>
+
+<hr style="border:none;border-top:1px solid rgba(0,0,0,.08); margin:14px 0;">
+<div class="muted">O histórico completo de vendas fica na aba <b>Histórico</b>.</div>
+</div>
+
+      <div class="card">
+        <h3>Lista de clientes</h3>
+        <div class="list" id="clientsList"></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="tab_settings" class="grid" style="display:none;">
+      <div class="card">
+        <h3>Configurações da Loja</h3>
+
+        <label>Nome da loja</label>
+        <input id="sName"/>
+
+        <label>Slogan</label>
+        <input id="sTag"/>
+        <label>URL pública da loja (para WhatsApp)</label>
+        <input id="store_url" placeholder="https://seu-site.com"/>
+        <div class="hint">Se você usa a loja local (file://), coloque aqui seu link público (GitHub Pages/domínio) para aparecer no WhatsApp.</div>
+        <label>Link da página de pré-visualização do pedido (card do WhatsApp)</label>
+        <input id="preview_whatsapp_url" placeholder="https://emanuelleconfeitariaa-web.github.io/emanuele-preview/preview-whatsapp/pedido.html"/>
+        <div class="hint">Esse link precisa ter as metas OG (og:image) e será o <b>primeiro link</b> do WhatsApp para mostrar o card bonito.</div>
+        <label>Instagram (link do perfil)</label>
+        <input id="sInstagram" placeholder="https://instagram.com/seuusuario" />
+        <div class="hint">Esse link será usado no botão “Instagram” do banner da loja.</div>
+        <label>WhatsApp destino (55 + DDD + número)</label>
+        <input id="sWhats"/>
+        <label>Frete padrão (R$)</label>
+        <input id="defaultShipping" type="number" step="0.01" value="0" />
+        <label>Endereço base</label>
+        <input id="sAddr"/>
+
+        <label>Logo do Admin (upload do PC)</label>
+        <input type="file" id="adminLogoFile" accept="image/*" />
+        <div class="hint">PNG/JPG. A logo fica salva nas configurações e aparece apenas no Admin.</div>
+        <img id="adminLogoPreview" style="display:none; max-height:52px; margin-top:10px; border-radius:10px;" />
+
+
+        <button class="btn btnPrimary" id="saveSettings" style="margin-top:12px;width:100%;">Salvar configurações</button>
+      </div>
+
+      
+      <div class="card">
+        <h3>Horário de funcionamento</h3>
+        <div class="muted">Defina os horários por dia e se a loja está fechada. Se estiver fechado, você pode permitir <b>agendamento</b> para o cliente.</div>
+
+        <label>Ativar controle de horário?</label>
+        <select id="bhEnabled">
+          <option value="false">Não</option>
+          <option value="true">Sim</option>
+        </select>
+
+        <label>Permitir agendar pedido fora do horário?</label>
+        <select id="bhAllowSchedule">
+          <option value="false">Não</option>
+          <option value="true">Sim</option>
+        </select>
+
+        <div style="margin-top:12px;display:grid;grid-template-columns: 1.2fr .8fr 1fr 1fr; gap:10px; align-items:center;">
+          <div style="font-weight:900;opacity:.8">Dia</div>
+          <div style="font-weight:900;opacity:.8">Aberto?</div>
+          <div style="font-weight:900;opacity:.8">Abre</div>
+          <div style="font-weight:900;opacity:.8">Fecha</div>
+
+          <div>Segunda</div>
+          <div><input type="checkbox" id="bh_seg_on" checked></div>
+          <div><input type="time" id="bh_seg_open" value="08:00"></div>
+          <div><input type="time" id="bh_seg_close" value="18:00"></div>
+
+          <div>Terça</div>
+          <div><input type="checkbox" id="bh_ter_on" checked></div>
+          <div><input type="time" id="bh_ter_open" value="08:00"></div>
+          <div><input type="time" id="bh_ter_close" value="18:00"></div>
+
+          <div>Quarta</div>
+          <div><input type="checkbox" id="bh_qua_on" checked></div>
+          <div><input type="time" id="bh_qua_open" value="08:00"></div>
+          <div><input type="time" id="bh_qua_close" value="18:00"></div>
+
+          <div>Quinta</div>
+          <div><input type="checkbox" id="bh_qui_on" checked></div>
+          <div><input type="time" id="bh_qui_open" value="08:00"></div>
+          <div><input type="time" id="bh_qui_close" value="18:00"></div>
+
+          <div>Sexta</div>
+          <div><input type="checkbox" id="bh_sex_on" checked></div>
+          <div><input type="time" id="bh_sex_open" value="08:00"></div>
+          <div><input type="time" id="bh_sex_close" value="18:00"></div>
+
+          <div>Sábado</div>
+          <div><input type="checkbox" id="bh_sab_on" checked></div>
+          <div><input type="time" id="bh_sab_open" value="08:00"></div>
+          <div><input type="time" id="bh_sab_close" value="18:00"></div>
+
+          <div>Domingo</div>
+          <div><input type="checkbox" id="bh_dom_on"></div>
+          <div><input type="time" id="bh_dom_open" value="08:00"></div>
+          <div><input type="time" id="bh_dom_close" value="12:00"></div>
+        </div>
+
+        <button class="btn btnPrimary" id="saveBH" style="margin-top:12px;width:100%;">Salvar horário</button>
+      </div>
+
+      <div class="card">
+        <h3>Personalização do Admin</h3>
+
+        <div class="muted">Aqui você personaliza <b>somente o Admin</b> (separado da loja). Você pode usar uma imagem do seu PC como fundo, ajustar opacidade e desfoque, e também alterar as cores do Admin.</div>
+
+        <div style="margin-top:10px;">
+        <div class="row" style="margin-top:10px;">
+          <div>
+              <option value="true">Sim</option>
+              <option value="false">Não</option>
+            </select>
+          </div>
+          <div>
+
+        <div class="row" style="margin-top:10px;">
+          <div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid rgba(0,0,0,.08); margin:14px 0;">
+
+        <h3 style="margin-top:0;">Cores do Admin</h3>
+        <div class="muted">Essas cores afetam só o Admin (botões, abas e fundo).</div>
+
+        <div class="row">
+          <div><label>Primária (Admin)</label><input id="adPrimary" type="color" value="#7a4a3e"/></div>
+          <div><label>Secundária (Admin)</label><input id="adSecondary" type="color" value="#d9a5b2"/></div>
+        </div>
+
+        <div class="row">
+          <div><label>Soft (Admin)</label><input id="adSoft" type="color" value="#f4d4d7"/></div>
+          <div><label>Background (Admin)</label><input id="adBg" type="color" value="#f6ebe5"/></div>
+        </div>
+
+        <button class="btn btnPrimary" id="saveAdminUi" style="margin-top:12px;width:100%;">Salvar personalização do Admin</button>
+      </div>
+     </section>
+
+
+<!-- Configuração de Entrega -->
+
+<section id="tab_delivery" class="grid" style="display:none;">
+  <div class="card">
+    <h3>Configuração de entrega</h3>
+    <div class="muted">Configure o frete fixo ou por km.</div>
+
+    <div class="row" style="margin-top:12px;">
+      <div>
+        <label>Modo de frete</label>
+        <select id="shipMode">
+          <option value="fixed">Fixo</option>
+          <option value="by_km">Por km</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Chave da API Geoapify</label>
+        <input id="geoapifyKey" placeholder="Cole sua API Key aqui">
+      </div>
+    </div>
+
+    <div style="margin-top:12px;">
+      <label>Endereço da loja</label>
+      <input id="deliveryOriginAddress" placeholder="Rua, número, bairro, cidade...">
+      <div class="hint">Esse endereço será usado como origem para calcular a distância.</div>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <div>
+        <label>Latitude da loja</label>
+        <input id="deliveryOriginLat" placeholder="-9.000000">
+      </div>
+      <div>
+        <label>Longitude da loja</label>
+        <input id="deliveryOriginLon" placeholder="-35.000000">
+      </div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <label>Faixas de entrega por km</label>
+      <div class="muted">Ex.: Até 3 km → R$ 4,00</div>
+      <div id="shippingByKmList" style="margin-top:10px;"></div>
+      <button class="btn btnGhost" type="button" id="addShippingRuleBtn" style="margin-top:8px;">+ Adicionar faixa</button>
+    </div>
+
+    <div class="row" style="margin-top:16px;">
+      <div>
+        <label>Distância máxima (km)</label>
+        <input id="shippingMaxKm" type="number" step="0.1" min="0" value="0">
+      </div>
+
+      <div>
+        <label>Fora da área</label>
+        <select id="shippingOutOfAreaMode">
+          <option value="block">Bloquear pedido</option>
+          <option value="fallback">Usar valor fallback</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <div>
+        <label>Valor fallback</label>
+        <input id="shippingFallbackPrice" type="number" step="0.01" min="0" value="0">
+      </div>
+    </div>
+
+  <div style="margin-top:16px;">
+  <button class="btn btnPrimary" type="button" id="saveDeliverySettingsBtn">Salvar configuração de entrega</button>
+</div>
+  </div>
+</section>
+</div>
+
+
+
+
+
+  <!-- EDIT PRODUCT MODAL -->
+  <div class="backdrop" id="editBack">
+    <div class="modal">
+      <div class="mHead">
+        <b>Editar produto</b>
+        <button class="btn" id="closeEdit">Fechar</button>
+      </div>
+      <div class="mBody">
+        <div class="row">
+          <div>
+            <label>Nome</label>
+            <input id="eName"/>
+          </div>
+          <div>
+            <label>Preço</label>
+            <input id="ePrice" type="number" step="0.01"/>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Categoria</label>
+            <input id="eCat"/>
+          </div>
+          <div>
+            <label>Subcategoria</label>
+            <input id="eSub"/>
+          </div>
+        </div>
+
+        <label>Descrição</label>
+        <textarea id="eDesc"></textarea>
+
+        <div class="row">
+          <div>
+            <label>Destaque?</label>
+            <select id="eFeatured">
+              <option value="false">Não</option>
+              <option value="true">Sim</option>
+            </select>
+          </div>
+          <div>
+            <label>Controlar estoque?</label>
+            <select id="eStockEnabled">
+              <option value="true">Sim</option>
+              <option value="false">Não</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Estoque</label>
+            <input id="eStockQty" type="number" step="1"/>
+          </div>
+          <div>
+            <label>Alerta estoque baixo</label>
+            <input id="eLowStock" type="number" step="1"/>
+          </div>
+        </div>
+
+        <label>Pausado?</label>
+        <select id="ePaused">
+          <option value="false">Não</option>
+          <option value="true">Sim (esgotado na loja)</option>
+        </select>
+
+
+        <label style="margin-top:12px">Adicionais (opcional)</label>
+          <div class="muted">Ex.: Cobertura de chocolate (+5,00)</div>
+            <div id="eAddonsList" class="addonsList"></div>
+          <button class="btn btnGhost" type="button" id="eAddonsAdd" style="margin-top:8px;width:100%;">+ Adicionar adicional</button>
+
+
+<label>Imagens do produto</label>
+
+<div>
+  <label>Imagem 1</label>
+  <input id="eImgFile1" type="file" accept="image/*" />
+</div>
+
+<div style="margin-top:8px">
+  <label>Imagem 2</label>
+  <input id="eImgFile2" type="file" accept="image/*" />
+</div>
+
+<div class="hint">Se você não escolher novas imagens, mantém as atuais.</div>
+
+        <div class="hint" id="eStatus"></div>
+      </div>
+
+      <div class="mFoot">
+        <button class="btn" id="deleteProdBtn" style="border-color:#ff4d6d;color:#ff4d6d;">Excluir</button>
+        <button class="btn btnPrimary" id="saveEditBtn">Salvar alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDER DETAILS MODAL -->
+  <div class="backdrop" id="orderBack">
+    <div class="modal">
+      <div class="mHead">
+        <b id="orderModalTitle">Detalhes do pedido</b>
+        <button class="btn" id="closeOrderModal">Fechar</button>
+      </div>
+      <div class="mBody" id="orderModalBody"></div>
+      <div class="mFoot">
+        <button class="btn btnGhost" id="copyOrderText">Copiar texto</button>
+        <button class="btn btnPrimary" id="closeOrderModal2">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="notifyAudio"></audio>
+  <div class="toast" id="toast"></div>
+
+  
+
+<!-- CATEGORY MODAL -->
+<div class="modalBackdrop" id="categoryModal" style="display:none;">
+  <div class="modal" style="max-width:920px;">
+    <div class="modalHead">
+      <div style="font-weight:900;">Editar categoria</div>
+      <button class="smallBtn" id="closeCategoryModal">Fechar</button>
+    </div>
+    <div class="modalBody">
+      <label>Nome da categoria</label>
+      <input id="catEditName" />
+
+      <label style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+        <input id="catEditFeatured" type="checkbox">
+           Categoria em destaque (aparece primeiro na loja)
+</label>
+      <div class="row" style="margin-top:10px;">
+        <button class="smallBtn primary" id="saveCategoryBtn" style="width:100%;">Salvar categoria</button>
+        <button class="smallBtn danger" id="deleteCategoryBtn" style="width:100%;">Excluir categoria</button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid rgba(0,0,0,.08); margin:14px 0;">
+      <h3 style="margin:0;">Produtos da categoria</h3>
+      <div class="muted">Edite nome, preço, quantidade (estoque), foto e pausa (esgotado).</div>
+
+      <div class="list" id="catProductsList" style="margin-top:12px;"></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- CREATE ORDER MODAL -->
+<div class="modalBackdrop" id="createOrderModal" style="display:none;">
+  <div class="modal" style="max-width:980px;">
+    <div class="modalHead">
+      <div style="font-weight:900;">Criar pedido manual</div>
+      <button class="smallBtn" id="closeCreateOrder">Fechar</button>
+    </div>
+    <div class="modalBody">
+      <div class="muted">Use para pedidos feitos no balcão/telefone. Você pode buscar um cliente existente pelo nome ou telefone.</div>
+
+      <label>Buscar cliente (nome ou telefone)</label>
+      <input id="coSearchClient" placeholder="Digite para buscar..." list="clientsDatalist"/>
+      <datalist id="clientsDatalist"></datalist>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>Nome</label>
+          <input id="coName"/>
+        </div>
+        <div>
+          <label>Telefone</label>
+          <input id="coPhone"/>
+        </div>
+      </div>
+
+      <label>Endereço</label>
+      <input id="coAddress" placeholder="Rua..., Nº..., Bairro..."/>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>Tipo de serviço</label>
+          <select id="coService">
+            <option value="Delivery">Delivery</option>
+            <option value="Retirada">Retirada</option>
+          </select>
+        </div>
+        <div>
+          <label>Frete (R$)</label>
+          <input id="coShipping" type="number" step="0.01" value="0"/>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>Forma de pagamento</label>
+          <select id="coPayMethod">
+            <option value="Pix">Pix</option>
+            <option value="Dinheiro">Dinheiro</option>
+            <option value="Cartão">Cartão</option>
+          </select>
+        </div>
+        <div>
+          <label>Status do pagamento</label>
+          <select id="coPayStatus">
+            <option value="NAO_PAGO">Não pago</option>
+            <option value="PAGO">Pago</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Observações</label>
+      <input id="coNotes" placeholder="Ex: sem açúcar, entregar na portaria..."/>
+
+ <hr style="border:none;border-top:1px solid rgba(0,0,0,.08); margin:14px 0;">
+ <h3 style="margin:0;"></h3>
+ <div class="muted"></div>
+    
+
+ 
+      <div class="row" style="margin-top:10px;">
+        <div style="flex:2;">
+          <label></label>
+          <input id="coSearchProduct" placeholder="Digite para filtrar produtos..." />
+          <label>Produto</label>
+          <select id="coProduct"></select>
+        </div>
+        <div style="flex:1;">
+          <label></label>
+          <input id="coQty" type="number" step="1" value="1"/>
+        </div>
+        <div style="flex:1;align-self:end;">
+          <button class="smallBtn primary" id="coAddItem" style="width:100%;">Adicionar</button>
+        </div>
+      </div>
+
+      <div class="list" id="coItemsList" style="margin-top:10px;"></div>
+
+      <div style="margin-top:10px;font-weight:900;" id="coTotalLine">Total: R$ 0,00</div>
+
+      <button class="btn btnPrimary" id="coCreateBtn" style="margin-top:12px;width:100%;">Criar pedido</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = (() => {
+  const host = window.location.hostname;
+  const protocol = window.location.protocol;
+
+  if (
+    protocol === "file:" ||
+    host === "127.0.0.1" ||
+    host === "localhost" ||
+    host === ""
+  ) {
+    return "http://127.0.0.1:3210";
+  }
+
+  return "https://backend-render-9s32.onrender.com";
+})();
+
+    const $ = (id)=>document.getElementById(id);
+    // set safe (não quebra se o elemento não existir)
+    // set safe: só preenche se o elemento existir
+function setValue(id, val){
+  const el = document.getElementById(id);
+  if (!el) return; // ✅ se não existir, não quebra e não gera erro no console
+  el.value = (val === undefined || val === null) ? "" : String(val);
+}
+function setValue(id, val){
+  const el = document.getElementById(id);
+  if (!el) return;                 // ✅ evita o erro no console
+  el.value = (val == null) ? "" : String(val);
+}
+
+    let storeLogoDataUrl = null;
+    let SETTINGS = null;
+    let PRODUCTS = [];
+    let ORDERS = [];
+    let CATEGORIES = [];
+    let CLIENTS = [];
+
+    // controle de "novo pedido"
+    let seenOrderIds = new Set();
+    let newCount = 0;
+
+
+
+    let ORDER_ALERT_AUDIO = null;
+    let ORDER_ALERT_TIMER = null;
+    let ORDER_ALERT_ENABLED = false;
+
+
+
+
+    // som salvo (base64) dentro do settings
+    let notifySoundDataUrl = null;
+    let bannerImageDataUrl = null;
+    let adminBgDataUrl = null;
+
+    // products UI
+    let PRODUCT_CAT_FILTER = "ALL"; // nome da categoria
+
+    // clients UI
+    let selectedClientId = null;
+    let creatingNewClient = false;
+    let NEW_CLIENT_COUPONS = []; // cupons temporários enquanto o cliente ainda não foi salvo
+
+    // ====== Utils ======
+    function money(n){
+      return Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+    }
+    function escapeAttr(v){return String(v||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function escapeHtml(s){
+      return String(s||"")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function toast(msg){
+  const el = document.getElementById("toast");
+  if(!el){
+    console.log("TOAST:", msg);
+    return;
+  }
+
+  el.textContent = msg;
+  el.style.display = "block";
+  el.style.opacity = "1";
+
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => {
+    if (!el) return;
+    el.style.opacity = "0";
+    setTimeout(() => {
+      if (el) el.style.display = "none";
+    }, 200);
+  }, 1800);
+}
+    function statusUpper(o){ return String(o.status||"NOVO").toUpperCase(); }
+    function isCountableSale(o){
+      const st = statusUpper(o);
+      if(st === "ACEITO") return true;
+      if(st === "CONCLUIDO" && o.paid === true) return true;
+      return false; // NOVO/RECUSADO/CANCELADO/CONCLUIDO (não pago) não contabiliza
+    }
+
+
+const CROPPED_CATEGORY_IMAGES = {}; 
+
+const CROPPED_IMAGES = {
+  pImgFile1: "",
+  pImgFile2: "",
+  eImgFile1: "",
+  eImgFile2: ""
+};
+
+let CURRENT_CROP_TARGET = null;
+let CURRENT_CROP_IMG = null;
+let CURRENT_CROP_SCALE = 1;
+let CURRENT_CROP_X = 0;
+let CURRENT_CROP_Y = 0;
+
+
+
+
+// ====== Order field helpers (compatibilidade com diferentes formatos do backend) ======
+function orderCustomerObj(o){
+  return (o && (o.customer || o.cliente || o.client)) || null;
+}
+function orderCustomerName(o){
+  const c = orderCustomerObj(o);
+  return o.customer_name || o.customerName || (c && (c.name || c.nome || c.full_name || c.fullName)) || "";
+}
+function orderCustomerPhone(o){
+  const c = orderCustomerObj(o);
+  return o.customer_phone || o.customerPhone || (c && (c.phone || c.telefone || c.whatsapp)) || "";
+}
+function orderAddress(o){
+  const c = orderCustomerObj(o);
+  return o.address || o.customer_address || o.delivery_address || (c && (c.address || c.endereco)) || "";
+}
+function orderNotes(o){
+  return o.notes || o.obs || o.observations || o.observation || "";
+}
+function orderPayment(o){
+  return o.payment || o.payment_method || o.pay_method || o.paymentMethod || "";
+}
+function orderPaid(o){
+  if(o && typeof o.paid === "boolean") return o.paid;
+  const st = String(o?.payment_status || o?.pay_status || "").toUpperCase();
+  if(st === "PAGO" || st === "PAID") return true;
+  if(st === "NAO_PAGO" || st === "NÃO_PAGO" || st === "UNPAID") return false;
+  return false;
+}
+function orderType(o){
+  const raw = (o.type || o.service_type || o.serviceType || o.delivery_type || o.deliveryType || "").toString().trim();
+  if(!raw){
+    // tenta inferir pelo endereço ou frete
+    const hasAddr = !!orderAddress(o);
+    const ship = orderShipping(o);
+    return (hasAddr || ship > 0) ? "ENTREGA" : "RETIRADA";
+  }
+  const s = raw.toLowerCase();
+  if(s === "entrega" || s === "delivery" || s.includes("deliv")) return "ENTREGA";
+  if(s === "retirada" || s === "retira" || s === "pickup") return "RETIRADA";
+  const up = raw.toUpperCase();
+  if(up === "ENTREGA" || up === "RETIRADA") return up;
+  return up;
+}
+function orderShipping(o){
+  const v = (o.shipping ?? o.shipping_fee ?? o.shippingFee ?? o.freight ?? o.frete ?? o.delivery_fee ?? 0);
+  const n = Number(v);
+  return isFinite(n) ? n : 0;
+}
+function orderDiscount(o){
+  const v = (o.discount ?? o.coupon_discount ?? o.desconto ?? 0);
+  const n = Number(v);
+  return isFinite(n) ? n : 0;
+}
+function orderItems(o){
+  return Array.isArray(o.items) ? o.items : (Array.isArray(o.order_items) ? o.order_items : []);
+}
+function orderSubtotal(o){
+  const n = Number(o.subtotal ?? o.items_subtotal ?? 0);
+  if(isFinite(n) && n > 0) return n;
+  // calcula do zero
+  return orderItems(o).reduce((acc,it)=>{
+    const qty = Number(it.qty ?? it.quantity ?? 0);
+    const pr = Number(it.price ?? it.unit_price ?? 0);
+    return acc + (isFinite(qty)&&isFinite(pr) ? qty*pr : 0);
+  },0);
+}
+function orderTotal(o){
+  const ship = orderShipping(o);
+  const disc = orderDiscount(o);
+  const sub = orderSubtotal(o);
+  const t = Number(o.total ?? o.total_amount ?? 0);
+  // se vier do backend, usa — mas garante que frete entre no total se estiver faltando
+  if(isFinite(t) && t > 0){
+    const expect = sub + ship - disc;
+    if(ship > 0 && Math.abs(t - expect) > 0.01 && Math.abs(t - sub) < 0.01){
+      return expect;
+    }
+    return t;
+  }
+  return sub + ship - disc;
+}
+function orderCreatedDate(o){
+  const raw = o.created_at || o.createdAt || o.created || o.date || o.created_on;
+  if(!raw) return null;
+  const d = new Date(raw);
+  return (d instanceof Date && isFinite(d)) ? d : null;
+}
+
+
+function unlockAdminUI(){
+  document.getElementById("authGate")?.classList.add("hidden");
+}
+
+
+function getAdminToken() {
+  return sessionStorage.getItem("admin_token") || "";
+}
+
+function setAdminToken(token) {
+  sessionStorage.setItem("admin_token", token);
+}
+
+function clearAdminToken() {
+  sessionStorage.removeItem("admin_token");
+}
+
+function openAdminLoginModal() {
+  const back = document.getElementById("adminLoginBack");
+  const inp = document.getElementById("adminLoginPassword");
+  const msg = document.getElementById("adminLoginMsg");
+  const gate = document.getElementById("authGate");
+
+  if (!back || !inp) throw new Error("Modal de login do admin não encontrado");
+
+  if (gate) gate.style.pointerEvents = "none";
+  if (msg) msg.textContent = "";
+  inp.value = "";
+  back.classList.add("open");
+  back.style.display = "flex";
+
+  setTimeout(() => inp.focus(), 80);
+
+  return new Promise((resolve, reject) => {
+    const submit = async () => {
+      const password = String(inp.value || "").trim();
+      if (!password) {
+        if (msg) msg.textContent = "Digite a senha.";
+        return;
+      }
+
+      try {
+        const res = await fetch(API + "/api/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password })
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || !data.ok || !data.token) {
+          if (msg) msg.textContent = data?.error || "Senha inválida.";
+          return;
+        }
+
+        setAdminToken(data.token);
+        cleanup();
+        resolve(data.token);
+      } catch (e) {
+        if (msg) msg.textContent = "Erro ao tentar login.";
+      }
+    };
+
+const cancel = () => {
+  cleanup();
+  clearAdminToken();
+  reject(new Error("Login cancelado"));
+};
+
+    const onKey = (e) => {
+      if (e.key === "Enter") submit();
+      if (e.key === "Escape") cancel();
+    };
+
+const cleanup = () => {
+  back.classList.remove("open");
+  back.style.display = "none";
+  if (gate) gate.style.pointerEvents = "";
+
+  document.getElementById("adminLoginSubmit")?.removeEventListener("click", submit);
+  document.getElementById("adminLoginCancel")?.removeEventListener("click", cancel);
+  inp.removeEventListener("keydown", onKey);
+};
+
+    document.getElementById("adminLoginSubmit")?.addEventListener("click", submit);
+    document.getElementById("adminLoginCancel")?.addEventListener("click", cancel);
+    inp.addEventListener("keydown", onKey);
+  });
+}
+
+async function adminLogin() {
+  return await openAdminLoginModal();
+}
+
+
+async function ensureAdminAuth() {
+  let token = getAdminToken();
+  if (token) return token;
+
+  token = await adminLogin();
+  return token;
+}
+
+
+
+
+async function apiFetch(path, opts = {}, auth = true){
+  let token = getAdminToken();
+
+  const headers = {
+    ...(opts.headers || {})
+  };
+
+  if(auth && token){
+    headers.Authorization = "Bearer " + token;
+  }
+
+  let res = await fetch(API + path, {
+    ...opts,
+    headers
+  });
+
+  if(auth && res.status === 401){
+    clearAdminToken();
+    token = await adminLogin();
+
+    const retryHeaders = {
+      ...(opts.headers || {}),
+      Authorization: "Bearer " + token
+    };
+
+    res = await fetch(API + path, {
+      ...opts,
+      headers: retryHeaders
+    });
+  }
+
+  return res;
+}
+
+async function apiJson(path, opts = {}, auth = true){
+  const res = await apiFetch(path, opts, auth);
+  const data = await res.json().catch(() => ({}));
+
+  if(!res.ok){
+    throw new Error(data?.error || "Erro na requisição");
+  }
+
+  return data;
+}
+
+
+
+
+function startOrderAlertLoop(){
+  if(ORDER_ALERT_ENABLED) return;
+  ORDER_ALERT_ENABLED = true;
+
+  const playOnce = async () => {
+    if(!ORDER_ALERT_ENABLED) return;
+
+    try{
+      if(ORDER_ALERT_AUDIO){
+        ORDER_ALERT_AUDIO.currentTime = 0;
+        await ORDER_ALERT_AUDIO.play();
+      }
+    }catch(e){
+      // evita quebrar se o navegador/electron bloquear play momentâneo
+    }
+
+    clearTimeout(ORDER_ALERT_TIMER);
+    ORDER_ALERT_TIMER = setTimeout(playOnce, 8000); // repete a cada 8s
+  };
+
+  playOnce();
+}
+
+
+function stopOrderAlertLoop(){
+  ORDER_ALERT_ENABLED = false;
+  clearTimeout(ORDER_ALERT_TIMER);
+  ORDER_ALERT_TIMER = null;
+
+  try{
+    if(ORDER_ALERT_AUDIO){
+      ORDER_ALERT_AUDIO.pause();
+      ORDER_ALERT_AUDIO.currentTime = 0;
+    }
+  }catch(e){}
+}
+
+
+function syncOrderAlertWithState(){
+  const hasNewOrders =
+    Array.isArray(ORDERS) &&
+    ORDERS.some(o => isTodayOrder(o) && String(o.status || "").toUpperCase() === "NOVO");
+
+  if(hasNewOrders){
+    startOrderAlertLoop();
+  }else{
+    stopOrderAlertLoop();
+  }
+}
+
+function refreshOrderAlertAudio(){
+  try{
+    const soundUrl = notifySoundDataUrl || SETTINGS?.notify_sound_dataurl || SETTINGS?.pdv_sound_dataurl || "";
+    if(soundUrl){
+      ORDER_ALERT_AUDIO = new Audio(soundUrl);
+      ORDER_ALERT_AUDIO.preload = "auto";
+    }else{
+      ORDER_ALERT_AUDIO = null;
+    }
+  }catch(e){
+    ORDER_ALERT_AUDIO = null;
+  }
+}
+
+
+function normalizeShippingRules(raw){
+  const arr = Array.isArray(raw) ? raw : [];
+  return arr
+    .map(x => ({
+      max_km: Number(x?.max_km || 0),
+      price: Number(x?.price || 0)
+    }))
+    .filter(x => x.max_km >= 0 && x.price >= 0)
+    .sort((a,b) => a.max_km - b.max_km);
+}
+
+function renderShippingRules(rules){
+  const list = $("shippingByKmList");
+  if(!list) return;
+
+  const arr = normalizeShippingRules(rules);
+  if(!arr.length){
+    list.innerHTML = `<div class="muted">Nenhuma faixa cadastrada.</div>`;
+    return;
+  }
+
+  list.innerHTML = arr.map((r, i) => `
+    <div class="row" style="margin-top:8px;" data-ship-rule="${i}">
+      <div>
+        <label>Até km</label>
+        <input type="number" step="0.1" min="0" data-ship-max="${i}" value="${r.max_km}">
+      </div>
+      <div>
+        <label>Valor</label>
+        <input type="number" step="0.01" min="0" data-ship-price="${i}" value="${r.price}">
+      </div>
+      <div style="display:flex;align-items:flex-end;">
+        <button class="btn" type="button" data-ship-del="${i}" style="width:100%;">Excluir</button>
+      </div>
+    </div>
+  `).join("");
+
+  list.querySelectorAll("[data-ship-del]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const idx = Number(btn.dataset.shipDel);
+      const next = arr.filter((_, i) => i !== idx);
+      renderShippingRules(next);
+    });
+  });
+}
+
+function readShippingRulesFromUI(){
+  const list = $("shippingByKmList");
+  if(!list) return [];
+
+  const rows = [...list.querySelectorAll("[data-ship-rule]")];
+  return normalizeShippingRules(rows.map((row, i) => ({
+    max_km: Number(row.querySelector(`[data-ship-max="${i}"]`)?.value || 0),
+    price: Number(row.querySelector(`[data-ship-price="${i}"]`)?.value || 0)
+  })));
+}
+
+
+
+$("addShippingRuleBtn")?.addEventListener("click", ()=>{
+  const current = readShippingRulesFromUI();
+  current.push({ max_km: 0, price: 0 });
+  renderShippingRules(current);
+});
+
+
+
+function fillDeliverySettingsForm(settings){
+  $("shipMode").value = settings?.shipping_mode || "fixed";
+  $("geoapifyKey").value = settings?.geoapify_api_key || "";
+  $("deliveryOriginAddress").value = settings?.delivery_origin_address || "";
+  $("deliveryOriginLat").value = settings?.delivery_origin_lat || "";
+  $("deliveryOriginLon").value = settings?.delivery_origin_lon || "";
+  $("shippingMaxKm").value = Number(settings?.shipping_max_km || 0);
+  $("shippingOutOfAreaMode").value = settings?.shipping_out_of_area_mode || "block";
+  $("shippingFallbackPrice").value = Number(settings?.shipping_fallback_price || 0);
+
+  renderShippingRules(settings?.shipping_by_km || []);
+}
+
+
+$("saveDeliverySettingsBtn")?.addEventListener("click", async ()=>{
+  let apiKey = $("geoapifyKey")?.value?.trim() || "";
+  let originAddress = $("deliveryOriginAddress")?.value?.trim() || "";
+  let originLat = $("deliveryOriginLat")?.value?.trim() || "";
+  let originLon = $("deliveryOriginLon")?.value?.trim() || "";
+
+  // tenta buscar lat/lon automaticamente
+  if(apiKey && originAddress){
+    try{
+      const geoRes = await fetch(API + "/api/shipping/geocode-origin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address: originAddress,
+          apiKey
+        })
+      });
+
+      const geoData = await geoRes.json().catch(()=>null);
+
+      if(geoRes.ok && geoData?.ok){
+        originLat = String(geoData.lat ?? "");
+        originLon = String(geoData.lon ?? "");
+
+        if($("deliveryOriginLat")) $("deliveryOriginLat").value = originLat;
+        if($("deliveryOriginLon")) $("deliveryOriginLon").value = originLon;
+
+        // opcional: atualiza para o endereço formatado pela Geoapify
+        if(geoData.formatted && $("deliveryOriginAddress")){
+          $("deliveryOriginAddress").value = geoData.formatted;
+          originAddress = geoData.formatted;
+        }
+      }else{
+        const msg = (geoData && geoData.error) ? geoData.error : "Não foi possível localizar o endereço da loja.";
+        alert(msg);
+        return;
+      }
+    }catch(e){
+      alert("Erro ao buscar latitude/longitude da loja.");
+      return;
+    }
+  }
+
+  const payload = {
+    shipping_mode: $("shipMode")?.value || "fixed",
+    geoapify_api_key: apiKey,
+    delivery_origin_address: originAddress,
+    delivery_origin_lat: originLat,
+    delivery_origin_lon: originLon,
+    shipping_by_km: readShippingRulesFromUI(),
+    shipping_max_km: Number($("shippingMaxKm")?.value || 0),
+    shipping_out_of_area_mode: $("shippingOutOfAreaMode")?.value || "block",
+    shipping_fallback_price: Number($("shippingFallbackPrice")?.value || 0)
+  };
+
+  const res = await apiFetch("/api/settings", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json().catch(()=>null);
+
+  if(!res.ok){
+    alert((data && data.error) ? data.error : "Erro ao salvar configuração de entrega.");
+    return;
+  }
+
+  toast("Configuração de entrega salva ✅");
+  await loadSettings();
+  fillDeliverySettingsForm(SETTINGS || {});
+});
+
+
+
+(function setupCropCanvasDrag(){
+  let dragging = false;
+  let startX = 0;
+  let startY = 0;
+
+  const canvas = $("cropCanvas");
+  if(!canvas) return;
+
+  const getPoint = (e) => {
+    if(e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  };
+
+  const start = (e) => {
+    if(!CURRENT_CROP_IMG) return;
+    dragging = true;
+    canvas.classList.add("dragging");
+    const p = getPoint(e);
+    startX = p.x;
+    startY = p.y;
+  };
+
+  const move = (e) => {
+    if(!dragging) return;
+    const p = getPoint(e);
+    CURRENT_CROP_X += (p.x - startX);
+    CURRENT_CROP_Y += (p.y - startY);
+    startX = p.x;
+    startY = p.y;
+    drawCropCanvas();
+  };
+
+  const end = () => {
+    dragging = false;
+    canvas.classList.remove("dragging");
+  };
+
+  canvas.addEventListener("mousedown", start);
+  window.addEventListener("mousemove", move);
+  window.addEventListener("mouseup", end);
+
+  canvas.addEventListener("touchstart", start, { passive:true });
+  window.addEventListener("touchmove", move, { passive:true });
+  window.addEventListener("touchend", end);
+})();
+
+
+function openCropModal(targetKey, dataUrl){
+  CURRENT_CROP_TARGET = targetKey;
+  CURRENT_CROP_SCALE = 1;
+  CURRENT_CROP_X = 0;
+  CURRENT_CROP_Y = 0;
+
+  const img = new Image();
+  img.onload = () => {
+    CURRENT_CROP_IMG = img;
+    const zoom = $("cropZoom");
+    if(zoom) zoom.value = "1";
+    drawCropCanvas();
+    showModal("cropBack", true);
+  };
+  img.src = dataUrl;
+}
+
+function closeCropModal(){
+  showModal("cropBack", false);
+  CURRENT_CROP_TARGET = null;
+  CURRENT_CROP_IMG = null;
+}
+
+function drawCropCanvas(){
+  const canvas = $("cropCanvas");
+  const ctx = canvas?.getContext("2d");
+  const img = CURRENT_CROP_IMG;
+  if(!canvas || !ctx || !img) return;
+
+  const cw = canvas.width;
+  const ch = canvas.height;
+
+  ctx.clearRect(0, 0, cw, ch);
+
+  const scale = CURRENT_CROP_SCALE;
+  const drawW = img.width * scale;
+  const drawH = img.height * scale;
+
+  const x = (cw - drawW) / 2 + CURRENT_CROP_X;
+  const y = (ch - drawH) / 2 + CURRENT_CROP_Y;
+
+  // desenha a imagem inteira sem escurecer
+  ctx.drawImage(img, x, y, drawW, drawH);
+
+  // área de corte
+  const cropW = Math.min(520, cw - 60);
+  const cropH = Math.round(cropW * 0.72);
+  const cropX = (cw - cropW) / 2;
+  const cropY = (ch - cropH) / 2;
+
+  // só a borda da área de corte
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(cropX, cropY, cropW, cropH);
+}
+
+function applyCropResult(){
+  const canvas = $("cropCanvas");
+  const img = CURRENT_CROP_IMG;
+  if(!canvas || !img || !CURRENT_CROP_TARGET) return;
+
+  const cw = canvas.width;
+  const ch = canvas.height;
+
+  const cropW = Math.min(520, cw - 60);
+  const cropH = Math.round(cropW * 0.72);
+  const cropX = (cw - cropW) / 2;
+  const cropY = (ch - cropH) / 2;
+
+  const scale = CURRENT_CROP_SCALE;
+  const drawW = img.width * scale;
+  const drawH = img.height * scale;
+
+  const x = (cw - drawW) / 2 + CURRENT_CROP_X;
+  const y = (ch - drawH) / 2 + CURRENT_CROP_Y;
+
+  const sx = (cropX - x) / scale;
+  const sy = (cropY - y) / scale;
+  const sw = cropW / scale;
+  const sh = cropH / scale;
+
+  const out = document.createElement("canvas");
+  out.width = 1200;
+  out.height = 864;
+
+  const octx = out.getContext("2d");
+  octx.fillStyle = "#fff";
+  octx.fillRect(0, 0, out.width, out.height);
+  octx.drawImage(
+    img,
+    sx, sy, sw, sh,
+    0, 0, out.width, out.height
+  );
+
+  const result = out.toDataURL("image/jpeg", 0.92);
+  if(String(CURRENT_CROP_TARGET || "").startsWith("cat:")){
+  CROPPED_CATEGORY_IMAGES[CURRENT_CROP_TARGET] = result;
+}else{
+  CROPPED_IMAGES[CURRENT_CROP_TARGET] = result;
+}
+  closeCropModal();
+  toast("Imagem cortada ✅");
+}
+
+function bindCropInputById(inputId){
+  const el = $(inputId);
+  if(!el) return;
+
+  el.addEventListener("change", async ()=>{
+    const file = el.files && el.files[0];
+    if(!file) return;
+
+    try{
+      const dataUrl = await fileToDataURL(file);
+      openCropModal(inputId, dataUrl);
+    }catch{
+      alert("Não foi possível abrir a imagem para recorte.");
+    }
+  });
+}
+
+
+
+
+
+
+
+
+
+function buildProductImages(img1, img2){
+  return [img1, img2]
+    .map(x => String(x || "").trim())
+    .filter(Boolean)
+    .slice(0, 2);
+}
+
+
+
+    function dateKeyLocal(d){
+      if(!(d instanceof Date) || !isFinite(d)) return null;
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const day = String(d.getDate()).padStart(2,"0");
+      return `${y}-${m}-${day}`;
+    }
+    function todayKey(){
+      return dateKeyLocal(new Date());
+    }
+    function isTodayOrder(o){
+      if(!o) return false;
+      const raw = o.created_at || o.createdAt || o.created || o.date || o.created_on;
+      if(!raw) return false;
+      const d = new Date(raw);
+      const k = dateKeyLocal(d);
+      return k && k === todayKey();
+    }
+
+    // ====== Settings / Theme ======
+   function applyTheme(){
+  const adminTh = (SETTINGS && SETTINGS.admin_ui && SETTINGS.admin_ui.theme) ? SETTINGS.admin_ui.theme : null;
+  const th = adminTh || ((SETTINGS && SETTINGS.theme) ? SETTINGS.theme : {});
+  document.documentElement.style.setProperty("--primary", th.primary || "#7a4a3e");
+  document.documentElement.style.setProperty("--secondary", th.secondary || "#d9a5b2");
+  document.documentElement.style.setProperty("--soft", th.soft || "#f4d4d7");
+  document.documentElement.style.setProperty("--bg", th.bg || "#f6ebe5");
+
+  const sn = $("shopName");
+  if(sn) sn.textContent = SETTINGS?.shop_name || "Emanuelle Confeitaria";
+
+  const lg = $("logo");
+  if(lg) lg.src = SETTINGS?.logo_url || "../assets/logo.png";
+
+  notifySoundDataUrl = SETTINGS?.notify_sound_dataurl || null;
+  if(notifySoundDataUrl){
+    const au = $("notifyAudio");
+    if(au) au.src = notifySoundDataUrl;
+  }
+
+// ✅ aplica logo e cor do texto vindos do Admin
+const ui = SETTINGS?.store_ui || {};
+
+const logoEl = document.getElementById("logo");
+if(logoEl && ui.logo_image_dataurl){
+  logoEl.src = ui.logo_image_dataurl;
+}
+
+if(ui.text_color){
+  document.documentElement.style.setProperty("--storeText", ui.text_color);
+}
+
+}
+  async function loadSettings(){ 
+  await ensureAdminAuth();
+
+  let res = null;
+  for(let i=0; i<20; i++){ // ~4s (20 * 200ms)
+    try{
+      res = await apiFetch("/api/admin/settings");
+      if(res && res.ok) break;
+    }catch(e){
+      // espera e tenta de novo
+    }
+    await new Promise(r=>setTimeout(r, 200));
+  }
+
+  if(!res || !res.ok){
+    console.error("API indisponível:", API);
+    alert("Não consegui conectar no servidor. Verifique se a API está rodando em " + API);
+    return;
+  }
+
+  const data = await res.json().catch(()=> ({}));
+  SETTINGS = (data && data.settings) ? data.settings : data;
+
+  //fillSettingsForm();
+  applyTheme();
+
+// restaurar logo salva
+storeLogoDataUrl = SETTINGS?.store_ui?.logo_image_dataurl || null;
+const lp = $("uiLogoPreview");
+if(lp){
+  if(storeLogoDataUrl){
+    lp.src = storeLogoDataUrl;
+    lp.style.display = "block";
+  }else{
+    lp.removeAttribute("src");
+    lp.style.display = "none";
+  }
+}
+
+// cor do texto
+const tc = $("uiTextColor");
+if(tc) tc.value = (SETTINGS?.store_ui?.text_color || "#2b1b17");
+
+
+  // ====== Página de vendas: restaurar preview do banner salvo ======
+try{
+ const ui = SETTINGS?.store_ui || {};
+ bannerImageDataUrl = ui.banner_image_dataurl || null;
+
+const prev = $("uiBannerPreview");
+if(prev){
+  if(bannerImageDataUrl){
+    prev.src = bannerImageDataUrl;
+    prev.style.display = "block";
+  }else{
+    prev.removeAttribute("src");
+    prev.style.display = "none";
+  }
+}
+}catch(e){
+  console.error("Falha ao restaurar preview do banner:", e);
+}
+
+// preencher settings UI (SAFE)
+const setVal = (id, val) => {
+  const el = document.getElementById(id);
+  if (el) el.value = (val ?? "");
+};
+
+setVal("sName", SETTINGS.shop_name || "");
+setVal("sTag",  SETTINGS.shop_tagline || "");
+setVal("sWhats", SETTINGS.whatsapp_number || "");
+setVal("store_url", SETTINGS.store_url || "");
+setVal("preview_whatsapp_url", SETTINGS.preview_whatsapp_url || "");
+setVal("sAddr", SETTINGS.address_base || "");
+
+const igEl = document.getElementById("sInstagram");
+if (igEl) igEl.value = SETTINGS.instagram_url || "";
+
+const sLogoEl = document.getElementById("sLogo");
+if (sLogoEl) sLogoEl.value = SETTINGS.logo_url || "";
+
+// business hours (SAFE)
+const bh = SETTINGS.business_hours || {};
+setVal("bhEnabled", bh.enabled ? "true" : "false");
+setVal("bhAllowSchedule", bh.allow_schedule ? "true" : "false");
+
+const bhDays = (SETTINGS.business_hours && SETTINGS.business_hours.days) ? SETTINGS.business_hours.days : {};
+const dayKeys = ["seg","ter","qua","qui","sex","sab","dom"];
+for (const k of dayKeys) {
+  const d = bhDays[k] || {};
+  const on = !!d.enabled;
+  const op = d.open || "08:00";
+  const cl = d.close || (k === "dom" ? "12:00" : "18:00");
+
+  const elOn = document.getElementById(`bh_${k}_on`);
+  const elOp = document.getElementById(`bh_${k}_open`);
+  const elCl = document.getElementById(`bh_${k}_close`);
+
+  if (elOn) elOn.checked = on;
+  if (elOp) elOp.value = op;
+  if (elCl) elCl.value = cl;
+}
+
+      const ui = SETTINGS.store_ui || {};
+      $("uiPageBg").value = ui.page_bg || "#f4d4d7";
+      $("uiBannerBg").value = ui.banner_bg || (SETTINGS.theme?.primary || "#7a4a3e");
+      $("uiBannerH").value = ui.banner_height || 104;
+      $("uiRating").value = ui.rating || "4.9";
+      $("uiShowSearch").value = String(ui.show_search !== false);
+      $("uiShowFeatured").value = String(ui.show_featured !== false);
+      $("uiUseBannerImg").value = String(ui.banner_use_image !== false);
+      $("uiBannerDim").value = String(ui.banner_dim ?? 0.50);
+      $("uiTextBanner").value = ui.text_banner || "#ffffff";
+      $("uiTextMain").value   = ui.text_main   || "#2b1b17";
+      $("uiTextModal").value  = ui.text_modal  || "#2b1b17";
+      $("uiTextCart").value   = ui.text_cart   || "#2b1b17";
+      if($("defaultShipping")) $("defaultShipping").value = Number(SETTINGS?.default_shipping ?? 0);
+      if($("uiTextColor")) $("uiTextColor").value = ui.text_color || "#2b1b17";
+      if($("uiProductsBg")) $("uiProductsBg").value = ui.products_bg || "#ffffff";
+      if($("uiPanelsBg")) $("uiPanelsBg").value = ui.panels_bg || "#f6ebe5";
+
+// ===== Modal Informação (loja) =====
+const im = ui.info_modal || {};
+if($("uiInfoBg")) $("uiInfoBg").value = im.bg || "#ffffff";
+if($("uiInfoText")) $("uiInfoText").value = im.text || "#1f1f1f";
+if($("uiInfoBorder")) $("uiInfoBorder").value = im.border || "#e9e9e9";
+if($("uiInfoTodayBg")) $("uiInfoTodayBg").value = im.today_bg || "#e8f1ff";
+
+
+
+
+
+      // preview
+const prev = $("uiBannerPreview");
+if(prev){
+  if(bannerImageDataUrl){
+    prev.src = bannerImageDataUrl;
+    prev.style.display = "block";
+  }else{
+    prev.removeAttribute("src");
+    prev.style.display = "none";
+  }
+}
+
+      // theme
+      $("thPrimary").value = SETTINGS.theme?.primary || "#7a4a3e";
+      $("thSecondary").value = SETTINGS.theme?.secondary || "#d9a5b2";
+      $("thSoft").value = SETTINGS.theme?.soft || "#f4d4d7";
+      $("thBg").value = SETTINGS.theme?.bg || "#f6ebe5";
+
+// admin ui (separado)
+const au = SETTINGS.admin_ui || {};
+
+setValue("adUseBg",     String(au.use_bg_image !== false));
+setValue("adBgOpacity", String(au.bg_opacity != null ? au.bg_opacity : 0.35));
+setValue("adBgBlur",    String(au.bg_blur    != null ? au.bg_blur    : 8));
+setValue("adBgDim",     String(au.bg_dim     != null ? au.bg_dim     : 0.35));
+
+// cores do admin (se existir, senão usa theme)
+const adTh = au.theme || {};
+setValue("adPrimary",   adTh.primary   || (SETTINGS.theme && SETTINGS.theme.primary)   || "#7a4a3e");
+setValue("adSecondary", adTh.secondary || (SETTINGS.theme && SETTINGS.theme.secondary) || "#d9a5b2");
+setValue("adSoft",      adTh.soft      || (SETTINGS.theme && SETTINGS.theme.soft)      || "#f4d4d7");
+setValue("adBg",        adTh.bg        || (SETTINGS.theme && SETTINGS.theme.bg)        || "#f6ebe5");
+
+      adminBgDataUrl = au.bg_image_dataurl || null;
+      const prevA = $("adBgPreview");
+const img = adminBgDataUrl;
+
+if (prevA) {
+  if (img) {
+    prevA.src = img;
+    prevA.style.display = "block";
+  } else {
+    prevA.removeAttribute("src");
+    prevA.style.display = "none";
+      }
+   }
+
+}
+
+    // ====== Load data ======
+    async function loadCategories(){
+      const res = await fetch(API + "/api/categories");
+      CATEGORIES = await res.json();
+      renderCategories();
+      populateProductCategorySelect();
+      renderProducts();
+    }
+
+    async function loadProducts(){
+      const res = await fetch(API + "/api/products");
+      PRODUCTS = await res.json();
+      // garante categorias existentes (caso products antigos tenham categoria)
+      renderCategories();
+      populateProductCategorySelect();
+      renderProducts();
+    }
+
+    async function loadOrders(){
+    const res = await apiFetch("/api/orders");
+      ORDERS = await res.json();
+
+      // detectar novos (somente status NOVO)
+      let foundNew = 0;
+      for(const o of ORDERS){
+        if(isTodayOrder(o) && statusUpper(o) === "NOVO" && !seenOrderIds.has(String(o.id))){
+          seenOrderIds.add(String(o.id));
+          foundNew++;
+        }
+      }
+      if(foundNew){
+        newCount += foundNew;
+        updateBadge();
+        playNotify();
+      }
+
+      renderOrders();
+      renderHistory();
+    }
+
+async function loadClients(){
+  const q = $("cSearch").value.trim();
+  const path = "/api/clients" + (q ? ("?q=" + encodeURIComponent(q)) : "");
+  const res = await apiFetch(path);
+  CLIENTS = await res.json();
+  renderClients();
+}
+
+    // ====== Tabs ======
+function tabShow(key){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.querySelector(`.tab[data-tab="${key}"]`)?.classList.add("active");
+
+  ["pdv","products","store","history","clients","settings","delivery"].forEach(k=>{
+    const el = document.getElementById("tab_" + k);
+    if(!el) return;
+
+    if(k===key){
+      el.style.display = "";
+      el.classList.remove("enter");
+      void el.offsetWidth;
+      el.classList.add("enter");
+      setTimeout(()=>el.classList.remove("enter"), 260);
+    }else{
+      el.style.display = "none";
+    }
+  });
+}
+
+    // ====== PDV / Orders ======
+    function updateBadge(){
+      const b = $("newBadge");
+      if(newCount > 0){
+        b.textContent = String(newCount);
+        b.classList.add("show","pulse");
+      }else{
+        b.classList.remove("show","pulse");
+      }
+    }
+
+    async function playNotify(){
+      try{
+        const a = $("notifyAudio");
+        if(!a.src){
+          a.src = "../assets/notify.mp3";
+        }
+        a.currentTime = 0;
+        await a.play();
+      }catch(e){}
+    }
+
+    function statusPill(o){
+      const st = statusUpper(o);
+      if(st==="NOVO") return `<span class="pill new">NOVO</span>`;
+      if(st==="ACEITO") return `<span class="pill accepted">ACEITO</span>`;
+      if(st==="RECUSADO") return `<span class="pill rejected">RECUSADO</span>`;
+      if(st==="CANCELADO") return `<span class="pill rejected">CANCELADO</span>`;
+      if(st==="CONCLUIDO"){
+        return o.paid ? `<span class="pill done">PAGO ✅</span>` : `<span class="pill done">CONCLUÍDO</span>`;
+      }
+      return `<span class="pill">${escapeHtml(st)}</span>`;
+    }
+
+    function orderHtml(o){
+      const items = Array.isArray(o.items) ? o.items : [];
+      const itTxt = items.map(it=>`${Number(it.qty ?? it.quantity ?? 0)}x ${(it.name || it.product_name || it.product || "Item")}`).join(" • ");
+      const d = o.created_at ? new Date(o.created_at) : null;
+      const when = d ? d.toLocaleString("pt-BR") : "";
+
+      const name = orderCustomerName(o) || "Cliente";
+      const phone = orderCustomerPhone(o) || "";
+      const type = orderType(o) || "RETIRADA";
+      const addr = orderAddress(o) || "";
+      const total = orderTotal(o);
+
+      const st = statusUpper(o);
+
+      const controls = (st==="NOVO")
+        ? `
+          <button class="smallBtn primary" data-accept="${o.id}">Aceitar</button>
+          <button class="smallBtn danger" data-reject="${o.id}">Recusar</button>
+          <button class="smallBtn" data-cancel="${o.id}">Cancelar</button>
+        `
+        : (st==="ACEITO")
+          ? `
+            <button class="smallBtn warn" data-pay="${o.id}">Pago</button>
+            <button class="smallBtn" data-done="${o.id}">Concluir (sem pago)</button>
+            <button class="smallBtn" data-cancel="${o.id}">Cancelar</button>
+          `
+          : (st==="CONCLUIDO" && !o.paid)
+            ? `<button class="smallBtn warn" data-pay="${o.id}">Marcar como pago</button>`
+            : "";
+
+      return `
+        <div class="item" role="button" tabindex="0" data-open-order="${o.id}">
+          <div class="itemLeft">
+            <div class="itemTitle">${escapeHtml(name)} • ${money(total)}</div>
+            <div class="itemSub">
+              ${escapeHtml(when)} • ${escapeHtml(type)}<br/>
+              ${escapeHtml(phone)} ${type==="ENTREGA" && addr ? " • " + escapeHtml(addr) : ""}<br/>
+              ${escapeHtml(itTxt)}
+            </div>
+          </div>
+          <div class="itemRight">
+            ${statusPill(o)}
+            ${controls}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderOrders(){
+      const box = $("ordersList");
+      const filter = $("pdvFilter").value;
+
+      let list = ORDERS.slice().filter(isTodayOrder);
+      if(filter !== "TODOS"){
+        list = list.filter(o => statusUpper(o) === filter);
+      }
+
+if(!list.length){
+  box.innerHTML = `<div class="muted">Nenhum pedido hoje.</div>`;
+  syncOrderAlertWithState();
+  return;
+}
+
+      box.innerHTML = list.map(orderHtml).join("");
+
+      // abrir modal ao clicar no card (mas não quando clicar nos botões)
+      box.querySelectorAll("[data-open-order]").forEach(el=>{
+        el.addEventListener("click", (e)=>{
+          if(e.target && (e.target.closest("button"))) return;
+          const id = el.dataset.openOrder;
+          const order = ORDERS.find(o=>String(o.id)===String(id));
+          if(order) openOrderModal(order);
+        });
+      });
+
+      // status buttons
+      box.querySelectorAll("[data-accept]").forEach(b=>b.addEventListener("click",(e)=>{ e.stopPropagation(); setOrderStatus(b.dataset.accept,"ACEITO"); }));
+     box.querySelectorAll("[data-reject]").forEach(b=>b.addEventListener("click",(e)=>{
+  e.stopPropagation();
+  stopOrderAlertLoop();
+  setOrderStatus(b.dataset.reject,"RECUSADO");
+}));
+      box.querySelectorAll("[data-cancel]").forEach(b=>b.addEventListener("click",(e)=>{ e.stopPropagation(); setOrderStatus(b.dataset.cancel,"CANCELADO"); }));
+      box.querySelectorAll("[data-done]").forEach(b=>b.addEventListener("click",(e)=>{ e.stopPropagation(); setOrderStatus(b.dataset.done,"CONCLUIDO"); }));
+      box.querySelectorAll("[data-pay]").forEach(b=>b.addEventListener("click",(e)=>{ e.stopPropagation(); payOrder(b.dataset.pay); }));
+      syncOrderAlertWithState();
+    }
+
+async function setOrderStatus(id, status){
+  const nextStatus = String(status || "").toUpperCase();
+
+  if(nextStatus === "RECUSADO"){
+    stopOrderAlertLoop();
+  }
+
+  const cur = ORDERS.find(o=>String(o.id)===String(id));
+  const prevStatus = cur ? statusUpper(cur) : "";
+
+ const res = await apiFetch("/api/orders/" + encodeURIComponent(id) + "/status",{
+    method:"PUT",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ status })
+  });
+
+  if(!res.ok){
+    const txt = await res.text();
+    alert("Erro ao atualizar status:\n" + txt);
+    syncOrderAlertWithState();
+    return;
+  }
+
+  if(cur){
+    cur.status = nextStatus;
+  }
+
+  if(prevStatus === "NOVO" && newCount > 0){
+    newCount = Math.max(0, newCount - 1);
+    updateBadge();
+  }
+
+  syncOrderAlertWithState();
+
+  await loadOrders();
+  renderOrders();
+  syncOrderAlertWithState();
+}
+
+async function payOrder(id){
+ const res = await apiFetch("/api/orders/" + encodeURIComponent(id) + "/pay",{ method:"PUT" });
+
+  if(!res.ok){
+    const txt = await res.text();
+    alert("Erro ao marcar como pago:\n" + txt);
+    return;
+  }
+
+  await loadOrders();
+  renderOrders();
+  syncOrderAlertWithState();
+  toast("Pedido pago ✅");
+}
+
+    // ====== Order modal ======
+    function buildOrderText(order){
+      const d = orderCreatedDate(order);
+      const created = d ? d.toLocaleString("pt-BR") : "-";
+      const name = orderCustomerName(order);
+      const phone = orderCustomerPhone(order);
+      const type = orderType(order);
+      const addr = orderAddress(order);
+      const pay = orderPayment(order);
+      const notes = orderNotes(order);
+      const items = orderItems(order);
+
+      const lines = [];
+      lines.push(`🧾 Pedido #${order.id}`);
+      lines.push(`📅 ${created}`);
+      if(name) lines.push(`👤 ${name}`);
+      if(phone) lines.push(`📞 ${phone}`);
+      lines.push(`🚚 ${type}`);
+      if(type === "ENTREGA" && addr) lines.push(`📍 ${addr}`);
+      if(pay) lines.push(`💳 Pagamento: ${pay}`);
+      if(orderShipping(order) > 0) lines.push(`🛵 Frete: ${money(orderShipping(order))}`);
+      if(notes) lines.push(`📝 Obs: ${notes}`);
+      lines.push("");
+      lines.push("Itens:");
+      for(const it of items){
+        const qty = Number(it.qty ?? it.quantity ?? 0);
+        const nm = it.name || it.product_name || it.product || "Item";
+        const pr = Number(it.price ?? it.unit_price ?? 0);
+        lines.push(`- ${qty}× ${nm} (${money(pr)}) = ${money(qty*pr)}`);
+      }
+      lines.push("");
+      lines.push(`Subtotal: ${money(orderSubtotal(order))}`);
+      lines.push(`Frete: ${money(orderShipping(order))}`);
+      if(orderDiscount(order) > 0) lines.push(`Desconto: -${money(orderDiscount(order))}`);
+      lines.push(`TOTAL: ${money(orderTotal(order))}`);
+      return lines.join("\n");
+}
+
+    function openOrderModal(order){
+      $("orderModalTitle").textContent = `Pedido #${order.id}`;
+      const body = $("orderModalBody");
+
+      const d = orderCreatedDate(order);
+      const created = d ? d.toLocaleString("pt-BR") : "-";
+const phone = orderCustomerPhone(order) || "-";
+const name = orderCustomerName(order) || "-";
+const type = orderType(order) || "-";
+const addr = orderAddress(order) || "-";
+const status = statusUpper(order);
+const payment = orderPayment(order) || "-";
+const notes = orderNotes(order) || "-";
+
+
+      const items = orderItems(order);
+      const itemsHtml = items.map(it=>{
+        const qty = Number(it.qty||0);
+        const nm = it.name || it.product_name || "Item";
+        const pr = Number(it.price||0);
+        return `
+          <div class="item" style="padding:10px;">
+            <div class="itemLeft">
+              <div class="itemTitle">${qty}× ${escapeHtml(nm)}</div>
+              <div class="itemSub">${money(pr)} cada</div>
+            </div>
+            <div class="itemRight">
+              <span class="pill">${money(qty*pr)}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      const subtotal = orderSubtotal(order);
+      const shipping = orderShipping(order);
+      const discount = orderDiscount(order);
+      const total = orderTotal(order);
+
+      body.innerHTML = `
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="card" style="margin:0;">
+            <div class="muted">Data</div>
+            <div><b>${created}</b></div>
+            <div style="margin-top:10px;" class="muted">Status</div>
+            <div><b>${escapeHtml(status)}</b> ${orderPaid(order) ? "✅" : ""}</div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <div class="muted">Cliente</div>
+            <div><b>${escapeHtml(name)}</b></div>
+            <div class="muted" style="margin-top:10px;">Telefone</div>
+            <div><b>${escapeHtml(phone)}</b></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="muted">Tipo</div>
+          <div><b>${escapeHtml(type)}</b></div>
+          <div class="muted" style="margin-top:10px;">Endereço</div>
+          <div>${type==="ENTREGA" ? escapeHtml(addr) : "-"}</div>
+          <div class="muted" style="margin-top:10px;">Pagamento</div>
+          <div><b>${escapeHtml(payment)}</b></div>
+          <div class="muted" style="margin-top:10px;">Observações</div>
+          <div>${escapeHtml(notes)}</div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <h4 style="margin:0 0 10px 0;">Itens</h4>
+          <div class="list">${itemsHtml || `<div class="muted">Sem itens.</div>`}</div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="line"><span>Subtotal</span><b>${money(subtotal)}</b></div>
+          <div class="line"><span>Frete</span><b>${money(shipping)}</b></div>
+          ${discount>0 ? `<div class="line"><span>Desconto</span><b>-${money(discount)}</b></div>` : ""}
+          <div class="line" style="margin-top:8px;"><span>Total</span><b>${money(total)}</b></div>
+        </div>
+      `;
+    
+
+      const text = buildOrderText(order);
+      $("copyOrderText").onclick = async ()=>{
+        try{
+          await navigator.clipboard.writeText(text);
+          toast("Copiado!");
+        }catch(e){
+          alert("Não consegui copiar automaticamente. Texto:\n\n" + text);
+        }
+      };
+
+      $("orderBack").classList.add("open");
+
+
+    }
+
+    function closeOrderModal(){
+      $("orderBack").classList.remove("open");
+    }
+
+    // ====== Products ======
+    function productPill(p){
+      const paused = !!p.paused;
+      if(paused) return `<span class="pill new">Pausado</span>`;
+
+      const s = p.stock_enabled ? Number(p.stock_qty||0) : null;
+      if(!p.stock_enabled) return `<span class="pill">Sem estoque</span>`;
+      const low = Number(p.low_stock_alert||5);
+      if(s <= 0) return `<span class="pill new">Esgotado</span>`;
+      if(s <= low) return `<span class="pill new">Baixo</span>`;
+      return `<span class="pill accepted">OK</span>`;
+    }
+    function renderCategories(){
+      const list = $("catsList");
+      const chips = $("catChips");
+      if(chips) chips.innerHTML = ""; // não usamos chips (fica oculto)
+
+      if(!CATEGORIES.length){
+        list.innerHTML = `<div class="muted">Nenhuma categoria criada ainda.</div>`;
+        return;
+      }
+
+      list.innerHTML = CATEGORIES.map(c=>{
+        const count = PRODUCTS.filter(p=>String(p.category||"")===String(c.name||"")).length;
+        return `
+          <div class="catCard" data-cat-open="${c.id}">
+            <div class="title">${escapeHtml(c.name)}</div>
+            <div class="meta">${count} produto(s)</div>
+          </div>
+        `;
+      }).join("");
+
+      list.querySelectorAll("[data-cat-open]").forEach(el=>{
+        el.addEventListener("click", ()=>{
+          const id = el.dataset.catOpen;
+          openCategoryModal(id);
+        });
+      });
+    }
+
+
+function bindCategoryCropInputs(root){
+  if(!root) return;
+
+  root.querySelectorAll(".catProdImg1, .catProdImg2").forEach(el=>{
+    if(el.dataset.cropBound === "1") return;
+    el.dataset.cropBound = "1";
+
+    el.addEventListener("change", async ()=>{
+      const file = el.files && el.files[0];
+      if(!file) return;
+
+      const cropKey = el.dataset.cropKey;
+      if(!cropKey) return;
+
+      try{
+        const dataUrl = await fileToDataURL(file);
+        openCropModal(cropKey, dataUrl);
+      }catch{
+        alert("Não foi possível abrir a imagem para recorte.");
+      }
+    });
+  });
+}
+
+
+
+function populateProductCategorySelect(){
+      const sel = $("pCatSelect");
+      if(!sel) return;
+      const cur = sel.value;
+      const opts = ['<option value="">(Sem categoria)</option>']
+        .concat(CATEGORIES.map(c=>`<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`))
+        .concat(['<option value="__NEW__">+ Nova categoria…</option>']);
+      sel.innerHTML = opts.join("");
+      // tenta manter seleção
+      if(cur) sel.value = cur;
+      // se não existe mais, volta vazio
+      if(sel.value !== cur && cur) sel.value = "";
+    }
+
+    function renderProducts(){
+      const box = $("productsList");
+      if(!box) return;
+      if(!PRODUCTS.length){
+        box.innerHTML = `<div class="muted">Nenhum produto cadastrado.</div>`;
+        return;
+      }
+
+      let list = PRODUCTS.slice();
+
+      if(PRODUCT_CAT_FILTER !== "ALL"){
+        list = list.filter(p => String(p.category||"") === PRODUCT_CAT_FILTER);
+      }
+
+      list.sort((a,b)=>{
+        const ac = String(a.category||"").localeCompare(String(b.category||""),"pt-BR");
+        if(ac) return ac;
+        const as = String(a.subcategory||"").localeCompare(String(b.subcategory||""),"pt-BR");
+        if(as) return as;
+        return String(a.name||"").localeCompare(String(b.name||""),"pt-BR");
+      });
+
+      box.innerHTML = list.map(p=>{
+        const stock = p.stock_enabled ? Number(p.stock_qty||0) : 0;
+        return `
+          <div class="item">
+            <div class="itemLeft">
+              <div class="itemTitle">${escapeHtml(p.name)} ${p.featured ? "⭐" : ""}</div>
+              <div class="itemSub">
+                ${escapeHtml(p.category || "")}${p.subcategory ? " • " + escapeHtml(p.subcategory) : ""}<br/>
+                ${p.description ? escapeHtml(p.description) + "<br/>" : ""}
+                <b>${money(p.price)}</b>
+              </div>
+            </div>
+            <div class="itemRight">
+              ${productPill(p)}
+              ${p.stock_enabled ? `
+                <div class="qty">
+                  <button class="qbtn" data-dec="${p.id}">-</button>
+                  <b>${stock}</b>
+                  <button class="qbtn" data-inc="${p.id}">+</button>
+                </div>` : ""
+              }
+              <button class="smallBtn" data-pause="${p.id}">${p.paused ? "Retomar" : "Pausar"}</button>
+              <button class="smallBtn primary" data-edit="${p.id}">Editar</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      box.querySelectorAll("[data-inc]").forEach(b=> b.addEventListener("click", ()=>quickStock(b.dataset.inc, +1)));
+      box.querySelectorAll("[data-dec]").forEach(b=> b.addEventListener("click", ()=>quickStock(b.dataset.dec, -1)));
+      box.querySelectorAll("[data-edit]").forEach(b=> b.addEventListener("click", ()=>openEdit(b.dataset.edit)));
+      box.querySelectorAll("[data-pause]").forEach(b=> b.addEventListener("click", ()=>togglePause(b.dataset.pause)));
+    }
+
+    async function quickStock(id, delta){
+      const p = PRODUCTS.find(x=>String(x.id)===String(id));
+      if(!p) return;
+      const cur = Number(p.stock_qty||0);
+      const next = Math.max(0, cur + delta);
+
+      const res = await fetch(API + "/api/products/" + encodeURIComponent(id),{
+        method:"PUT",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ stock_qty: next })
+      });
+
+      if(!res.ok){
+        const txt = await res.text();
+        alert("Erro ao atualizar estoque:\n" + txt);
+        return;
+      }
+      await loadProducts();
+    }
+
+    async function togglePause(id){
+      const p = PRODUCTS.find(x=>String(x.id)===String(id));
+      if(!p) return;
+      const res = await apiFetch("/api/products/" + encodeURIComponent(id),{
+        method:"PUT",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ paused: !p.paused })
+      });
+      if(!res.ok){
+        const txt = await res.text();
+        alert("Erro ao pausar/retomar:\n" + txt);
+        return;
+      }
+      await loadProducts();
+      toast(p.paused ? "Retomado ✅" : "Pausado ✅");
+    }
+
+async function createProduct(){
+  const name = $("pName").value.trim();
+  const price = Number($("pPrice").value || 0);
+  let category = "";
+  const sel = $("pCatSelect")?.value || "";
+  if(sel === "__NEW__"){
+    category = ($("pCatNew").value || "").trim();
+  }else if(sel){
+    category = sel;
+  }
+  const subcategory = $("pSub").value.trim();
+  const description = $("pDesc").value.trim();
+  const featured = ($("pFeatured").value === "true");
+  const stock_enabled = ($("pStockEnabled").value !== "false");
+  const stock_qty = Number($("pStockQty").value || 0);
+  const low_stock_alert = Number($("pLowStock").value || 5);
+  const paused = ($("pPaused").value === "true");
+
+  if(!name || !price){
+    alert("Preencha nome e preço.");
+    return;
+  }
+
+let img1 = CROPPED_IMAGES.pImgFile1 || "";
+let img2 = CROPPED_IMAGES.pImgFile2 || "";
+
+const f1 = $("pImgFile1")?.files && $("pImgFile1").files[0];
+const f2 = $("pImgFile2")?.files && $("pImgFile2").files[0];
+
+if(f1 && !img1){
+  try{ img1 = await fileToDataURL(f1); }
+  catch{ alert("Não foi possível ler a imagem 1."); return; }
+}
+
+if(f2 && !img2){
+  try{ img2 = await fileToDataURL(f2); }
+  catch{ alert("Não foi possível ler a imagem 2."); return; }
+}
+
+
+  const images = buildProductImages(img1, img2);
+  const image_url = images[0] || "";
+
+
+  const payload = {
+    name, price, category, subcategory, description,
+    featured, stock_enabled, stock_qty, low_stock_alert,
+    paused, image_url, images,
+    addons: readAddonsEditor("pAddonsList"),
+    discount_percent: Number($("pDiscount")?.value || 0)
+  };
+
+  const res = await apiFetch("/api/products",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json().catch(()=>null);
+
+
+  if(!res.ok){
+    alert((data && data.error) ? data.error : "Erro ao salvar produto.");
+    return;
+  }
+
+  // limpa
+  $("pName").value = "";
+  $("pPrice").value = "";
+  if($("pCatSelect")) $("pCatSelect").value = "";
+  if($("pCatNew")) { $("pCatNew").value = ""; $("pCatNew").style.display="none"; }
+  $("pSub").value = "";
+  $("pDesc").value = "";
+  $("pFeatured").value = "false";
+  $("pStockEnabled").value = "true";
+  $("pStockQty").value = "0";
+  $("pLowStock").value = "5";
+  $("pPaused").value = "false";
+  if($("pImgFile1")) $("pImgFile1").value = "";
+  if($("pImgFile2")) $("pImgFile2").value = "";
+  $("pDiscount").value = "0";
+  fillAddonsEditor("pAddonsList", []);
+
+  toast("Produto cadastrado ✅");
+  await loadCategories();
+  await loadProducts();
+}
+
+    // ====== EDIT MODAL ======
+    let editingId = null;
+    let editingCurrent = null;
+
+function openEdit(id){
+  editingId = String(id);
+  editingCurrent = PRODUCTS.find(p=>String(p.id)===editingId);
+  if(!editingCurrent) return;
+
+  const editImages = Array.isArray(editingCurrent.images)
+    ? editingCurrent.images.map(x => String(x || "").trim()).filter(Boolean).slice(0, 2)
+    : (editingCurrent.image_url ? [String(editingCurrent.image_url).trim()] : []);
+
+  $("eName").value = editingCurrent.name || "";
+  $("ePrice").value = Number(editingCurrent.price||0);
+  $("eCat").value = editingCurrent.category || "";
+  $("eSub").value = editingCurrent.subcategory || "";
+  $("eDesc").value = editingCurrent.description || "";
+  $("eFeatured").value = String(!!editingCurrent.featured);
+  $("eStockEnabled").value = String(editingCurrent.stock_enabled !== false);
+  $("eStockQty").value = Number(editingCurrent.stock_qty||0);
+  $("eLowStock").value = Number(editingCurrent.low_stock_alert||5);
+  $("ePaused").value = String(!!editingCurrent.paused);
+
+  if($("eImgFile1")) $("eImgFile1").value = "";
+  if($("eImgFile2")) $("eImgFile2").value = "";
+
+  $("eStatus").textContent = "";
+  $("eDiscount").value = Number(editingCurrent.discount_percent || 0);
+  fillAddonsEditor("eAddonsList", editingCurrent.addons || []);
+
+  // guarda as imagens atuais para a hora de salvar
+  editingCurrent.__editImages = editImages;
+  CROPPED_IMAGES.pImgFile1 = "";
+  CROPPED_IMAGES.pImgFile2 = "";
+  $("editBack").classList.add("open");
+}
+
+    function closeEdit(){
+      $("editBack").classList.remove("open");
+      editingId = null;
+      editingCurrent = null;
+    }
+
+ async function saveEdit(){
+  if(!editingId) return;
+
+  const payload = {
+    name: $("eName").value.trim(),
+    price: Number($("ePrice").value || 0),
+    category: $("eCat").value.trim(),
+    subcategory: $("eSub").value.trim(),
+    description: $("eDesc").value.trim(),
+    featured: ($("eFeatured").value === "true"),
+    stock_enabled: ($("eStockEnabled").value !== "false"),
+    stock_qty: Number($("eStockQty").value || 0),
+    low_stock_alert: Number($("eLowStock").value || 5),
+    paused: ($("ePaused").value === "true"),
+    addons: readAddonsEditor("eAddonsList"),
+    discount_percent: Number($("eDiscount")?.value || 0)
+  };
+
+  const currentImages = Array.isArray(editingCurrent?.images)
+    ? editingCurrent.images.map(x => String(x || "").trim()).filter(Boolean).slice(0,2)
+    : (editingCurrent?.image_url ? [String(editingCurrent.image_url).trim()] : []);
+
+let img1 = CROPPED_IMAGES.eImgFile1 || currentImages[0] || "";
+let img2 = CROPPED_IMAGES.eImgFile2 || currentImages[1] || "";
+
+const f1 = $("eImgFile1")?.files && $("eImgFile1").files[0];
+const f2 = $("eImgFile2")?.files && $("eImgFile2").files[0];
+
+if(f1 && !CROPPED_IMAGES.eImgFile1){
+  try{ img1 = await fileToDataURL(f1); }
+  catch{ alert("Não foi possível ler a imagem 1."); return; }
+}
+
+if(f2 && !CROPPED_IMAGES.eImgFile2){
+  try{ img2 = await fileToDataURL(f2); }
+  catch{ alert("Não foi possível ler a imagem 2."); return; }
+}
+
+  const images = buildProductImages(img1, img2);
+  payload.images = images;
+  payload.image_url = images[0] || "";
+
+ const res = await apiFetch("/api/products/" + encodeURIComponent(editingId),{
+    method:"PUT",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if(!res.ok){
+    const txt = await res.text();
+    $("eStatus").innerHTML = `<span class="err">Erro:</span> ${escapeHtml(txt)}`;
+    return;
+  }
+
+  $("eStatus").innerHTML = `<span class="ok">Salvo ✅</span>`;
+  await loadCategories();
+  await loadProducts();
+  setTimeout(closeEdit, 250);
+
+CROPPED_IMAGES.eImgFile1 = "";
+CROPPED_IMAGES.eImgFile2 = "";
+
+}
+
+    async function deleteProduct(){
+      if(!editingId) return;
+      if(!confirm("Excluir este produto?")) return;
+
+     const res = await apiFetch("/api/products/" + encodeURIComponent(editingId),{ method:"DELETE" });
+      if(!res.ok){
+        const txt = await res.text();
+        alert("Erro ao excluir:\n" + txt);
+        return;
+      }
+      await loadProducts();
+      closeEdit();
+      toast("Excluído ✅");
+    }
+
+    // ====== Categories actions ======
+    async function createCategory(){
+      const name = $("newCatName").value.trim();
+      if(!name) return;
+     const res = await apiFetch("/api/categories",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ name })
+      });
+      const data = await res.json().catch(()=>null);
+      if(!res.ok){
+        alert((data && data.error) ? data.error : "Erro ao criar categoria.");
+        return;
+      }
+      $("newCatName").value = "";
+      toast("Categoria criada ✅");
+      await loadCategories();
+    }
+
+    // ====== HISTORY ======
+    let HIST_VIEW = "DAY"; // DAY | MONTH | YEAR
+    let HIST_DRILL = null; // { type:"DAY"|"MONTH"|"YEAR", key:"YYYY-MM-DD"|"YYYY-MM"|"YYYY" }
+
+    function toYMD(d){
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const day = String(d.getDate()).padStart(2,"0");
+      return `${y}-${m}-${day}`;
+    }
+    function toYM(d){
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      return `${y}-${m}`;
+    }
+
+    function getHistoryBaseList(){
+      const filter = $("histFilter").value;
+      let list = ORDERS.slice();
+
+      if(filter === "VENDAS"){
+        list = list.filter(isCountableSale);
+      }else if(filter !== "TODOS"){
+        list = list.filter(o => statusUpper(o) === filter);
+      }
+
+      list.sort((a,b)=>{
+        const ta = Date.parse(a.created_at||"")||0;
+        const tb = Date.parse(b.created_at||"")||0;
+        return tb - ta;
+      });
+
+      return list;
+    }
+
+    function renderHistory(){
+      const box = $("historyList");
+      const summary = $("histSummary");
+      const list = getHistoryBaseList();
+
+      if(!list.length){
+        box.innerHTML = `<div class="muted">Nenhum registro.</div>`;
+        if(summary) summary.textContent = "";
+        return;
+      }
+
+      // drill: mostra pedidos daquele período (clicáveis)
+      if(HIST_DRILL){
+        const { type, key } = HIST_DRILL;
+
+        let filtered = [];
+        if(type === "DAY"){
+          filtered = list.filter(o => String(o.created_at||"").slice(0,10) === key);
+        } else if(type === "MONTH"){
+          filtered = list.filter(o => String(o.created_at||"").slice(0,7) === key);
+        } else if(type === "YEAR"){
+          filtered = list.filter(o => String(o.created_at||"").slice(0,4) === key);
+        }
+
+        // total do drill: soma apenas se filtro for "VENDAS" ou se o próprio item estiver contabilizável
+        const total = filtered.reduce((acc,o)=> acc + (isCountableSale(o) ? Number(o.total||0) : 0), 0);
+
+        let title = key;
+        if(type === "DAY") title = new Date(key + "T12:00:00").toLocaleDateString("pt-BR");
+        if(type === "MONTH"){ const [yy, mm] = key.split("-"); title = `${mm}/${yy}`; }
+
+        box.innerHTML = `
+          <div class="item" style="align-items:center;">
+            <div class="itemLeft">
+              <div class="itemTitle">📄 Pedidos de ${escapeHtml(title)}</div>
+              <div class="itemSub">${filtered.length} pedido(s) • <b>${money(total)}</b></div>
+            </div>
+            <div class="itemRight">
+              <button class="smallBtn" id="histBackBtn">← Voltar</button>
+            </div>
+          </div>
+          ${filtered.map(orderHtml).join("")}
+        `;
+
+        if(summary) summary.innerHTML = `<b>Total (contabilizado):</b> ${money(total)}`;
+
+        $("histBackBtn").addEventListener("click", ()=>{ HIST_DRILL=null; renderHistory(); });
+
+        // abrir modal ao clicar no pedido
+        box.querySelectorAll("[data-open-order]").forEach(el=>{
+          el.addEventListener("click", (e)=>{
+            if(e.target && (e.target.closest("button"))) return;
+            const id = el.dataset.openOrder;
+            const order = ORDERS.find(o=>String(o.id)===String(id));
+            if(order) openOrderModal(order);
+          });
+        });
+        // rebind buttons
+        box.querySelectorAll("[data-accept]").forEach(b=>b.addEventListener("click",(e)=>{ e.stopPropagation(); setOrderStatus(b.dataset.accept,"ACEITO"); }));
+        box.querySelectorAll("[data-reject]").forEach(b=>b.addEventListener("click",(e)=>{ e.stopPropagation(); setOrderStatus(b.dataset.reject,"RECUSADO"); }));
+        box.querySelectorAll("[data-cancel]").forEach(b=>b.addEventListener("click",(e)=>{ e.stopPropagation(); setOrderStatus(b.dataset.cancel,"CANCELADO"); }));
+        box.querySelectorAll("[data-done]").forEach(b=>b.addEventListener("click",(e)=>{ e.stopPropagation(); setOrderStatus(b.dataset.done,"CONCLUIDO"); }));
+        box.querySelectorAll("[data-pay]").forEach(b=>b.addEventListener("click",(e)=>{ e.stopPropagation(); payOrder(b.dataset.pay); }));
+
+        return;
+      }
+
+      // list agrupado (DAY/MONTH/YEAR)
+      if(HIST_VIEW === "DAY"){
+        const from = $("histFrom")?.value || "";
+        const to = $("histTo")?.value || "";
+
+        const map = new Map(); // ymd -> { total, count }
+        let grand = 0;
+
+        for(const o of list){
+          const ymd = String(o.created_at||"").slice(0,10);
+          if(!ymd) continue;
+          if(from && ymd < from) continue;
+          if(to && ymd > to) continue;
+
+          const v = isCountableSale(o) ? Number(o.total||0) : 0;
+          grand += v;
+
+          const cur = map.get(ymd) || { total:0, count:0 };
+          cur.total += v;
+          cur.count += 1;
+          map.set(ymd, cur);
+        }
+
+        const days = Array.from(map.entries()).sort((a,b)=> a[0] < b[0] ? 1 : -1);
+
+        box.innerHTML = days.map(([ymd, info])=>{
+          const dt = new Date(ymd + "T12:00:00");
+          const label = dt.toLocaleDateString("pt-BR");
+          return `
+            <div class="item" role="button" tabindex="0" data-hday="${ymd}">
+              <div class="itemLeft">
+                <div class="itemTitle">${label}</div>
+                <div class="itemSub">${info.count} pedido(s)</div>
+              </div>
+              <div class="itemRight">
+                <span class="pill accepted">${money(info.total)}</span>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        if(summary) summary.innerHTML = `<b>Total (contabilizado):</b> ${money(grand)} • <span class="muted">Dias: ${days.length}</span>`;
+
+        box.querySelectorAll("[data-hday]").forEach(el=>{
+          el.addEventListener("click", ()=>{ HIST_DRILL = { type:"DAY", key: el.dataset.hday }; renderHistory(); });
+        });
+
+        return;
+      }
+
+      if(HIST_VIEW === "MONTH"){
+        const pick = $("histMonth")?.value || ""; // YYYY-MM
+        const map = new Map();
+        let grand = 0;
+
+        for(const o of list){
+          const iso = String(o.created_at||"");
+          if(iso.length < 7) continue;
+          const ym = iso.slice(0,7);
+          if(pick && ym !== pick) continue;
+
+          const v = isCountableSale(o) ? Number(o.total||0) : 0;
+          grand += v;
+
+          const cur = map.get(ym) || { total:0, count:0 };
+          cur.total += v;
+          cur.count += 1;
+          map.set(ym, cur);
+        }
+
+        const months = Array.from(map.entries()).sort((a,b)=> a[0] < b[0] ? 1 : -1);
+
+        box.innerHTML = months.map(([ym, info])=>{
+          const [yy, mm] = ym.split("-");
+          const label = `${mm}/${yy}`;
+          return `
+            <div class="item" role="button" tabindex="0" data-hmonth="${ym}">
+              <div class="itemLeft">
+                <div class="itemTitle">${label}</div>
+                <div class="itemSub">${info.count} pedido(s)</div>
+              </div>
+              <div class="itemRight">
+                <span class="pill accepted">${money(info.total)}</span>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        if(summary) summary.innerHTML = `<b>Total (contabilizado):</b> ${money(grand)} • <span class="muted">Meses: ${months.length}</span>`;
+
+        box.querySelectorAll("[data-hmonth]").forEach(el=>{
+          el.addEventListener("click", ()=>{ HIST_DRILL = { type:"MONTH", key: el.dataset.hmonth }; renderHistory(); });
+        });
+
+        return;
+      }
+
+      if(HIST_VIEW === "YEAR"){
+        const yPick = Number($("histYear")?.value || 0) || 0;
+        const map = new Map();
+        let grand = 0;
+
+        for(const o of list){
+          const iso = String(o.created_at||"");
+          if(iso.length < 4) continue;
+          const y = Number(iso.slice(0,4));
+          if(yPick && y !== yPick) continue;
+
+          const v = isCountableSale(o) ? Number(o.total||0) : 0;
+          grand += v;
+
+          const key = String(y);
+          const cur = map.get(key) || { total:0, count:0 };
+          cur.total += v;
+          cur.count += 1;
+          map.set(key, cur);
+        }
+
+        const years = Array.from(map.entries()).sort((a,b)=> Number(b[0]) - Number(a[0]));
+
+        box.innerHTML = years.map(([yy, info])=>{
+          return `
+            <div class="item" role="button" tabindex="0" data-hyear="${yy}">
+              <div class="itemLeft">
+                <div class="itemTitle">${yy}</div>
+                <div class="itemSub">${info.count} pedido(s)</div>
+              </div>
+              <div class="itemRight">
+                <span class="pill accepted">${money(info.total)}</span>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        if(summary) summary.innerHTML = `<b>Total (contabilizado):</b> ${money(grand)} • <span class="muted">Anos: ${years.length}</span>`;
+
+        box.querySelectorAll("[data-hyear]").forEach(el=>{
+          el.addEventListener("click", ()=>{ HIST_DRILL = { type:"YEAR", key: el.dataset.hyear }; renderHistory(); });
+        });
+
+        return;
+      }
+    }
+
+    // ====== Clients ======
+
+   function openClientModal(id){
+  // id pode ser null para "novo cliente"
+  const back = $("clientBack");
+  if(!back) return;
+
+  if(id){
+    creatingNewClient = false;
+    selectedClientId = id;
+
+    selectClient(id);
+    const c = CLIENTS.find(x=>String(x.id)===String(id));
+    $("clientModalTitle").textContent = c ? `Cliente • ${c.name || "Sem nome"}` : "Cliente";
+  } else {
+    creatingNewClient = true;
+    selectedClientId = null;
+
+    $("clientModalTitle").textContent = "Novo cliente";
+    $("cName").value = "";
+    $("cPhone").value = "";
+    $("cAddr").value = "";
+    NEW_CLIENT_COUPONS = [];
+    renderDraftCoupons();
+    const co = $("clientOrdersList");
+    if(co) co.innerHTML = `<div class="muted">Salve o cliente para ver histórico.</div>`;
+  }
+
+  // força abrir (mesmo se algum style antigo tiver ficado)
+  back.classList.add("open");
+  back.style.display = "flex";
+}
+
+
+  function closeClientModal(){
+  const back = $("clientBack");
+  if(!back) return;
+
+  back.classList.remove("open");
+  back.style.display = "none"; // garante fechar mesmo se alguém setou display antes
+
+  // reseta para permitir reabrir o mesmo cliente sem bug
+  selectedClientId = null;
+  creatingNewClient = false;
+}
+
+    function renderClients(){
+      const box = $("clientsList");
+      if(!CLIENTS.length){
+        box.innerHTML = `<div class="muted">Nenhum cliente.</div>`;
+        return;
+      }
+
+      box.innerHTML = CLIENTS.map(c=>{
+        const selected = (String(c.id)===String(selectedClientId));
+        return `
+          <div class="item" role="button" tabindex="0" data-client="${c.id}" style="${selected ? "outline:2px solid rgba(122,74,62,.35)" : ""}">
+            <div class="itemLeft">
+              <div class="itemTitle">${escapeHtml(c.name || "Cliente")}</div>
+              <div class="itemSub">${escapeHtml(c.phone||"")}<br/>${escapeHtml(c.address||"")}</div>
+            </div>
+            <div class="itemRight">
+              <span class="pill">${Array.isArray(c.coupons)?c.coupons.filter(x=>x && x.active!==false).length:0} cupom(ns)</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      box.querySelectorAll("[data-client]").forEach(el=>{
+        el.addEventListener("click", ()=>{
+          const id = el.dataset.client;
+          openClientModal(id);
+        });
+      });
+
+      // manter seleção ao recarregar
+      if(selectedClientId && !CLIENTS.some(c=>String(c.id)===String(selectedClientId))){
+        selectedClientId = null;
+        clearClientForm();
+      }
+    }
+
+    function clearClientForm(){
+      $("cName").value = "";
+      $("cPhone").value = "";
+      $("cAddr").value = "";
+      $("couponsList").innerHTML = "";
+      const co = $("clientOrdersList");
+      if(co) co.innerHTML = `<div class="muted">Selecione um cliente.</div>`;
+      selectedClientId = null;
+      creatingNewClient = false;
+    }
+
+    function selectClient(id){
+      const c = CLIENTS.find(x=>String(x.id)===String(id));
+      if(!c) return;
+      selectedClientId = String(c.id);
+      creatingNewClient = false;
+      $("cName").value = c.name || "";
+      $("cPhone").value = c.phone || "";
+      $("cAddr").value = c.address || "";
+      renderCoupons(c);
+      loadClientOrders(c.phone);
+      renderClients();
+    }
+
+    function couponLabel(cp){
+      if(!cp) return "";
+      if(cp.type === "FREE_SHIPPING") return cp.label || "Frete grátis";
+      if(cp.type === "PERCENT") return cp.label || (`${cp.value}% OFF`);
+      if(cp.type === "VALUE") return cp.label || (`R$ ${cp.value} OFF`);
+      return cp.label || "Cupom";
+    }
+
+    function renderCoupons(client){
+      const list = $("couponsList");
+      const cps = Array.isArray(client.coupons) ? client.coupons : [];
+      if(!cps.length){
+        list.innerHTML = `<div class="muted">Nenhum cupom para este cliente.</div>`;
+        return;
+      }
+
+      list.innerHTML = cps.slice().reverse().map(cp=>{
+        return `
+          <div class="item" style="align-items:center;">
+            <div class="itemLeft">
+              <div class="itemTitle">${escapeHtml(couponLabel(cp))}</div>
+              <div class="itemSub">Tipo: ${escapeHtml(cp.type)} ${cp.type!=="FREE_SHIPPING" ? "• Valor: " + escapeHtml(String(cp.value)) : ""} ${cp.active===false ? "• (inativo)" : ""}</div>
+            </div>
+            <div class="itemRight">
+              <button class="smallBtn danger" data-del-coupon="${cp.id}">Excluir</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      list.querySelectorAll("[data-del-coupon]").forEach(b=>{
+        b.addEventListener("click", async ()=>{
+          if(!selectedClientId) return;
+          const cid = b.dataset.delCoupon;
+          if(!confirm("Excluir este cupom?")) return;
+          const res = await apiFetch("/api/clients/" + encodeURIComponent(selectedClientId) + "/coupons/" + encodeURIComponent(cid),{ method:"DELETE" });
+          if(!res.ok){
+            const txt = await res.text();
+            alert("Erro ao excluir cupom:\n" + txt);
+            return;
+          }
+          toast("Cupom removido ✅");
+          await loadClients();
+          const c2 = CLIENTS.find(x=>String(x.id)===String(selectedClientId));
+          if(c2) renderCoupons(c2);
+        });
+      });
+    }
+
+function renderDraftCoupons(){
+  const list = $("couponsList");
+  if(!list) return;
+
+  if(!NEW_CLIENT_COUPONS.length){
+    list.innerHTML = `<div class="muted">Nenhum cupom adicionado ainda.</div>`;
+    return;
+  }
+
+  list.innerHTML = NEW_CLIENT_COUPONS.slice().reverse().map((cp, i)=>{
+    const title =
+      cp.type === "FREE_SHIPPING" ? (cp.label || "Frete grátis") :
+      cp.type === "PERCENT" ? (cp.label || `${cp.value}% OFF`) :
+      (cp.label || `R$ ${cp.value} OFF`);
+
+    return `
+      <div class="item" style="align-items:center;">
+        <div class="itemLeft">
+          <div class="itemTitle">${escapeHtml(title)}</div>
+          <div class="itemSub">Tipo: ${escapeHtml(cp.type)} ${cp.type!=="FREE_SHIPPING" ? "• Valor: " + escapeHtml(String(cp.value)) : ""} • (rascunho)</div>
+        </div>
+        <div class="itemRight">
+          <button class="smallBtn danger" data-del-draft-coupon="${i}">Excluir</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  list.querySelectorAll("[data-del-draft-coupon]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const idx = Number(b.dataset.delDraftCoupon);
+      NEW_CLIENT_COUPONS.splice(idx, 1);
+      renderDraftCoupons();
+    });
+  });
+}
+
+
+    async function loadClientOrders(phone){
+      const box = $("clientOrdersList");
+      if(!box){ return; }
+      const p = String(phone||"").trim();
+      if(!p){
+        box.innerHTML = `<div class="muted">Cliente sem telefone.</div>`;
+        return;
+      }
+      box.innerHTML = `<div class="muted">Carregando...</div>`;
+      try{
+        const res = await fetch(API + "/api/orders/by-phone?phone=" + encodeURIComponent(p));
+        const data = await res.json();
+        const list = Array.isArray(data.orders) ? data.orders : [];
+        if(!list.length){
+          box.innerHTML = `<div class="muted">Nenhum pedido para este cliente.</div>`;
+          return;
+        }
+        box.innerHTML = list.map(o=>{
+          const d = o.created_at ? new Date(o.created_at).toLocaleString("pt-BR") : "";
+          const pay = o.payment || "-";
+          return `
+            <div class="item" role="button" tabindex="0" data-order-id="${escapeHtml(String(o.id))}">
+              <div class="itemLeft">
+                <div class="itemTitle">${escapeHtml(d)} • ${money(o.total||0)}</div>
+                <div class="itemSub">Pagamento: ${escapeHtml(pay)} • Status: ${escapeHtml(String(o.status||""))}${o.paid ? " • PAGO" : ""}</div>
+              </div>
+              <div class="itemRight">
+                ${statusPill(o)}
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        box.querySelectorAll("[data-order-id]").forEach(el=>{
+          el.addEventListener("click", ()=>{
+            const id = el.dataset.orderId;
+            const order = ORDERS.find(x=>String(x.id)===String(id)) || list.find(x=>String(x.id)===String(id));
+            if(order) openOrderModal(order);
+          });
+        });
+      }catch(e){
+        box.innerHTML = `<div class="muted">Erro ao carregar pedidos do cliente.</div>`;
+      }
+    }
+    async function saveClient(){
+      const name = $("cName").value.trim();
+      const phone = $("cPhone").value.trim();
+      const address = $("cAddr").value.trim();
+
+      if(!name || !phone){
+        alert("Preencha nome e telefone.");
+        return;
+      }
+
+      if(creatingNewClient || !selectedClientId){
+          const res = await apiFetch("/api/clients",{
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ name, phone, address })
+        });
+        const data = await res.json().catch(()=>null);
+        if(!res.ok){
+          alert((data && data.error) ? data.error : "Erro ao criar cliente.");
+          return;
+        }
+        toast("Cliente criado ✅");
+        await loadClients();
+        selectedClientId = String(data.client.id);
+        // aplica cupons rascunho (se tiver) no cliente recém-criado
+        if(NEW_CLIENT_COUPONS.length){
+        for(const cp of NEW_CLIENT_COUPONS){
+        await fetch(API + "/api/clients/" + encodeURIComponent(selectedClientId) + "/coupons",{
+          method:"POST",
+           headers:{ "Content-Type":"application/json" },
+            body: JSON.stringify({ type: cp.type, value: cp.value, label: cp.label, uses_left: 1, used:false })
+    });
+  }
+  NEW_CLIENT_COUPONS = [];
+}
+
+        selectClient(selectedClientId);
+      }else{
+          const res = await apiFetch("/api/clients/" + encodeURIComponent(selectedClientId),{
+          method:"PUT",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ name, phone, address })
+        });
+        const data = await res.json().catch(()=>null);
+        if(!res.ok){
+          alert((data && data.error) ? data.error : "Erro ao salvar cliente.");
+          return;
+        }
+        toast("Cliente salvo ✅");
+        await loadClients();
+        selectClient(selectedClientId);
+      }
+    }
+
+    async function deleteClient(){
+      if(!selectedClientId) return;
+      if(!confirm("Excluir este cliente?")) return;
+      const res = await apiFetch("/api/clients/" + encodeURIComponent(selectedClientId),{ method:"DELETE" });
+      if(!res.ok){
+        const txt = await res.text();
+        alert("Erro ao excluir cliente:\n" + txt);
+        return;
+      }
+      toast("Cliente excluído ✅");
+      clearClientForm();
+      await loadClients();
+    }
+
+async function addCoupon(e){
+  e?.preventDefault?.();
+  e?.stopPropagation?.();
+
+  if(!selectedClientId){
+    alert("Selecione um cliente primeiro.");
+    return;
+  }
+  const type = $("cpType").value;
+  const value = Number($("cpValue").value || 0);
+  const label = $("cpLabel").value.trim();
+
+  const res = await apiFetch("/api/clients/" + encodeURIComponent(selectedClientId) + "/coupons",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ type, value, label, uses_left: 1, used: false })
+  });
+  const data = await res.json().catch(()=>null);
+  if(!res.ok){
+    alert((data && data.error) ? data.error : "Erro ao adicionar cupom.");
+    return;
+  }
+
+  $("cpValue").value = "";
+  $("cpLabel").value = "";
+  toast("Cupom adicionado ✅");
+  await loadClients();
+  const c2 = CLIENTS.find(x=>String(x.id)===String(selectedClientId));
+  if(c2) renderCoupons(c2);
+}
+
+
+    let __adminLogoDataUrl = null;
+
+function applyAdminLogo(){
+  const img = document.getElementById("adminLogoImg");
+  if(!img) return;
+
+  const saved = (SETTINGS && SETTINGS.admin_logo_data) ? SETTINGS.admin_logo_data : "";
+  img.src = saved || "../assets/logo.png";
+}
+
+(function bindAdminLogoUpload(){
+  const fileInput = document.getElementById("adminLogoFile");
+  const preview = document.getElementById("adminLogoPreview");
+  if(!fileInput) return;
+
+  fileInput.addEventListener("change", ()=>{
+    const f = fileInput.files && fileInput.files[0];
+    if(!f) return;
+
+    // opcional: limite simples (2MB)
+    if(f.size > 2 * 1024 * 1024){
+      alert("Arquivo muito grande. Use uma imagem até 2MB.");
+      fileInput.value = "";
+      return;
+    }
+
+    const fr = new FileReader();
+    fr.onload = ()=>{
+      __adminLogoDataUrl = String(fr.result || "");
+      if(preview){
+        preview.src = __adminLogoDataUrl;
+        preview.style.display = "block";
+      }
+    };
+    fr.readAsDataURL(f);
+  });
+})();
+
+function fillSettingsForm(){
+  // alguns servidores retornam { ok:true, settings:{...} }
+  const s = (SETTINGS && SETTINGS.settings) ? SETTINGS.settings : (SETTINGS || {});
+
+  if(document.getElementById("sName")) $("sName").value = s.shop_name || "";
+  if(document.getElementById("sTag")) $("sTag").value = s.shop_tagline || "";
+  if(document.getElementById("sWhats")) $("sWhats").value = s.whatsapp_number || "";
+  if(document.getElementById("store_url")) $("store_url").value = s.store_url || "";
+  if(document.getElementById("preview_whatsapp_url")) $("preview_whatsapp_url").value = s.preview_whatsapp_url || "";
+  if(document.getElementById("sAddr")) $("sAddr").value = s.address_base || "";
+
+  // se você ainda tiver o campo sLogo no HTML, ele será preenchido, senão ignora
+  if(document.getElementById("sLogo")) $("sLogo").value = s.logo_url || "";
+
+  // aplica preview/topo da logo do admin se existir
+  if(s.admin_logo_data){
+    const topImg = $("adminLogoImg");
+    if(topImg) topImg.src = s.admin_logo_data;
+
+    const prev = $("adminLogoPreview");
+    if(prev){
+      prev.src = s.admin_logo_data;
+      prev.style.display = "block";
+    }
+  }
+}
+    
+  async function saveBH(){
+  try{
+    const enabled = ($("bhEnabled")?.value === "true");
+    const allow_schedule = ($("bhAllowSchedule")?.value === "true");
+
+    const days = {};
+    const dayKeys = ["seg","ter","qua","qui","sex","sab","dom"];
+    for(const k of dayKeys){
+      days[k] = {
+        enabled: !!document.getElementById(`bh_${k}_on`)?.checked,
+        open: String(document.getElementById(`bh_${k}_open`)?.value || "08:00"),
+        close: String(document.getElementById(`bh_${k}_close`)?.value || "18:00"),
+      };
+    }
+
+    // ✅ merge com o que já existe, sem apagar outras configs
+    const base = SETTINGS || {};
+    const payload = {
+      ...base,
+      business_hours: {
+        ...(base.business_hours || {}),
+        enabled,
+        allow_schedule,
+        days
+      }
+    };
+
+    const res = await apiFetch("/api/settings", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if(!res.ok){
+      const txt = await res.text().catch(()=> "");
+      alert("Erro ao salvar horário:\n" + (txt || "Resposta inválida"));
+      return;
+    }
+
+    await loadSettings();
+    toast("Horário salvo ✅");
+  }catch(err){
+    
+  }
+}
+
+ // <-- FECHA A FUNÇÃO saveSettings() AQUI
+
+// ====== PÁGINA DE VENDAS (Store UI) ======
+async function saveStoreUi(){
+  const payload = {
+    store_ui: {
+      page_bg: $("uiPageBg").value,
+      banner_bg: $("uiBannerBg").value,
+      banner_height: Number($("uiBannerH").value || 104),
+      rating: $("uiRating").value.trim() || "4.9",
+      show_search: ($("uiShowSearch").value === "true"),
+      show_featured: ($("uiShowFeatured").value === "true"),
+      banner_use_image: ($("uiUseBannerImg").value === "true"),
+      products_bg: $("uiProductsBg")?.value || "#ffffff",
+
+
+      // ✅ não apaga o banner salvo quando não selecionar arquivo novo
+      banner_image_dataurl: (bannerImageDataUrl || SETTINGS?.store_ui?.banner_image_dataurl || null),
+
+      banner_dim: Number($("uiBannerDim").value || 0.50),
+
+      panels_bg: $("uiPanelsBg")?.value || "#f6ebe5",
+
+      text_color: $("uiTextColor")?.value || "#2b1b17",
+
+       // ✅ novos:
+  text_color: $("uiTextColor")?.value || "#2b1b17",
+  logo_image_dataurl: (storeLogoDataUrl || SETTINGS?.store_ui?.logo_image_dataurl || null),
+
+      text_banner: $("uiTextBanner").value,
+      text_main: $("uiTextMain").value,
+      info_modal: {
+  bg: $("uiInfoBg")?.value || "#ffffff",
+  text: $("uiInfoText")?.value || "#1f1f1f",
+  border: $("uiInfoBorder")?.value || "#e9e9e9",
+  today_bg: $("uiInfoTodayBg")?.value || "#e8f1ff"
+},
+      text_modal: $("uiTextModal").value,
+      text_cart: $("uiTextCart").value,
+
+    }
+    
+  };
+
+    const res = await apiFetch("/api/settings",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if(!res.ok){
+    alert("Erro ao aplicar na loja.");
+    return;
+  }
+
+  await loadSettings();
+  toast("Aplicado na loja ✅");
+}
+
+    async function saveTheme(){
+      const payload = {
+        theme: {
+          primary: $("thPrimary").value,
+          secondary: $("thSecondary").value,
+          soft: $("thSoft").value,
+          bg: $("thBg").value
+        }
+      };
+
+      const res = await apiFetch("/api/settings",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if(!res.ok){
+        alert("Erro ao salvar tema.");
+        return;
+      }
+
+      await loadSettings();
+      toast("Tema salvo ✅");
+      applyAdminLogo();
+    }
+
+async function savePdvPrefs(){
+  const payload = { notify_sound_dataurl: notifySoundDataUrl || null };
+
+  const res = await apiFetch("/api/settings",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if(!res.ok){
+    alert("Erro ao salvar preferências do PDV.");
+    return;
+  }
+
+  await loadSettings();
+  refreshOrderAlertAudio();
+  syncOrderAlertWithState();
+  toast("Preferências salvas ✅");
+}
+
+   // ====== EVENTS ======
+document.addEventListener("DOMContentLoaded", async ()=>{ 
+  try{
+    await ensureAdminAuth();
+    unlockAdminUI();
+    await loadSettings();
+  }catch(err){
+    console.error("Erro ao iniciar admin:", err);
+    alert("Acesso cancelado.");
+
+    // se existir preload com closeWindow, você pode fechar a janela aqui
+    // window.electronAPI?.closeWindow?.();
+
+    return;
+  }
+
+  // banner file
+  $("uiBannerImg")?.addEventListener("change", async ()=>{
+    const f = $("uiBannerImg").files && $("uiBannerImg").files[0];
+    if(!f) return;
+    try{
+      bannerImageDataUrl = await fileToDataURL(f);
+
+      const useSel = $("uiUseBannerImg");
+      if(useSel) useSel.value = "true";
+      
+      const prev = $("uiBannerPreview");
+      if(prev){
+        prev.src = bannerImageDataUrl;
+        prev.style.display = "block";
+      }
+      alert("Banner carregado ✅ Agora clique em 'Aplicar na Loja'");
+    }catch{
+      alert("Não foi possível ler a imagem do banner.");
+    }
+  });
+  
+// logo da loja (upload)
+$("uiLogoImg")?.addEventListener("change", async ()=>{
+  const f = $("uiLogoImg").files && $("uiLogoImg").files[0];
+  if(!f) return;
+  try{
+    storeLogoDataUrl = await fileToDataURL(f);
+    const prev = $("uiLogoPreview");
+    if(prev){
+      prev.src = storeLogoDataUrl;
+      prev.style.display = "block";
+    }
+    toast("Logo carregada ✅ Agora clique em 'Aplicar na Loja'");
+  }catch{
+    alert("Não foi possível ler a imagem da logo.");
+  }
+});
+
+
+  $("saveStoreUi")?.addEventListener("click", saveStoreUi);
+
+  // logo do Admin (upload do PC)
+  $("adminLogoFile")?.addEventListener("change", async ()=>{
+    const f = $("adminLogoFile").files && $("adminLogoFile").files[0];
+    if(!f) return;
+    try{
+      __adminLogoDataUrl = await fileToDataURL(f);
+
+      const prev = $("adminLogoPreview");
+      if(prev){
+        prev.src = __adminLogoDataUrl;
+        prev.style.display = "block";
+      }
+
+      const topImg = $("adminLogoImg");
+      if(topImg) topImg.src = __adminLogoDataUrl;
+
+      toast("Logo carregada ✅ Agora clique em 'Salvar Configurações'");
+    }catch{
+      alert("Não foi possível ler a imagem da logo.");
+    }
+  });
+
+
+bindCropInputById("pImgFile1");
+bindCropInputById("pImgFile2");
+bindCropInputById("eImgFile1");
+bindCropInputById("eImgFile2");
+
+$("closeCropBtn")?.addEventListener("click", closeCropModal);
+$("applyCropBtn")?.addEventListener("click", applyCropResult);
+$("resetCropBtn")?.addEventListener("click", ()=>{
+  CURRENT_CROP_SCALE = 1;
+  CURRENT_CROP_X = 0;
+  CURRENT_CROP_Y = 0;
+  if($("cropZoom")) $("cropZoom").value = "1";
+  drawCropCanvas();
+});
+
+$("cropZoom")?.addEventListener("input", ()=>{
+  CURRENT_CROP_SCALE = Number($("cropZoom").value || 1);
+  drawCropCanvas();
+});
+
+$("cropBack")?.addEventListener("click", (e)=>{
+  if(e.target === $("cropBack")) closeCropModal();
+});
+
+
+
+  // ✅ botões da aba Configurações
+  $("saveSettings")?.addEventListener("click", saveSettings);
+  $("saveBH")?.addEventListener("click", saveBH);
+
+
+const addShipBtn = $("addShippingRuleBtn");
+if(addShipBtn){
+  addShipBtn.addEventListener("click", ()=>{
+    const current = readShippingRulesFromUI();
+    current.push({ max_km: 1, price: 0 });
+    renderShippingRules(current);
+  });
+}
+
+  $("saveAdminUi")?.addEventListener("click", async ()=>{
+    const payload = {
+      admin_ui: {
+        theme: {
+          primary: $("adPrimary")?.value,
+          secondary: $("adSecondary")?.value,
+          soft: $("adSoft")?.value,
+          bg: $("adBg")?.value,
+        }
+      }
+    };
+
+    const res = await apiFetch("/api/settings", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if(!res.ok){
+      alert("Erro ao salvar personalização do Admin.");
+      return;
+    }
+
+    await loadSettings();
+    toast("Admin personalizado ✅");
+  });
+
+  refreshOrderAlertAudio();
+  syncOrderAlertWithState();
+
+});
+
+// ====== SETTINGS SAVE ======
+async function saveSettings(){
+  try{
+    const base = (SETTINGS && SETTINGS.settings) ? SETTINGS.settings : (SETTINGS || {});
+
+    const payload = {
+      ...base,
+
+      shop_name: ($("sName")?.value || "").trim(),
+      shop_tagline: ($("sTag")?.value || "").trim(),
+      whatsapp_number: ($("sWhats")?.value || "").trim(),
+      store_url: ($("store_url")?.value || "").trim(),
+      preview_whatsapp_url: ($("preview_whatsapp_url")?.value || "").trim(),
+      address_base: ($("sAddr")?.value || "").trim(),
+      default_shipping: Number($("defaultShipping")?.value || 0),
+
+      instagram_url: ((document.getElementById("sInstagram")?.value || "").trim() || (base.instagram_url || "")),
+      logo_url: ((document.getElementById("sLogo")?.value || "").trim() || (base.logo_url || "../assets/logo.png")),
+      notify_sound_dataurl: notifySoundDataUrl || base.notify_sound_dataurl || null,
+      admin_logo_data: (__adminLogoDataUrl || base.admin_logo_data || "")
+    };
+
+    const bhEnabledEl = document.getElementById("bhEnabled");
+    const bhAllowEl   = document.getElementById("bhAllowSchedule");
+
+    const bhEnabled = bhEnabledEl
+      ? (bhEnabledEl.type === "checkbox" ? !!bhEnabledEl.checked : String(bhEnabledEl.value) === "true")
+      : false;
+
+    const bhAllow = bhAllowEl
+      ? (bhAllowEl.type === "checkbox" ? !!bhAllowEl.checked : String(bhAllowEl.value) === "true")
+      : false;
+
+    const days = {};
+const dayKeys = ["seg","ter","qua","qui","sex","sab","dom"];
+
+for (const k of dayKeys) {
+  days[k] = {
+    enabled: !!document.getElementById(`bh_${k}_on`)?.checked,
+    open: String(document.getElementById(`bh_${k}_open`)?.value || "08:00"),
+    close: String(document.getElementById(`bh_${k}_close`)?.value || (k === "dom" ? "12:00" : "18:00")),
+  };
+}
+
+payload.business_hours = {
+  ...(base.business_hours || {}),
+  enabled: bhEnabled,
+  allow_schedule: bhAllow,
+  days
+};
+
+    console.log("saveSettings -> API:", API);
+    console.log("saveSettings -> payload:", payload);
+
+   const res = await apiFetch("/api/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const text = await res.text().catch(() => "");
+    console.log("saveSettings -> status:", res.status);
+    console.log("saveSettings -> resposta bruta:", text);
+
+    if(!res.ok){
+      alert("Erro ao salvar configurações:\n" + (text || "Resposta inválida do servidor"));
+      return false;
+    }
+
+    let json = {};
+    try { json = text ? JSON.parse(text) : {}; } catch(e) {}
+
+    if (json && json.settings) {
+      SETTINGS = json.settings;
+    }
+
+    try{
+      await loadSettings();
+    }catch(err){
+      console.error("Erro ao recarregar settings:", err);
+    }
+
+    alert("Configurações salvas ✅");
+    return true;
+
+  }catch(err){
+    console.error("Erro em saveSettings:", err);
+    alert("Erro em saveSettings:\n" + (err?.message || err));
+    return false;
+  }
+}
+
+      // tabs
+      document.querySelectorAll(".tab").forEach(t=>{
+        t.addEventListener("click", async ()=>{
+          tabShow(t.dataset.tab);
+          if(t.dataset.tab==="pdv"){
+            newCount = 0;
+            updateBadge();
+
+            if(t.dataset.tab==="pdv"){
+  newCount = 0;
+  updateBadge();
+
+  // ✅ garante dados do PDV sem depender de outras abas
+  if(!Array.isArray(PRODUCTS) || PRODUCTS.length === 0){
+    await loadProducts();
+  }
+  if(!Array.isArray(CATEGORIES) || CATEGORIES.length === 0){
+    await loadCategories();
+  }
+  if(!Array.isArray(CLIENTS) || CLIENTS.length === 0){
+    await loadClients();
+  }
+}
+
+          }
+          if(t.dataset.tab==="products"){
+            await loadCategories();
+            await loadProducts();
+          }
+          if(t.dataset.tab==="clients"){
+            await loadClients();
+          }
+          if(t.dataset.tab==="settings"){
+          //fillSettingsForm();
+          }   
+
+         if(t.dataset.tab==="delivery"){
+         fillDeliverySettingsForm(SETTINGS || {});
+          }
+
+        });
+      });
+
+      // topo
+      $("refreshBtn").addEventListener("click", async ()=>{
+        await loadSettings();
+        await loadCategories();
+        await loadProducts();
+        await loadOrders();
+        await loadClients();
+      });
+
+      $("testSoundBtn").addEventListener("click", playNotify);
+
+      $("openStoreBtn").addEventListener("click", async ()=>{
+        try{
+          await window.electronAPI.openStore();
+        }catch{
+          alert("Não foi possível abrir a loja (preload não disponível).");
+        }
+      });
+
+      // produtos
+      $("saveProductBtn").addEventListener("click", createProduct);
+
+      // adicionais (produto)
+      $("pAddonsAdd")?.addEventListener("click", ()=> addAddonRow("pAddonsList"));
+      $("eAddonsAdd")?.addEventListener("click", ()=> addAddonRow("eAddonsList"));
+
+
+      // categorias no cadastro do produto
+       const syncCatNew = ()=>{
+        const v = $("pCatSelect")?.value || "";
+        if(v === "__NEW__"){
+          $("pCatNew").style.display = "";
+          $("pCatNew").focus();
+        }else{
+          $("pCatNew").style.display = "none";
+        }
+      };
+      $("pCatSelect")?.addEventListener("change", syncCatNew);
+
+
+      // categorias
+      $("addCatBtn").addEventListener("click", createCategory);
+
+      // edit modal
+      $("closeEdit").addEventListener("click", closeEdit);
+      $("editBack").addEventListener("click", (e)=>{ if(e.target === $("editBack")) closeEdit(); });
+      $("saveEditBtn").addEventListener("click", saveEdit);
+      $("deleteProdBtn").addEventListener("click", deleteProduct);
+
+      // pedido modal
+      $("closeOrderModal").addEventListener("click", closeOrderModal);
+      $("closeOrderModal2").addEventListener("click", closeOrderModal);
+      $("orderBack").addEventListener("click", (e)=>{ if(e.target === $("orderBack")) closeOrderModal(); });
+
+      // pedidos filtro
+      $("pdvFilter").addEventListener("change", renderOrders);
+
+      // histórico
+      $("histFilter").addEventListener("change", ()=>{ HIST_DRILL=null; renderHistory(); });
+      $("refreshHist").addEventListener("click", ()=>{ HIST_DRILL=null; renderHistory(); });
+
+      function setHistView(v){
+        HIST_DRILL = null;
+        HIST_VIEW = v;
+
+        $("histTabDay").classList.toggle("activeView", v==="DAY");
+        $("histTabMonth").classList.toggle("activeView", v==="MONTH");
+        $("histTabYear").classList.toggle("activeView", v==="YEAR");
+
+        $("histFiltersDay").style.display = (v==="DAY") ? "" : "none";
+        $("histFiltersMonth").style.display = (v==="MONTH") ? "" : "none";
+        $("histFiltersYear").style.display = (v==="YEAR") ? "" : "none";
+
+        renderHistory();
+      }
+
+      $("histTabDay").addEventListener("click", ()=>setHistView("DAY"));
+      $("histTabMonth").addEventListener("click", ()=>setHistView("MONTH"));
+      $("histTabYear").addEventListener("click", ()=>setHistView("YEAR"));
+
+      $("histFrom").addEventListener("change", renderHistory);
+      $("histTo").addEventListener("change", renderHistory);
+      $("histMonth").addEventListener("change", renderHistory);
+      $("histYear").addEventListener("input", renderHistory);
+
+      const today = new Date();
+      const to = toYMD(today);
+      const fromD = new Date(today.getTime() - (6*24*60*60*1000));
+      const from = toYMD(fromD);
+
+      $("histFrom").value = from;
+      $("histTo").value = to;
+      $("histMonth").value = toYM(today);
+      $("histYear").value = String(today.getFullYear());
+      setHistView("DAY");
+
+      // settings
+      $("saveSettings").addEventListener("click", saveSettings);
+      $("saveBH").addEventListener("click", saveBH);
+
+      // store ui / theme
+      $("saveStoreUi").addEventListener("click", saveStoreUi);
+      $("saveTheme").addEventListener("click", saveTheme);
+
+      // pdv prefs
+      $("savePdvPrefs").addEventListener("click", savePdvPrefs);
+
+      // som do PDV
+$("soundFile").addEventListener("change", async ()=>{
+  const f = $("soundFile").files && $("soundFile").files[0];
+  if(!f) return;
+  try{
+    notifySoundDataUrl = await fileToDataURL(f);
+    $("notifyAudio").src = notifySoundDataUrl;
+    refreshOrderAlertAudio();
+    syncOrderAlertWithState();
+    alert("Som carregado ✅ (clique em 'Salvar preferências do PDV')");
+  }catch{
+    alert("Não foi possível ler o áudio.");
+  }
+});
+
+// clientes
+$("reloadClients")?.addEventListener("click", loadClients);
+
+$("cSearch")?.addEventListener("input", ()=>{
+  clearTimeout(window.__cT);
+  window.__cT = setTimeout(loadClients, 250);
+});
+
+$("newClientBtn")?.addEventListener("click", ()=>{
+  toast("Novo cliente");
+  openClientModal(null);
+});
+
+$("saveClientBtn")?.addEventListener("click", saveClient);
+$("deleteClientBtn")?.addEventListener("click", deleteClient);
+$("addCouponBtn")?.addEventListener("click", addCoupon);
+
+
+  // ✅ IMPORTANTE: permite abrir o mesmo cliente novamente
+      selectedClientId = null;
+      creatingNewClient = false;
+     
+      // marcar pedidos atuais como vistos
+      ORDERS.forEach(o=>{
+        if(statusUpper(o)==="NOVO") seenOrderIds.add(String(o.id));
+      });
+
+      // poll pedidos
+      setInterval(loadOrders, 5000);
+
+    // ====== Category Modal ======
+    let CURRENT_CAT_ID = null;
+
+    function showModal(id, show){
+      const el = $(id);
+      if(!el) return;
+      el.style.display = show ? "flex" : "none";
+      if(show) el.classList.add("fadeIn");
+    }
+ 
+     async function openCategoryModal(catId){
+      CURRENT_CAT_ID = catId;
+      const cat = CATEGORIES.find(c=>String(c.id)===String(catId));
+      if(!cat) return;
+
+      $("catEditName").value = cat.name || "";
+      $("catEditFeatured").checked = !!cat.featured;
+
+      await renderCategoryProducts(cat);
+
+      showModal("categoryModal", true);
+      
+
+    }
+
+    async function renderCategoryProducts(cat){
+      const list = $("catProductsList");
+      const prods = PRODUCTS.filter(p=>String(p.category||"")===String(cat.name||""));
+
+      if(!prods.length){
+        list.innerHTML = `<div class="muted">Nenhum produto nessa categoria ainda.</div>`;
+        return;
+      }
+
+      list.innerHTML = prods.map(p=>{
+        const price = Number(p.price||0).toFixed(2);
+        const stock = p.stock_enabled ? Number(p.stock_qty||0) : "";
+        const paused = !!p.paused;
+       
+        return `
+
+          <div class="item" style="align-items:flex-start; gap:10px;">
+            <div class="itemLeft" style="gap:6px;">
+              <div class="itemTitle">${escapeHtml(p.name||"")}</div>
+              <div class="itemSub">${productPill(p)}</div>
+
+              <div class="row" style="margin-top:8px;">
+                <div>
+                  <label>Nome</label>
+                  <input data-p-name="${p.id}" value="${escapeAttr(p.name||"")}"/>
+                </div>
+                <div>
+                  <label>Preço</label>
+                  <input data-p-price="${p.id}" type="number" step="0.01" value="${escapeAttr(price)}"/>
+                </div>
+              </div>
+
+             <label>Desconto (%)</label>
+              <input data-p-discount="${p.id}" type="number" min="0" max="99" step="1" value="${escapeAttr(String(p.discount_percent ?? 0))}">
+                <div class="muted">Ex: 54 para aparecer “-54%” na loja.</div>
+
+
+              <div class="row" style="margin-top:8px;">
+                <div>
+                  <label>Quantidade (estoque)</label>
+                  <input data-p-stock="${p.id}" type="number" step="1" value="${escapeAttr(String(stock))}" ${p.stock_enabled? "":"disabled"}/>
+                </div>
+                <div>
+<div>
+  <label>Imagem 1</label>
+  <input
+    type="file"
+    class="catProdImg1"
+    data-p-img1="${p.id}"
+    data-crop-key="cat:${p.id}:1"
+    accept="image/*">
+</div>
+
+<div style="margin-top:8px">
+  <label>Imagem 2</label>
+  <input
+    type="file"
+    class="catProdImg2"
+    data-p-img2="${p.id}"
+    data-crop-key="cat:${p.id}:2"
+    accept="image/*">
+</div>
+                </div>
+              </div>
+
+              <label style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+                <input data-p-paused="${p.id}" type="checkbox" ${paused?"checked":""}/> Produto em pausa (esgotado)
+              </label>
+
+                <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+                   <input data-p-featured="${p.id}" type="checkbox" ${p.featured ? "checked" : ""}/>
+                     Destaque (aparece primeiro na loja)
+                      </label>
+
+
+              <div class="row" style="margin-top:8px;">
+                <button class="smallBtn primary" data-p-save="${p.id}">Salvar</button>
+                <button class="smallBtn danger" data-p-del="${p.id}">Excluir</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+      bindCategoryCropInputs(list);
+      // bind save / delete
+      list.querySelectorAll("[data-p-save]").forEach(btn=>{
+        btn.addEventListener("click", async ()=>{
+          const id = btn.dataset.pSave;
+          const p = PRODUCTS.find(x=>String(x.id)===String(id));
+          if(!p) return;
+
+          const name = (list.querySelector(`[data-p-name="${CSS.escape(id)}"]`)||{}).value || p.name;
+          const price = Number((list.querySelector(`[data-p-price="${CSS.escape(id)}"]`)||{}).value || p.price || 0);
+          const paused = !!(list.querySelector(`[data-p-paused="${CSS.escape(id)}"]`)||{}).checked;
+
+          let stock_enabled = p.stock_enabled;
+          let stock_qty = p.stock_qty;
+          const stockEl = list.querySelector(`[data-p-stock="${CSS.escape(id)}"]`);
+          if(stockEl && !stockEl.disabled){
+            stock_enabled = true;
+            stock_qty = Number(stockEl.value||0);
+          }
+
+// images upload (até 2)
+const currentImages = Array.isArray(p.images)
+  ? p.images.map(x => String(x || "").trim()).filter(Boolean).slice(0, 2)
+  : (p.image_url ? [String(p.image_url).trim()] : []);
+
+const cropKey1 = `cat:${id}:1`;
+const cropKey2 = `cat:${id}:2`;
+
+let img1 = CROPPED_CATEGORY_IMAGES[cropKey1] || currentImages[0] || "";
+let img2 = CROPPED_CATEGORY_IMAGES[cropKey2] || currentImages[1] || "";
+
+const fileEl1 = list.querySelector(`[data-p-img1="${CSS.escape(id)}"]`);
+const fileEl2 = list.querySelector(`[data-p-img2="${CSS.escape(id)}"]`);
+
+const file1 = fileEl1 && fileEl1.files && fileEl1.files[0];
+const file2 = fileEl2 && fileEl2.files && fileEl2.files[0];
+
+if(file1 && !CROPPED_CATEGORY_IMAGES[cropKey1]){
+  img1 = await fileToDataURL(file1);
+}
+
+if(file2 && !CROPPED_CATEGORY_IMAGES[cropKey2]){
+  img2 = await fileToDataURL(file2);
+}
+
+const images = buildProductImages(img1, img2);
+const image_url = images[0] || "";
+
+          const discEl = list.querySelector(`[data-p-discount="${CSS.escape(id)}"]`);
+          const discount_percent = Number((discEl && discEl.value) || (p.discount_percent ?? 0) || 0);
+          const featured = !!list.querySelector(`[data-p-featured="${CSS.escape(id)}"]`)?.checked;
+
+
+const payload = { 
+  name, price, discount_percent, paused, stock_enabled, stock_qty, featured,
+  category: p.category,
+  image_url,
+  images
+};
+
+          const res = await apiFetch("/api/products/" + encodeURIComponent(id),{
+            method:"PUT",
+            headers:{ "Content-Type":"application/json" },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json().catch(()=>null);
+          if(!res.ok){
+            alert((data && data.error) ? data.error : "Erro ao salvar produto.");
+            return;
+          }
+          toast("Produto atualizado ✅");
+          delete CROPPED_CATEGORY_IMAGES[`cat:${id}:1`];
+          delete CROPPED_CATEGORY_IMAGES[`cat:${id}:2`];
+          await loadProducts();
+          await loadCategories();
+          const catNow = CATEGORIES.find(c=>String(c.id)===String(CURRENT_CAT_ID));
+          if(catNow) await renderCategoryProducts(catNow);
+          renderProducts();
+          renderCategories();
+        });
+      });
+
+      list.querySelectorAll("[data-p-del]").forEach(btn=>{
+        btn.addEventListener("click", async ()=>{
+          const id = btn.dataset.pDel;
+          if(!confirm("Excluir este produto?")) return;
+          const res = await fetch(API + "/api/products/" + encodeURIComponent(id),{method:"DELETE"});
+          const data = await res.json().catch(()=>null);
+          if(!res.ok){
+            alert((data && data.error) ? data.error : "Erro ao excluir produto.");
+            return;
+          }
+          toast("Produto excluído ✅");
+          await loadProducts();
+          await loadCategories();
+          const catNow = CATEGORIES.find(c=>String(c.id)===String(CURRENT_CAT_ID));
+          if(catNow) await renderCategoryProducts(catNow);
+          renderProducts();
+          renderCategories();
+        });
+      });
+    }
+
+    async function fileToDataURL(file){
+      return new Promise((resolve,reject)=>{
+        const fr = new FileReader();
+        fr.onload = ()=>resolve(fr.result);
+        fr.onerror = reject;
+        fr.readAsDataURL(file);
+      });
+    }
+
+        // ====== Adicionais (Add-ons) - Editor do Admin ======
+  function addAddonRow(listId, addon){
+  const list = document.getElementById(listId);
+  if(!list) return;
+
+  const a = addon || { id: "", name: "", price: 0 };
+
+  const row = document.createElement("div");
+  row.className = "addonRow";
+  row.innerHTML = `
+    <input class="inp" data-addon-name placeholder="Nome do adicional (ex: Cobertura de chocolate)" value="${escapeAttr(a.name||"")}">
+    <input class="inp" data-addon-price type="number" step="0.01" placeholder="Preço" value="${Number(a.price||0)}">
+    <button type="button" class="addonRemove" title="Remover">✕</button>
+  `;
+
+  row.querySelector(".addonRemove")?.addEventListener("click", ()=> row.remove());
+  list.appendChild(row);
+}
+
+function readAddonsEditor(listId){
+  const list = document.getElementById(listId);
+  if(!list) return [];
+
+  const rows = Array.from(list.querySelectorAll(".addonRow"));
+  return rows.map(r=>{
+    const name = (r.querySelector("[data-addon-name]")?.value || "").trim();
+    const price = Number(r.querySelector("[data-addon-price]")?.value || 0);
+    return { name, price };
+  }).filter(a=> a.name);
+}
+
+function fillAddonsEditor(listId, addons){
+  const list = document.getElementById(listId);
+  if(!list) return;
+  list.innerHTML = "";
+  (addons || []).forEach(a=> addAddonRow(listId, a));
+}
+
+
+    $("closeCategoryModal").addEventListener("click", ()=>showModal("categoryModal", false));
+
+$("saveCategoryBtn").addEventListener("click", async ()=>{
+  const id = CURRENT_CAT_ID;
+  const cat = CATEGORIES.find(c=>String(c.id)===String(id));
+  if(!cat) return;
+
+  const newName = $("catEditName").value.trim();
+  if(!newName){ alert("Nome inválido."); return; }
+
+const payload = {
+  name: newName,
+  featured: !!$("catEditFeatured").checked
+};
+
+const res = await apiFetch("/api/categories/" + encodeURIComponent(id),{
+  method:"PUT",
+  headers:{ "Content-Type":"application/json" },
+  body: JSON.stringify(payload)
+});
+
+  const data = await res.json().catch(()=>null);
+  if(!res.ok){
+    alert((data && data.error) ? data.error : "Erro ao salvar categoria.");
+    return;
+  }
+
+  toast("Categoria atualizada ✅");
+  await loadCategories();
+  await loadProducts();
+  renderProducts();
+  renderCategories();
+
+  const catNow = CATEGORIES.find(c=>String(c.id)===String(id));
+  if(catNow){
+    $("catEditName").value = catNow.name || "";
+    $("catEditFeatured").checked = !!catNow.featured;
+    await renderCategoryProducts(catNow);
+  }
+});
+
+
+$("deleteCategoryBtn").addEventListener("click", async ()=>{
+  const id = CURRENT_CAT_ID;
+  const cat = CATEGORIES.find(c=>String(c.id)===String(id));
+  if(!cat) return;
+
+  const confirmed = confirm(
+    `Excluir a categoria "${cat.name || cat.title || ""}" e apagar TODOS os produtos dela?`
+  );
+
+  if(!confirmed){
+    return;
+  }
+
+const res = await apiFetch(
+  "/api/categories/" + encodeURIComponent(id) + "?mode=DELETE_PRODUCTS",
+  { method:"DELETE" }
+);
+
+  const data = await res.json().catch(()=>null);
+  if(!res.ok){
+    alert((data && data.error) ? data.error : "Erro ao excluir categoria.");
+    return;
+  }
+
+  toast("Categoria excluída ✅");
+  showModal("categoryModal", false);
+  CURRENT_CAT_ID = null;
+  await loadCategories();
+  await loadProducts();
+  renderProducts();
+  renderCategories();
+});
+
+    // ====== Create Order Modal ======
+    let CO_ITEMS = [];
+
+    function rebuildClientsDatalist(){
+      const dl = $("clientsDatalist");
+      if(!dl) return;
+      dl.innerHTML = CLIENTS.map(c=>{
+        const phone = (c.phone||"");
+        const name = (c.name||"");
+        return `<option value="${escapeAttr(name)} — ${escapeAttr(phone)}"></option>`;
+      }).join("");
+    }
+
+   function rebuildCOProducts(filterText = ""){
+  const sel = $("coProduct");
+  if(!sel) return;
+
+  const q = String(filterText || "").trim().toLowerCase();
+
+  const list = PRODUCTS
+    .filter(p => !p.paused)
+    .filter(p => {
+      if(!q) return true;
+      const name = String(p.name || "").toLowerCase();
+      return name.includes(q);
+    });
+
+  if(!list.length){
+    sel.innerHTML = `<option value="">Nenhum produto encontrado</option>`;
+    sel.value = "";
+    return;
+  }
+
+  sel.innerHTML = list.map(p=>{
+    return `<option value="${p.id}">${escapeHtml(p.name)} — R$ ${money(p.price)}</option>`;
+  }).join("");
+}
+
+function renderCOItems(){
+  const box = $("coItemsList");
+  if(!box) return;
+
+  if(!CO_ITEMS.length){
+    box.innerHTML = `<div class="muted">Nenhum item.</div>`;
+  } else {
+    box.innerHTML = CO_ITEMS.map((it,idx)=>{
+      const addons = Array.isArray(it.addons) ? it.addons : [];
+      const addonsHtml = addons.length
+        ? `
+          <div class="itemAddons">
+            ${addons.map(a=>{
+              // aceita {name, price} ou string
+              if(typeof a === "string"){
+                return `<span class="addonChip">${escapeHtml(a)}</span>`;
+              }
+              const nm = a?.name ?? a?.title ?? a?.label ?? "";
+              const pr = Number(a?.price || 0);
+              return `<span class="addonChip">${escapeHtml(nm)}${pr ? ` (+${money(pr)})` : ""}</span>`;
+            }).join("")}
+          </div>
+        `
+        : `<div class="itemAddons muted">Sem adicionais</div>`;
+
+      return `
+        <div class="item">
+          <div class="itemLeft">
+            <div class="itemTitle">${escapeHtml(it.name)}</div>
+            <div class="itemSub">Qtd: ${it.qty} • R$ ${money(it.price)} cada</div>
+            ${addonsHtml}
+          </div>
+          <div class="itemRight">
+            <button class="smallBtn danger" data-co-del="${idx}">Remover</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  box.querySelectorAll("[data-co-del]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const idx = Number(btn.dataset.coDel);
+      CO_ITEMS.splice(idx,1);
+      renderCOItems();
+    });
+  });
+
+  // ✅ total incluindo adicionais
+  const subtotal = CO_ITEMS.reduce((a,it)=>{
+    const base = Number(it.price||0) * Number(it.qty||1);
+    const addons = Array.isArray(it.addons) ? it.addons : [];
+    const addSum = addons.reduce((s,x)=>{
+      if(typeof x === "string") return s; // sem preço
+      return s + Number(x?.price || 0);
+    }, 0) * Number(it.qty||1); // adicionais por unidade
+    return a + base + addSum;
+  }, 0);
+
+  const ship = Number($("coShipping")?.value || 0);
+  const total = subtotal + ship;
+  $("coTotalLine").innerText = "Total: " + money(total);
+}
+
+      // ===== Fix definitivo: fechar modal de cliente (delegação) =====
+  (function bindClientModalClose(){
+  document.addEventListener("click", (e)=>{
+    // 1) clicou no fundo escuro (backdrop)
+    if (e.target && e.target.id === "clientBack") {
+      closeClientModal();
+      return;
+    }
+
+    // 2) clicou no botão de fechar (X / Fechar) ou qualquer filho dele
+    const closeBtn = e.target && e.target.closest && e.target.closest("#closeClientModal");
+    if (closeBtn) {
+      closeClientModal();
+      return;
+    }
+  });
+
+
+// ===== FIX: garante clique nos botões do modal de cliente (mesmo se init falhar) =====
+document.addEventListener("click", (e)=>{
+  // Adicionar cupom
+  if(e.target.closest && e.target.closest("#addCouponBtn")){
+    addCoupon(e);
+    return;
+  }
+
+  // (opcional) Salvar / Excluir também, pra não travar caso falhe init
+  if(e.target.closest && e.target.closest("#saveClientBtn")){
+    e.preventDefault();
+    e.stopPropagation();
+    saveClient();
+    return;
+  }
+
+  if(e.target.closest && e.target.closest("#deleteClientBtn")){
+    e.preventDefault();
+    e.stopPropagation();
+    deleteClient();
+    return;
+  }
+});
+
+  // 3) ESC fecha
+  document.addEventListener("keydown", (e)=>{
+    if (e.key === "Escape") closeClientModal();
+  });
+})();
+
+    function parseClientFromSearch(val){
+      if(!val) return null;
+      const phone = (val.split("—")[1]||"").trim();
+      if(!phone) return null;
+      return CLIENTS.find(c=>String(c.phone||"").trim()===phone) || null;
+    }
+
+      $("openCreateOrder").addEventListener("click", async ()=>{
+         openPdvStore();
+   });
+
+      $("coSearchClient").value = "";
+      $("coName").value = "";
+      $("coPhone").value = "";
+      $("coAddress").value = "";
+      $("coService").value = "Delivery";
+      $("coShipping").value = "0";
+      $("coNotes").value = "";
+      $("coPayMethod").value = "Pix";
+      $("coPayStatus").value = "NAO_PAGO";
+      $("coSearchProduct").value = "";
+      rebuildClientsDatalist();
+      rebuildCOProducts($("coSearchProduct").value);
+      renderCOItems();
+
+    $("closeCreateOrder").addEventListener("click", ()=>showModal("createOrderModal", false));
+
+    $("coSearchClient").addEventListener("change", ()=>{
+      const c = parseClientFromSearch($("coSearchClient").value);
+      if(!c) return;
+      $("coName").value = c.name||"";
+      $("coPhone").value = c.phone||"";
+      $("coAddress").value = c.address||"";
+    });
+
+    $("coAddItem").addEventListener("click", ()=>{
+      const pid = $("coProduct").value;
+      const qty = Math.max(1, Number($("coQty").value||1));
+      const p = PRODUCTS.find(x=>String(x.id)===String(pid));
+      if(!p) return;
+      CO_ITEMS.push({ product_id: p.id, name: p.name, qty, price: Number(p.price||0) });
+      renderCOItems();
+    });
+
+
+    $("coSearchProduct").addEventListener("input", ()=>{
+    rebuildCOProducts($("coSearchProduct").value);
+});
+
+
+  $("coShipping").addEventListener("input", ()=>renderCOItems());
+
+  $("coCreateBtn").addEventListener("click", async ()=>{
+  const name = $("coName").value.trim();
+  const phone = $("coPhone").value.trim();
+  const address = $("coAddress").value.trim();
+
+  if(!name || !phone){ alert("Informe nome e telefone."); return; }
+  if(!CO_ITEMS.length){ alert("Adicione pelo menos 1 item."); return; }
+
+  const shipping = Number($("coShipping").value || 0);
+  const payment = $("coPayMethod").value;
+  const payment_status = $("coPayStatus").value;
+  const notes = $("coNotes").value.trim();
+
+  const service_raw = $("coService").value;
+  const type = String(service_raw).toLowerCase().startsWith("d") ? "ENTREGA" : "RETIRADA";
+
+  if(type === "ENTREGA" && !address){
+    alert("Informe o endereço para delivery.");
+    return;
+  }
+
+  const subtotal = CO_ITEMS.reduce((a,b)=> a + (Number(b.price||0) * Number(b.qty||1)), 0);
+  const total = subtotal + shipping;
+
+  const payload = {
+    // campos que o server usa
+    type,
+    shipping,
+    payment,
+    customer_name: name,
+    customer_phone: phone,
+    address: (type === "ENTREGA" ? address : ""),
+    notes,
+    paid: (payment_status === "PAID"),
+
+    // itens
+    items: CO_ITEMS.map(it => ({
+      product_id: it.product_id || it.pid || it.id,
+      name: it.name,
+      price: Number(it.price || 0),
+      qty: Number(it.qty || 1)
+    })),
+
+    subtotal,
+    total,
+
+    // compat (não atrapalha)
+    service_type: type,
+    shipping_fee: shipping,
+    payment_method: payment
+  };
+
+  fetch(API + "/api/orders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+  .then(async (res) => {
+    if (!res.ok) {
+      const msg = await res.text().catch(() => "");
+      throw new Error(msg || "Erro ao criar pedido");
+    }
+    return res.json().catch(() => ({}));
+  })
+  .then(() => {
+    alert("Pedido criado ✅");
+    // reset básico do PDV (só nesta aba)
+    CO_ITEMS.length = 0;
+    renderCOItems();
+    $("coNotes").value = "";
+    $("coShipping").value = "0";
+    // se você tiver modal do PDV, feche aqui (se existir)
+    // $("coBack")?.classList.remove("open");
+  })
+  .catch((err) => {
+    console.error(err);
+    alert("Não foi possível criar o pedido.");
+  });
+});
+
+
+function openPdvStore(){
+  const back = document.getElementById("pdvStoreBack");
+  const frame = document.getElementById("pdvStoreFrame");
+
+  // carrega a LOJA em modo PDV
+  frame.src = "../store/index.html?pdv=1&t=" + Date.now();
+
+  back.classList.add("open");
+}
+
+function closePdvStore(){
+  const back = document.getElementById("pdvStoreBack");
+  const frame = document.getElementById("pdvStoreFrame");
+  back.classList.remove("open");
+  frame.src = ""; // limpa
+
+  // ✅ opcional: volta foco pro admin
+  setTimeout(()=> {
+    document.getElementById("openCreateOrder")?.focus();
+  }, 50);
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btnClose = document.getElementById("pdvStoreClose");
+  const back = document.getElementById("pdvStoreBack");
+
+  if (btnClose) {
+    btnClose.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closePdvStore();
+    });
+  }
+
+  if (back) {
+    back.addEventListener("click", (e) => {
+      // fecha quando clicar no fundo escuro (fora da caixa)
+      if (e.target === back) closePdvStore();
+    });
+  }
+
+  // ESC para fechar
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && back?.classList.contains("open")) {
+      closePdvStore();
+    }
+  });
+});
+
+
+
+function renderPdvCartFromStore(cart){
+  // ✅ aqui vamos colocar os itens no array do modal
+  // vou usar CO_ITEMS como padrão; se o seu usa outro nome me diga.
+  CO_ITEMS.length = 0;
+  CO_ITEMS.push(...(cart || []).map(it => ({
+  product_id: it.product_id,
+  name: it.name,
+  price: Number(it.price || 0),
+  qty: Number(it.qty || 1),
+  addons: it.addons || []
+})));
+
+  // atualiza a lista do modal
+  if (typeof renderCOItems === "function") renderCOItems();
+}
+
+window.addEventListener("message", async (ev)=>{
+  const data = ev.data;
+  if(!data || data.type !== "PDV_CART") return;
+
+  const cart = Array.isArray(data.cart) ? data.cart : [];
+
+  // ✅ garante clientes carregados
+  try{
+    if(!Array.isArray(CLIENTS) || CLIENTS.length === 0){
+      await loadClients();
+    }
+  } catch(e){
+    console.warn("Falha ao carregar clientes:", e);
+  }
+
+  // ✅ joga os itens no modal
+  renderPdvCartFromStore(cart);
+
+  // ✅ só rebuild se o datalist ainda estiver vazio (evita demora)
+  const dl = document.getElementById("clientsDatalist");
+  if (typeof rebuildClientsDatalist === "function" && dl && dl.children.length === 0) {
+    rebuildClientsDatalist();
+  }
+
+  // opcional: deixa o foco já no campo de busca
+  document.getElementById("coSearchClient")?.focus();
+
+  // ✅ abre o modal e fecha a loja
+  showModal("createOrderModal", true);
+  closePdvStore();
+});
+
+
+document.getElementById("pdvStoreClose")?.addEventListener("click", closePdvStore);
+document.getElementById("pdvStoreBack")?.addEventListener("click", (e)=>{
+  if(e.target.id === "pdvStoreBack") closePdvStore();
+});
+
+
+
+</script>
+
+
+<!-- Modal Loja (PDV) -->
+<div id="pdvStoreBack" class="modalBack">
+  <div class="modalBox modalBoxFull">
+    <div class="modalTop">
+      <b>Montar pedido</b>
+      <button class="btn" id="pdvStoreClose">Fechar</button>
+    </div>
+
+    <iframe id="pdvStoreFrame" class="pdvFrame" src=""></iframe>
+  </div>
+</div>
+
+
+<!-- CLIENT DETAILS MODAL -->
+  <div class="backdrop" id="clientBack">
+    <div class="modal">
+      <div class="mHead">
+        <b id="clientModalTitle">Cliente</b>
+        <button class="btn" id="closeClientModal">Fechar</button>
+      </div>
+
+      <div class="mBody" id="clientModalBody">
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap:14px;">
+          <div class="card" style="margin:0;">
+            <h3 style="margin-top:0;">Dados do cliente</h3>
+
+            <label>Nome</label>
+            <input id="cName"/>
+
+            <label>Telefone</label>
+            <input id="cPhone" placeholder="Ex: 5582999999999"/>
+
+            <label>Endereço</label>
+            <input id="cAddr" placeholder="Rua..., Bairro..., Nº..."/>
+
+            <div class="row" style="margin-top:10px;">
+              <button class="smallBtn primary" id="saveClientBtn" style="width:100%;">Salvar</button>
+              <button class="smallBtn danger" id="deleteClientBtn" style="width:100%;">Excluir</button>
+            </div>
+
+            <hr style="border:none;border-top:1px solid rgba(0,0,0,.08); margin:14px 0;">
+
+            <h3 style="margin-top:0;">Cupons do cliente</h3>
+            <div class="muted">Exemplos: Frete grátis, 10% OFF, R$ 5 OFF.</div>
+
+            <div class="row" style="margin-top:10px;">
+              <div>
+                <label>Tipo</label>
+                <select id="cpType">
+                  <option value="FREE_SHIPPING">Frete grátis</option>
+                  <option value="PERCENT">Porcentagem (%)</option>
+                  <option value="VALUE">Valor (R$)</option>
+                </select>
+              </div>
+              <div>
+                <label>Valor</label>
+                <input id="cpValue" type="number" step="0.01" placeholder="Ex: 10"/>
+                <div class="hint">Para frete grátis, pode deixar 0.</div>
+              </div>
+            </div>
+
+            <label>Nome/descrição do cupom (opcional)</label>
+            <input id="cpLabel" placeholder="Ex: Cupom 10%"/>
+
+            <button class="btn btnPrimary" id="addCouponBtn" style="margin-top:12px;width:100%;">Adicionar cupom ao cliente</button>
+
+            <div class="list" id="couponsList" style="margin-top:12px;"></div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <h3 style="margin-top:0;">Histórico do cliente</h3>
+            <div class="muted">Pedidos relacionados ao telefone do cliente. Clique em um pedido para ver detalhes.</div>
+            <div class="list" id="clientOrdersList" style="margin-top:12px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mFoot">
+        <button class="btn btnPrimary" id="closeClientModal2">OK</button>
+      </div>
+    </div>
+  </div>
+  
+
+<div class="backdrop" id="cropBack">
+  <div class="modal" style="max-width:820px;">
+    <div class="mHead">
+      <b>Recortar imagem</b>
+      <button class="btn" id="closeCropBtn">Fechar</button>
+    </div>
+
+    <div class="mBody">
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:14px;" id="cropGrid">
+        <div style="background:#111;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:340px;">
+          <canvas id="cropCanvas" width="900" height="600" style="width:100%;max-width:100%;display:block;background:#111;"></canvas>
+        </div>
+
+        <div>
+          <label>Zoom</label>
+          <input id="cropZoom" type="range" min="1" max="3" step="0.01" value="1">
+
+          <div class="hint" style="margin-top:8px;">
+            Arraste a imagem para posicionar. O corte será salvo no formato do produto.
+          </div>
+
+          <div style="margin-top:14px;display:grid;gap:10px;">
+            <button class="btn btnPrimary" id="applyCropBtn">Aplicar corte</button>
+            <button class="btn" id="resetCropBtn">Resetar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="backdrop" id="adminLoginBack" style="display:none;">
+  <div class="modal" style="max-width:420px;">
+    <div class="mHead">
+      <b>Login do Admin</b>
+    </div>
+
+    <div class="mBody">
+      <div class="muted">Digite a senha do admin para continuar.</div>
+
+      <label>Senha</label>
+      <input id="adminLoginPassword" type="password" placeholder="Sua senha" />
+
+      <div id="adminLoginMsg" class="hint" style="margin-top:10px;color:#b42318;"></div>
+    </div>
+
+    <div class="mFoot">
+      <button class="btn" id="adminLoginCancel">Cancelar</button>
+      <button class="btn btnPrimary" id="adminLoginSubmit">Entrar</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="authGate">
+  <div class="card" style="max-width:420px;width:92%; pointer-events:none;">
+    <h3 style="margin-top:0;">Área administrativa protegida</h3>
+    <div class="muted">Digite a senha do admin para continuar.</div>
+  </div>
+</div>
+
+</body>
+
+</html>
