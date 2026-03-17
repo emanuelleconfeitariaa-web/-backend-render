@@ -1152,32 +1152,44 @@
           </div>
         </div>
 
-        <label>Pausado?</label>
-        <select id="ePaused">
-          <option value="false">Não</option>
-          <option value="true">Sim (esgotado na loja)</option>
-        </select>
+       <label>Pausado?</label>
+<select id="ePaused">
+  <option value="false">Não</option>
+  <option value="true">Sim (esgotado na loja)</option>
+</select>
 
+<label style="margin-top:12px">Desconto (%)</label>
+<input id="eDiscount" type="number" min="0" max="99" step="1" value="0">
+<div class="muted">Ex: 54 para aparecer “-54%” na loja.</div>
 
-        <label style="margin-top:12px">Adicionais (opcional)</label>
-          <div class="muted">Ex.: Cobertura de chocolate (+5,00)</div>
-            <div id="eAddonsList" class="addonsList"></div>
-          <button class="btn btnGhost" type="button" id="eAddonsAdd" style="margin-top:8px;width:100%;">+ Adicionar adicional</button>
+<label style="margin-top:12px">Adicionais (opcional)</label>
+<div class="muted">Ex.: Cobertura de chocolate (+5,00)</div>
+<div id="eAddonsList" class="addonsList"></div>
+<button class="btn btnGhost" type="button" id="eAddonsAdd" style="margin-top:8px;width:100%;">+ Adicionar adicional</button>
 
+<label style="margin-top:12px">Imagens do produto</label>
 
-<label>Imagens do produto</label>
+<div class="row">
+  <div>
+    <label>Imagem 1</label>
+    <div id="eImgPreview1Wrap" style="display:none;margin-bottom:8px;">
+      <img id="eImgPreview1" src="" style="width:100%;max-width:180px;height:120px;object-fit:cover;border-radius:12px;border:1px solid rgba(0,0,0,.08);display:block;">
+      <button type="button" class="btn" id="eRemoveImg1" style="margin-top:8px;">Excluir imagem 1</button>
+    </div>
+    <input id="eImgFile1" type="file" accept="image/*" />
+  </div>
 
-<div>
-  <label>Imagem 1</label>
-  <input id="eImgFile1" type="file" accept="image/*" />
+  <div>
+    <label>Imagem 2</label>
+    <div id="eImgPreview2Wrap" style="display:none;margin-bottom:8px;">
+      <img id="eImgPreview2" src="" style="width:100%;max-width:180px;height:120px;object-fit:cover;border-radius:12px;border:1px solid rgba(0,0,0,.08);display:block;">
+      <button type="button" class="btn" id="eRemoveImg2" style="margin-top:8px;">Excluir imagem 2</button>
+    </div>
+    <input id="eImgFile2" type="file" accept="image/*" />
+  </div>
 </div>
 
-<div style="margin-top:8px">
-  <label>Imagem 2</label>
-  <input id="eImgFile2" type="file" accept="image/*" />
-</div>
-
-<div class="hint">Se você não escolher novas imagens, mantém as atuais.</div>
+<div class="hint">Você pode manter, trocar ou excluir cada imagem separadamente.</div>
 
         <div class="hint" id="eStatus"></div>
       </div>
@@ -1231,7 +1243,7 @@
 
       <hr style="border:none;border-top:1px solid rgba(0,0,0,.08); margin:14px 0;">
       <h3 style="margin:0;">Produtos da categoria</h3>
-      <div class="muted">Edite nome, preço, quantidade (estoque), foto e pausa (esgotado).</div>
+      <div class="muted">Clique em um produto para abrir o modal completo de edição.</div>
 
       <div class="list" id="catProductsList" style="margin-top:12px;"></div>
 
@@ -2068,7 +2080,11 @@ function applyCropResult(){
   CROPPED_CATEGORY_IMAGES[CURRENT_CROP_TARGET] = result;
 }else{
   CROPPED_IMAGES[CURRENT_CROP_TARGET] = result;
+  if(CURRENT_CROP_TARGET === "eImgFile1" || CURRENT_CROP_TARGET === "eImgFile2"){
+  setTimeout(renderEditImagePreviews, 30);
+   }
 }
+
   closeCropModal();
   toast("Imagem cortada ✅");
 }
@@ -2986,12 +3002,55 @@ if(f2 && !img2){
 }
 
     // ====== EDIT MODAL ======
-    let editingId = null;
-    let editingCurrent = null;
+let editingId = null;
+let editingCurrent = null;
+let EDIT_REMOVE_IMAGE_1 = false;
+let EDIT_REMOVE_IMAGE_2 = false;
+
+
+function renderEditImagePreviews(){
+  const currentImages = Array.isArray(editingCurrent?.images)
+    ? editingCurrent.images.map(x => String(x || "").trim()).filter(Boolean).slice(0,2)
+    : (editingCurrent?.image_url ? [String(editingCurrent.image_url).trim()] : []);
+
+  let img1 = currentImages[0] || "";
+  let img2 = currentImages[1] || "";
+
+  if(EDIT_REMOVE_IMAGE_1) img1 = "";
+  if(EDIT_REMOVE_IMAGE_2) img2 = "";
+
+  if(CROPPED_IMAGES.eImgFile1) img1 = CROPPED_IMAGES.eImgFile1;
+  if(CROPPED_IMAGES.eImgFile2) img2 = CROPPED_IMAGES.eImgFile2;
+
+  const wrap1 = $("eImgPreview1Wrap");
+  const wrap2 = $("eImgPreview2Wrap");
+  const prev1 = $("eImgPreview1");
+  const prev2 = $("eImgPreview2");
+
+  if(wrap1 && prev1){
+    if(img1){
+      prev1.src = img1;
+      wrap1.style.display = "block";
+    }else{
+      prev1.src = "";
+      wrap1.style.display = "none";
+    }
+  }
+
+  if(wrap2 && prev2){
+    if(img2){
+      prev2.src = img2;
+      wrap2.style.display = "block";
+    }else{
+      prev2.src = "";
+      wrap2.style.display = "none";
+    }
+  }
+}
 
 function openEdit(id){
   editingId = String(id);
-  editingCurrent = PRODUCTS.find(p=>String(p.id)===editingId);
+  editingCurrent = PRODUCTS.find(p => String(p.id) === editingId);
   if(!editingCurrent) return;
 
   const editImages = Array.isArray(editingCurrent.images)
@@ -2999,35 +3058,44 @@ function openEdit(id){
     : (editingCurrent.image_url ? [String(editingCurrent.image_url).trim()] : []);
 
   $("eName").value = editingCurrent.name || "";
-  $("ePrice").value = Number(editingCurrent.price||0);
+  $("ePrice").value = Number(editingCurrent.price || 0);
   $("eCat").value = editingCurrent.category || "";
   $("eSub").value = editingCurrent.subcategory || "";
   $("eDesc").value = editingCurrent.description || "";
   $("eFeatured").value = String(!!editingCurrent.featured);
   $("eStockEnabled").value = String(editingCurrent.stock_enabled !== false);
-  $("eStockQty").value = Number(editingCurrent.stock_qty||0);
-  $("eLowStock").value = Number(editingCurrent.low_stock_alert||5);
+  $("eStockQty").value = Number(editingCurrent.stock_qty || 0);
+  $("eLowStock").value = Number(editingCurrent.low_stock_alert || 5);
   $("ePaused").value = String(!!editingCurrent.paused);
+  $("eDiscount").value = Number(editingCurrent.discount_percent || 0);
 
   if($("eImgFile1")) $("eImgFile1").value = "";
   if($("eImgFile2")) $("eImgFile2").value = "";
 
   $("eStatus").textContent = "";
-  $("eDiscount").value = Number(editingCurrent.discount_percent || 0);
   fillAddonsEditor("eAddonsList", editingCurrent.addons || []);
 
-  // guarda as imagens atuais para a hora de salvar
   editingCurrent.__editImages = editImages;
-  CROPPED_IMAGES.pImgFile1 = "";
-  CROPPED_IMAGES.pImgFile2 = "";
+
+  EDIT_REMOVE_IMAGE_1 = false;
+  EDIT_REMOVE_IMAGE_2 = false;
+  CROPPED_IMAGES.eImgFile1 = "";
+  CROPPED_IMAGES.eImgFile2 = "";
+
+  renderEditImagePreviews();
+
   $("editBack").classList.add("open");
 }
 
-    function closeEdit(){
-      $("editBack").classList.remove("open");
-      editingId = null;
-      editingCurrent = null;
-    }
+function closeEdit(){
+  $("editBack").classList.remove("open");
+  editingId = null;
+  editingCurrent = null;
+  EDIT_REMOVE_IMAGE_1 = false;
+  EDIT_REMOVE_IMAGE_2 = false;
+  CROPPED_IMAGES.eImgFile1 = "";
+  CROPPED_IMAGES.eImgFile2 = "";
+}
 
  async function saveEdit(){
   if(!editingId) return;
@@ -3048,11 +3116,14 @@ function openEdit(id){
   };
 
   const currentImages = Array.isArray(editingCurrent?.images)
-    ? editingCurrent.images.map(x => String(x || "").trim()).filter(Boolean).slice(0,2)
-    : (editingCurrent?.image_url ? [String(editingCurrent.image_url).trim()] : []);
+  ? editingCurrent.images.map(x => String(x || "").trim()).filter(Boolean).slice(0,2)
+  : (editingCurrent?.image_url ? [String(editingCurrent.image_url).trim()] : []);
 
-let img1 = CROPPED_IMAGES.eImgFile1 || currentImages[0] || "";
-let img2 = CROPPED_IMAGES.eImgFile2 || currentImages[1] || "";
+let img1 = EDIT_REMOVE_IMAGE_1 ? "" : (currentImages[0] || "");
+let img2 = EDIT_REMOVE_IMAGE_2 ? "" : (currentImages[1] || "");
+
+if(CROPPED_IMAGES.eImgFile1) img1 = CROPPED_IMAGES.eImgFile1;
+if(CROPPED_IMAGES.eImgFile2) img2 = CROPPED_IMAGES.eImgFile2;
 
 const f1 = $("eImgFile1")?.files && $("eImgFile1").files[0];
 const f2 = $("eImgFile2")?.files && $("eImgFile2").files[0];
@@ -4011,6 +4082,33 @@ bindCropInputById("pImgFile2");
 bindCropInputById("eImgFile1");
 bindCropInputById("eImgFile2");
 
+
+$("eImgFile1")?.addEventListener("change", ()=>{
+  EDIT_REMOVE_IMAGE_1 = false;
+  setTimeout(renderEditImagePreviews, 60);
+});
+
+$("eImgFile2")?.addEventListener("change", ()=>{
+  EDIT_REMOVE_IMAGE_2 = false;
+  setTimeout(renderEditImagePreviews, 60);
+});
+
+$("eRemoveImg1")?.addEventListener("click", ()=>{
+  EDIT_REMOVE_IMAGE_1 = true;
+  CROPPED_IMAGES.eImgFile1 = "";
+  if($("eImgFile1")) $("eImgFile1").value = "";
+  renderEditImagePreviews();
+});
+
+$("eRemoveImg2")?.addEventListener("click", ()=>{
+  EDIT_REMOVE_IMAGE_2 = true;
+  CROPPED_IMAGES.eImgFile2 = "";
+  if($("eImgFile2")) $("eImgFile2").value = "";
+  renderEditImagePreviews();
+});
+
+
+
 $("closeCropBtn")?.addEventListener("click", closeCropModal);
 $("applyCropBtn")?.addEventListener("click", applyCropResult);
 $("resetCropBtn")?.addEventListener("click", ()=>{
@@ -4390,191 +4488,69 @@ $("addCouponBtn")?.addEventListener("click", addCoupon);
 
     }
 
-    async function renderCategoryProducts(cat){
-      const list = $("catProductsList");
-      const prods = PRODUCTS.filter(p=>String(p.category||"")===String(cat.name||""));
+async function renderCategoryProducts(cat){
+  const list = $("catProductsList");
+  const prods = PRODUCTS
+    .filter(p => String(p.category || "") === String(cat.name || ""))
+    .slice()
+    .sort((a,b) => String(a.name || "").localeCompare(String(b.name || ""), "pt-BR"));
 
-      if(!prods.length){
-        list.innerHTML = `<div class="muted">Nenhum produto nessa categoria ainda.</div>`;
-        return;
-      }
+  if(!prods.length){
+    list.innerHTML = `<div class="muted">Nenhum produto nessa categoria ainda.</div>`;
+    return;
+  }
 
-      list.innerHTML = prods.map(p=>{
-        const price = Number(p.price||0).toFixed(2);
-        const stock = p.stock_enabled ? Number(p.stock_qty||0) : "";
-        const paused = !!p.paused;
-       
-        return `
+  list.innerHTML = prods.map(p=>{
+    const imgs = Array.isArray(p.images)
+      ? p.images.map(x => String(x || "").trim()).filter(Boolean).slice(0,2)
+      : (p.image_url ? [String(p.image_url).trim()] : []);
 
-          <div class="item" style="align-items:flex-start; gap:10px;">
-            <div class="itemLeft" style="gap:6px;">
-              <div class="itemTitle">${escapeHtml(p.name||"")}</div>
-              <div class="itemSub">${productPill(p)}</div>
+    const thumb = imgs[0] || "";
+    const stockInfo = (p.stock_enabled !== false)
+      ? `Estoque: ${Number(p.stock_qty || 0)}`
+      : `Sem controle de estoque`;
 
-              <div class="row" style="margin-top:8px;">
-                <div>
-                  <label>Nome</label>
-                  <input data-p-name="${p.id}" value="${escapeAttr(p.name||"")}"/>
-                </div>
-                <div>
-                  <label>Preço</label>
-                  <input data-p-price="${p.id}" type="number" step="0.01" value="${escapeAttr(price)}"/>
-                </div>
-              </div>
-
-             <label>Desconto (%)</label>
-              <input data-p-discount="${p.id}" type="number" min="0" max="99" step="1" value="${escapeAttr(String(p.discount_percent ?? 0))}">
-                <div class="muted">Ex: 54 para aparecer “-54%” na loja.</div>
-
-
-              <div class="row" style="margin-top:8px;">
-                <div>
-                  <label>Quantidade (estoque)</label>
-                  <input data-p-stock="${p.id}" type="number" step="1" value="${escapeAttr(String(stock))}" ${p.stock_enabled? "":"disabled"}/>
-                </div>
-                <div>
-<div>
-  <label>Imagem 1</label>
-  <input
-    type="file"
-    class="catProdImg1"
-    data-p-img1="${p.id}"
-    data-crop-key="cat:${p.id}:1"
-    accept="image/*">
-</div>
-
-<div style="margin-top:8px">
-  <label>Imagem 2</label>
-  <input
-    type="file"
-    class="catProdImg2"
-    data-p-img2="${p.id}"
-    data-crop-key="cat:${p.id}:2"
-    accept="image/*">
-</div>
-                </div>
-              </div>
-
-              <label style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-                <input data-p-paused="${p.id}" type="checkbox" ${paused?"checked":""}/> Produto em pausa (esgotado)
-              </label>
-
-                <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-                   <input data-p-featured="${p.id}" type="checkbox" ${p.featured ? "checked" : ""}/>
-                     Destaque (aparece primeiro na loja)
-                      </label>
-
-
-              <div class="row" style="margin-top:8px;">
-                <button class="smallBtn primary" data-p-save="${p.id}">Salvar</button>
-                <button class="smallBtn danger" data-p-del="${p.id}">Excluir</button>
-              </div>
-            </div>
+    return `
+      <div class="item"
+           role="button"
+           tabindex="0"
+           data-open-cat-product="${p.id}"
+           style="cursor:pointer;">
+        <div class="itemLeft">
+          <div class="itemTitle">${escapeHtml(p.name || "")} ${p.featured ? "⭐" : ""}</div>
+          <div class="itemSub">
+            ${escapeHtml(p.subcategory || "") ? escapeHtml(p.subcategory || "") + "<br/>" : ""}
+            <b>${money(Number(p.price || 0))}</b><br/>
+            ${stockInfo}
           </div>
-        `;
-      }).join("");
-      bindCategoryCropInputs(list);
-      // bind save / delete
-      list.querySelectorAll("[data-p-save]").forEach(btn=>{
-        btn.addEventListener("click", async ()=>{
-          const id = btn.dataset.pSave;
-          const p = PRODUCTS.find(x=>String(x.id)===String(id));
-          if(!p) return;
+        </div>
 
-          const name = (list.querySelector(`[data-p-name="${CSS.escape(id)}"]`)||{}).value || p.name;
-          const price = Number((list.querySelector(`[data-p-price="${CSS.escape(id)}"]`)||{}).value || p.price || 0);
-          const paused = !!(list.querySelector(`[data-p-paused="${CSS.escape(id)}"]`)||{}).checked;
-
-          let stock_enabled = p.stock_enabled;
-          let stock_qty = p.stock_qty;
-          const stockEl = list.querySelector(`[data-p-stock="${CSS.escape(id)}"]`);
-          if(stockEl && !stockEl.disabled){
-            stock_enabled = true;
-            stock_qty = Number(stockEl.value||0);
+        <div class="itemRight" style="display:flex;align-items:center;gap:10px;">
+          ${thumb
+            ? `<img src="${escapeAttr(thumb)}" style="width:64px;height:64px;object-fit:cover;border-radius:12px;border:1px solid rgba(0,0,0,.08);">`
+            : `<div style="width:64px;height:64px;border-radius:12px;border:1px solid rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-size:12px;color:#777;">Sem foto</div>`
           }
+          ${productPill(p)}
+        </div>
+      </div>
+    `;
+  }).join("");
 
-// images upload (até 2)
-const currentImages = Array.isArray(p.images)
-  ? p.images.map(x => String(x || "").trim()).filter(Boolean).slice(0, 2)
-  : (p.image_url ? [String(p.image_url).trim()] : []);
+  list.querySelectorAll("[data-open-cat-product]").forEach(el=>{
+    const open = ()=>{
+      const id = el.dataset.openCatProduct;
+      openEdit(id);
+    };
 
-const cropKey1 = `cat:${id}:1`;
-const cropKey2 = `cat:${id}:2`;
-
-let img1 = CROPPED_CATEGORY_IMAGES[cropKey1] || currentImages[0] || "";
-let img2 = CROPPED_CATEGORY_IMAGES[cropKey2] || currentImages[1] || "";
-
-const fileEl1 = list.querySelector(`[data-p-img1="${CSS.escape(id)}"]`);
-const fileEl2 = list.querySelector(`[data-p-img2="${CSS.escape(id)}"]`);
-
-const file1 = fileEl1 && fileEl1.files && fileEl1.files[0];
-const file2 = fileEl2 && fileEl2.files && fileEl2.files[0];
-
-if(file1 && !CROPPED_CATEGORY_IMAGES[cropKey1]){
-  img1 = await fileToDataURL(file1);
+    el.addEventListener("click", open);
+    el.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        open();
+      }
+    });
+  });
 }
-
-if(file2 && !CROPPED_CATEGORY_IMAGES[cropKey2]){
-  img2 = await fileToDataURL(file2);
-}
-
-const images = buildProductImages(img1, img2);
-const image_url = images[0] || "";
-
-          const discEl = list.querySelector(`[data-p-discount="${CSS.escape(id)}"]`);
-          const discount_percent = Number((discEl && discEl.value) || (p.discount_percent ?? 0) || 0);
-          const featured = !!list.querySelector(`[data-p-featured="${CSS.escape(id)}"]`)?.checked;
-
-
-const payload = { 
-  name, price, discount_percent, paused, stock_enabled, stock_qty, featured,
-  category: p.category,
-  image_url,
-  images
-};
-
-          const res = await apiFetch("/api/products/" + encodeURIComponent(id),{
-            method:"PUT",
-            headers:{ "Content-Type":"application/json" },
-            body: JSON.stringify(payload)
-          });
-          const data = await res.json().catch(()=>null);
-          if(!res.ok){
-            alert((data && data.error) ? data.error : "Erro ao salvar produto.");
-            return;
-          }
-          toast("Produto atualizado ✅");
-          delete CROPPED_CATEGORY_IMAGES[`cat:${id}:1`];
-          delete CROPPED_CATEGORY_IMAGES[`cat:${id}:2`];
-          await loadProducts();
-          await loadCategories();
-          const catNow = CATEGORIES.find(c=>String(c.id)===String(CURRENT_CAT_ID));
-          if(catNow) await renderCategoryProducts(catNow);
-          renderProducts();
-          renderCategories();
-        });
-      });
-
-      list.querySelectorAll("[data-p-del]").forEach(btn=>{
-        btn.addEventListener("click", async ()=>{
-          const id = btn.dataset.pDel;
-          if(!confirm("Excluir este produto?")) return;
-          const res = await fetch(API + "/api/products/" + encodeURIComponent(id),{method:"DELETE"});
-          const data = await res.json().catch(()=>null);
-          if(!res.ok){
-            alert((data && data.error) ? data.error : "Erro ao excluir produto.");
-            return;
-          }
-          toast("Produto excluído ✅");
-          await loadProducts();
-          await loadCategories();
-          const catNow = CATEGORIES.find(c=>String(c.id)===String(CURRENT_CAT_ID));
-          if(catNow) await renderCategoryProducts(catNow);
-          renderProducts();
-          renderCategories();
-        });
-      });
-    }
 
     async function fileToDataURL(file){
       return new Promise((resolve,reject)=>{
