@@ -851,7 +851,18 @@ app.delete("/api/categories/:id", async (req, res) => {
       return res.status(404).json({ error: "Categoria não encontrada" });
     }
 
-    res.json({ ok: true });
+    const removedName = String(category.name || "").trim();
+
+    const result = await Product.deleteMany({
+      category: removedName
+    });
+
+    res.json({
+      ok: true,
+      deleted_category_id: req.params.id,
+      deleted_category_name: removedName,
+      deleted_products: result.deletedCount || 0
+    });
   } catch (err) {
     console.error("Erro ao excluir categoria:", err);
     res.status(500).json({ error: "Erro ao excluir categoria" });
@@ -895,12 +906,13 @@ app.post("/api/products/bulk", async (req, res) => {
 app.post("/api/products", async (req, res) => {
   try {
     const body = req.body || {};
+    const categoryName = String(body.category || "").trim();
 
     const product = await Product.create({
       name: String(body.name || "").trim(),
       price: Number(body.price || 0),
 
-      category: String(body.category || "").trim(),
+      category: categoryName,
       subcategory: String(body.subcategory || "").trim(),
       description: String(body.description || ""),
 
@@ -924,6 +936,21 @@ app.post("/api/products", async (req, res) => {
       category_id: body.category_id || null
     });
 
+    if (categoryName) {
+      const exists = await Category.findOne({
+        name: { $regex: new RegExp("^" + categoryName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", "i") }
+      });
+
+      if (!exists) {
+        await Category.create({
+          name: categoryName,
+          slug: "",
+          active: true,
+          sort_order: 0
+        });
+      }
+    }
+
     res.status(201).json(product);
   } catch (err) {
     console.error("Erro ao criar produto:", err);
@@ -935,6 +962,7 @@ app.post("/api/products", async (req, res) => {
 app.put("/api/products/:id", async (req, res) => {
   try {
     const body = req.body || {};
+    const categoryName = String(body.category || "").trim();
 
     const product = await Product.findByIdAndUpdate(
       req.params.id,
@@ -942,7 +970,7 @@ app.put("/api/products/:id", async (req, res) => {
         name: String(body.name || "").trim(),
         price: Number(body.price || 0),
 
-        category: String(body.category || "").trim(),
+        category: categoryName,
         subcategory: String(body.subcategory || "").trim(),
         description: String(body.description || ""),
 
@@ -970,6 +998,21 @@ app.put("/api/products/:id", async (req, res) => {
 
     if (!product) {
       return res.status(404).json({ error: "Produto não encontrado" });
+    }
+
+    if (categoryName) {
+      const exists = await Category.findOne({
+        name: { $regex: new RegExp("^" + categoryName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", "i") }
+      });
+
+      if (!exists) {
+        await Category.create({
+          name: categoryName,
+          slug: "",
+          active: true,
+          sort_order: 0
+        });
+      }
     }
 
     res.json(product);
