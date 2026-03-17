@@ -300,11 +300,25 @@ function normalizeAddons(addons){
 }
 
 function ensureCategoryExists(name){
-  const n = String(name||"").trim();
+  const n = String(name || "").trim();
   if(!n) return;
-  const exists = categories.some(c => String(c.name||"").toLowerCase() === n.toLowerCase());
+
+  reloadCategoriesFromDisk();
+
+  const exists = categories.some(
+    c => String(c.name || "").trim().toLowerCase() === n.toLowerCase()
+  );
+
   if(exists) return;
-  categories.push({ id: Date.now().toString() + Math.floor(Math.random()*1000), name: n, created_at: nowIso() });
+
+  const cat = {
+    id: Date.now().toString() + Math.floor(Math.random()*1000),
+    name: n,
+    featured: false,
+    created_at: nowIso()
+  };
+
+  categories.push(cat);
   writeJson(CATEGORIES_FILE, categories);
 }
 
@@ -555,57 +569,43 @@ app.put("/api/categories/:id", (req, res) => {
 
 app.delete("/api/categories/:id", (req, res) => {
   try {
-    const id = String(req.params.id);
+    const id = toId(req.params.id);
 
-    // 1) lê categorias
-    const categories = readJson("categories.json", []);
-    const idx = categories.findIndex(c => String(c.id) === id);
+    reloadCategoriesFromDisk();
+    reloadProductsFromDisk();
 
-    if (idx === -1) {
-      return res.status(404).json({ error: "Categoria não encontrada." });
+    const idx = categories.findIndex(c => toId(c.id) === id);
+
+    if (idx < 0) {
+      return res.status(404).json({ ok:false, error:"Categoria não encontrada" });
     }
 
-    // guarda dados da categoria removida (pra comparar por nome também)
     const removed = categories[idx];
-    const removedName = String(removed?.name || removed?.title || "").trim();
+    const removedName = String(removed?.name || "").trim();
 
-    // 2) remove a categoria
     categories.splice(idx, 1);
-    writeJson("categories.json", categories);
-
-    // 3) CASCADE: remove todos os produtos dessa categoria
-    const products = readJson("products.json", []);
+    writeJson(CATEGORIES_FILE, categories);
 
     const before = products.length;
 
-    const filtered = products.filter(p => {
-      const catId =
-        p.category_id ?? p.categoryId ?? p.categoryID ?? p.category ?? null;
-
-      const catName =
-        String(p.category_name ?? p.categoryName ?? p.category_title ?? p.categoryTitle ?? "").trim();
-
-      // remove se bater por ID (quando produto guarda id da categoria)
-      if (catId !== null && String(catId) === id) return false;
-
-      // remove se bater por nome (quando produto guarda nome da categoria)
-      if (removedName && (String(p.category || "").trim() === removedName || catName === removedName)) return false;
-
-      // mantém
-      return true;
+    products = products.filter(p => {
+      const productCategory = String(p.category || "").trim();
+      return productCategory !== removedName;
     });
 
-    writeJson("products.json", filtered);
+    writeJson(PRODUCTS_FILE, products);
 
-    const removedCount = before - filtered.length;
+    const removedCount = before - products.length;
 
     return res.json({
       ok: true,
       deleted_category_id: id,
+      deleted_category_name: removedName,
       deleted_products: removedCount
     });
   } catch (e) {
-    return res.status(500).json({ error: String(e?.message || e) });
+    console.error("delete category error:", e);
+    return res.status(500).json({ ok:false, error:String(e?.message || e) });
   }
 });
 

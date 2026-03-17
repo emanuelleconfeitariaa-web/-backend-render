@@ -7,8 +7,13 @@ async function connectDB() {
     throw new Error("MONGODB_URI não definida.");
   }
 
-  await mongoose.connect(uri);
-  console.log("MongoDB conectado.");
+  try {
+    await mongoose.connect(uri);
+    console.log("MongoDB conectado.");
+  } catch (err) {
+    console.error("Erro ao conectar no MongoDB:", err);
+    throw err;
+  }
 }
 
 module.exports = { connectDB };
