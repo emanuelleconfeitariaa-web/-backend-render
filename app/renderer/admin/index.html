@@ -259,14 +259,14 @@
     .smallBtn:active{ transform: translateY(1px); }
 
     /* Modal backdrop (reuso) */
-    .backdrop{
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.35);
-      display:none;
-      align-items:center; justify-content:center;
-      padding: 14px;
-      z-index: 9999;
-    }
+ .backdrop{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.35);
+  display:none;
+  align-items:center; justify-content:center;
+  padding: 14px;
+  z-index: 12000;
+}
     .backdrop.open{ display:flex; }
         .modal{
       width: min(980px, 100%);
@@ -3097,7 +3097,7 @@ function closeEdit(){
   CROPPED_IMAGES.eImgFile2 = "";
 }
 
- async function saveEdit(){
+async function saveEdit(){
   if(!editingId) return;
 
   const payload = {
@@ -3116,33 +3116,35 @@ function closeEdit(){
   };
 
   const currentImages = Array.isArray(editingCurrent?.images)
-  ? editingCurrent.images.map(x => String(x || "").trim()).filter(Boolean).slice(0,2)
-  : (editingCurrent?.image_url ? [String(editingCurrent.image_url).trim()] : []);
+    ? editingCurrent.images.map(x => String(x || "").trim()).filter(Boolean).slice(0,2)
+    : (editingCurrent?.image_url ? [String(editingCurrent.image_url).trim()] : []);
 
-let img1 = EDIT_REMOVE_IMAGE_1 ? "" : (currentImages[0] || "");
-let img2 = EDIT_REMOVE_IMAGE_2 ? "" : (currentImages[1] || "");
+  let img1 = EDIT_REMOVE_IMAGE_1 ? "" : (currentImages[0] || "");
+  let img2 = EDIT_REMOVE_IMAGE_2 ? "" : (currentImages[1] || "");
 
-if(CROPPED_IMAGES.eImgFile1) img1 = CROPPED_IMAGES.eImgFile1;
-if(CROPPED_IMAGES.eImgFile2) img2 = CROPPED_IMAGES.eImgFile2;
+  if(CROPPED_IMAGES.eImgFile1) img1 = CROPPED_IMAGES.eImgFile1;
+  if(CROPPED_IMAGES.eImgFile2) img2 = CROPPED_IMAGES.eImgFile2;
 
-const f1 = $("eImgFile1")?.files && $("eImgFile1").files[0];
-const f2 = $("eImgFile2")?.files && $("eImgFile2").files[0];
+  const f1 = $("eImgFile1")?.files && $("eImgFile1").files[0];
+  const f2 = $("eImgFile2")?.files && $("eImgFile2").files[0];
 
-if(f1 && !CROPPED_IMAGES.eImgFile1){
-  try{ img1 = await fileToDataURL(f1); }
-  catch{ alert("Não foi possível ler a imagem 1."); return; }
-}
+  if(f1 && !CROPPED_IMAGES.eImgFile1){
+    try{ img1 = await fileToDataURL(f1); }
+    catch{ alert("Não foi possível ler a imagem 1."); return; }
+  }
 
-if(f2 && !CROPPED_IMAGES.eImgFile2){
-  try{ img2 = await fileToDataURL(f2); }
-  catch{ alert("Não foi possível ler a imagem 2."); return; }
-}
+  if(f2 && !CROPPED_IMAGES.eImgFile2){
+    try{ img2 = await fileToDataURL(f2); }
+    catch{ alert("Não foi possível ler a imagem 2."); return; }
+  }
 
   const images = buildProductImages(img1, img2);
   payload.images = images;
   payload.image_url = images[0] || "";
 
- const res = await apiFetch("/api/products/" + encodeURIComponent(editingId),{
+  const currentCatId = CURRENT_CAT_ID;
+
+  const res = await apiFetch("/api/products/" + encodeURIComponent(editingId),{
     method:"PUT",
     headers:{ "Content-Type":"application/json" },
     body: JSON.stringify(payload)
@@ -3155,29 +3157,60 @@ if(f2 && !CROPPED_IMAGES.eImgFile2){
   }
 
   $("eStatus").innerHTML = `<span class="ok">Salvo ✅</span>`;
+
+  CROPPED_IMAGES.eImgFile1 = "";
+  CROPPED_IMAGES.eImgFile2 = "";
+
   await loadCategories();
   await loadProducts();
-  setTimeout(closeEdit, 250);
 
-CROPPED_IMAGES.eImgFile1 = "";
-CROPPED_IMAGES.eImgFile2 = "";
+  closeEdit();
 
+  if(currentCatId){
+    const catNow = CATEGORIES.find(c => String(c.id) === String(currentCatId));
+    if(catNow){
+      $("catEditName").value = catNow.name || "";
+      $("catEditFeatured").checked = !!catNow.featured;
+      await renderCategoryProducts(catNow);
+      showModal("categoryModal", true);
+    }
+  }
+
+  toast("Produto atualizado ✅");
 }
 
-    async function deleteProduct(){
-      if(!editingId) return;
-      if(!confirm("Excluir este produto?")) return;
+async function deleteProduct(){
+  if(!editingId) return;
+  if(!confirm("Excluir este produto?")) return;
 
-     const res = await apiFetch("/api/products/" + encodeURIComponent(editingId),{ method:"DELETE" });
-      if(!res.ok){
-        const txt = await res.text();
-        alert("Erro ao excluir:\n" + txt);
-        return;
-      }
-      await loadProducts();
-      closeEdit();
-      toast("Excluído ✅");
+  const currentCatId = CURRENT_CAT_ID;
+
+  const res = await apiFetch("/api/products/" + encodeURIComponent(editingId),{
+    method:"DELETE"
+  });
+
+  if(!res.ok){
+    const txt = await res.text();
+    alert("Erro ao excluir:\n" + txt);
+    return;
+  }
+
+  await loadCategories();
+  await loadProducts();
+  closeEdit();
+
+  if(currentCatId){
+    const catNow = CATEGORIES.find(c => String(c.id) === String(currentCatId));
+    if(catNow){
+      $("catEditName").value = catNow.name || "";
+      $("catEditFeatured").checked = !!catNow.featured;
+      await renderCategoryProducts(catNow);
+      showModal("categoryModal", true);
     }
+  }
+
+  toast("Excluído ✅");
+}
 
     // ====== Categories actions ======
     async function createCategory(){
@@ -4537,10 +4570,11 @@ async function renderCategoryProducts(cat){
   }).join("");
 
   list.querySelectorAll("[data-open-cat-product]").forEach(el=>{
-    const open = ()=>{
-      const id = el.dataset.openCatProduct;
-      openEdit(id);
-    };
+const open = ()=>{
+  const id = el.dataset.openCatProduct;
+  showModal("categoryModal", false);
+  openEdit(id);
+};
 
     el.addEventListener("click", open);
     el.addEventListener("keydown", (e)=>{
