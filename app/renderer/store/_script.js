@@ -39,6 +39,56 @@ function setText(id, v){
 }
 
 
+
+
+function renderModalFlavors(p){
+  const wrap = $("prodFlavorWrap");
+  const list = $("prodFlavorList");
+  if(!wrap || !list) return;
+
+  const flavors = Array.isArray(p?.flavors) ? p.flavors.map(x => String(x || "").trim()).filter(Boolean) : [];
+
+  if(!flavors.length){
+    wrap.style.display = "none";
+    list.innerHTML = "";
+    MODAL_FLAVOR = "";
+    return;
+  }
+
+  wrap.style.display = "block";
+
+  list.innerHTML = flavors.map((flavor, i) => `
+    <label style="
+      display:flex; align-items:center; gap:10px;
+      padding: 8px 12px;
+      border:1px solid rgba(0,0,0,.18);
+      border-radius:8px;
+      background: rgba(255,255,255,.18);
+      font-size: 13px;
+      font-weight: 600;
+      cursor:pointer;
+    ">
+      <input type="radio" name="prodFlavor" value="${escapeAttr(flavor)}" ${i === 0 ? "checked" : ""}>
+      <span>${escapeHtml(flavor)}</span>
+    </label>
+  `).join("");
+
+  MODAL_FLAVOR = flavors[0] || "";
+
+  list.querySelectorAll('input[name="prodFlavor"]').forEach(inp=>{
+    inp.addEventListener("change", ()=>{
+      if(inp.checked){
+        MODAL_FLAVOR = String(inp.value || "").trim();
+      }
+    });
+  });
+}
+
+function productFlavorLabel(flavor){
+  const f = String(flavor || "").trim();
+  return f ? ` • Sabor: ${f}` : "";
+}
+
 async function loadCategories(){
   try{
     const res = await fetch(API + "/api/categories");
@@ -57,8 +107,9 @@ let CART = []; // {product_id, name, price, qty}
 // modal produto
 let MODAL_PRODUCT = null;
 let MODAL_QTY = 1;
-let MODAL_ADDONS = [];       // adicionais marcados no modal
-let __modalBasePrice = 0;    // preço base do produto no modal
+let MODAL_ADDONS = [];  
+let MODAL_FLAVOR = "";    
+let __modalBasePrice = 0;   
 
 function sendCartToPDV(){
   const subtotal = CART.reduce((acc,it)=> acc + (Number(it.price||0) * Number(it.qty||0)), 0);
@@ -144,6 +195,8 @@ function openProdModal(p){
   __modalBasePrice = Number(p.price || 0);
     MODAL_ADDONS = [];
     renderModalAddons(p);
+    MODAL_FLAVOR = "";
+    renderModalFlavors(p);
 
       // ===== DESCONTO no MODAL =====
   const disc = normDiscountPercent(p.discount_percent);
@@ -218,17 +271,18 @@ function closeProdModal(){
 
 
 
-function addToCart(p, qty, addons){
+function addToCart(p, qty, addons, flavor){
   qty = Number(qty||0);
   if(!p || qty<=0) return;
 
+  const lineFlavor = String(flavor || "").trim();
   const lineAddons = Array.isArray(addons) ? addons.map(a=>({
     id: String(a.id ?? ""),
     name: String(a.name ?? ""),
     price: Number(a.price ?? 0)
   })) : [];
 
-  const lineId = makeLineId(p.id, lineAddons);
+  const lineId = makeLineId(p.id, lineAddons, lineFlavor);
 
   // estoque: soma TODAS as linhas do mesmo produto (com/sem adicionais)
   const currentQtyProduct = CART
@@ -249,7 +303,7 @@ function addToCart(p, qty, addons){
   const base = discountedPrice(Number(p.price||0), disc);
   const unit = base + addonsTotal(lineAddons);
 
-  const nameLine = (p.name || "Produto") + addonsLabel(lineAddons);
+  const nameLine = (p.name || "Produto") + productFlavorLabel(lineFlavor) + addonsLabel(lineAddons);
 
   if(existing){
     existing.qty = Number(existing.qty||0) + qty;
@@ -260,7 +314,8 @@ function addToCart(p, qty, addons){
       name: nameLine,
       price: unit,
       qty,
-      addons: lineAddons
+      addons: lineAddons,
+      flavor: lineFlavor,
     });
   }
 
@@ -386,9 +441,10 @@ window.addEventListener("scroll", () => {
   return (addons||[]).reduce((a,x)=> a + Number(x.price||0), 0);
 }
 
-function makeLineId(productId, addons){
+function makeLineId(productId, addons, flavor){
   const ids = (addons||[]).map(a=>String(a.id)).sort().join(",");
-  return `${String(productId)}|${ids}`;
+  const fl = String(flavor || "").trim();
+  return `${String(productId)}|${fl}|${ids}`;
 }
 
 function addonsLabel(addons){
@@ -628,70 +684,23 @@ function applyReviewsLink(){
 
 
 async function loadProducts(){
-  const content = $("content");
+  const res = await fetch(API + "/api/products");
+  const arr = await res.json();
 
-  try{
-    const res = await fetch(API + "/api/products", { cache: "no-store" });
+  const map = new Map();
 
-    const rawText = await res.text();
+  (arr || []).forEach((p, i) => {
+    const key = String(p.id ?? p._id ?? "").trim();
 
-    if(!res.ok){
-      throw new Error("Falha em /api/products: HTTP " + res.status + " - " + rawText.slice(0, 180));
+    if(key){
+      map.set(key, { ...p, id: key });
+    }else{
+      map.set("idx_" + i, { ...p, id: "idx_" + i });
     }
+  });
 
-    let data;
-    try{
-      data = rawText ? JSON.parse(rawText) : [];
-    }catch(e){
-      throw new Error("Resposta inválida em /api/products: " + rawText.slice(0, 180));
-    }
-
-    const arr = Array.isArray(data)
-      ? data
-      : Array.isArray(data.products)
-        ? data.products
-        : Array.isArray(data.items)
-          ? data.items
-          : Array.isArray(data.data)
-            ? data.data
-            : [];
-
-    const map = new Map();
-
-    (arr || []).forEach((p, i) => {
-      const key = String(p?.id ?? p?._id ?? "").trim();
-
-      if(key){
-        map.set(key, { ...p, id: key });
-      }else{
-        map.set("idx_" + i, { ...p, id: "idx_" + i });
-      }
-    });
-
-    PRODUCTS = [...map.values()];
-
-    console.log("Produtos carregados:", PRODUCTS.length, PRODUCTS[0] || null);
-
-    if(!PRODUCTS.length && content){
-      content.innerHTML = `<div class="mutedTxt" style="padding:12px">Nenhum produto retornado pela API.</div>`;
-    }
-  }catch(err){
-    console.error("Erro ao carregar produtos:", err);
-    PRODUCTS = [];
-
-    if(content){
-      content.innerHTML = `
-        <div class="mutedTxt" style="padding:12px">
-          Erro ao carregar produtos.<br>
-          Abra o Console (F12) para ver o detalhe.
-        </div>
-      `;
-    }
-
-    throw err;
-  }
+  PRODUCTS = [...map.values()];
 }
-
 function setActiveCategoryChip(cat, smooth = true){
   ACTIVE_CATEGORY = cat || "";
 
@@ -1029,7 +1038,14 @@ content.querySelectorAll("[data-cat-title]").forEach(el=>{
         toast("Produto indisponível.");
         return;
       }
-      addToCart(p, 1, []);
+      const hasFlavors = Array.isArray(p.flavors) && p.flavors.some(x => String(x || "").trim());
+
+if(hasFlavors){
+  openProdModal(p);
+  return;
+}
+
+addToCart(p, 1, [], "");
 
       const card = btn.closest(".card");
       const img = card ? (card.querySelector(".thumb img") || card.querySelector("img")) : null;
@@ -1495,12 +1511,14 @@ function whatsappMessage(order){
       if(type==="ENTREGA" && !address) return alert("Informe o endereço.");
       if(need_nfce && !cpf) return alert("Informe o CPF para NFC-e.");
 
-      const items = CART.map(it=>({
-        product_id: it.product_id,
-        name: it.name,
-        price: Number(it.price||0),
-        qty: Number(it.qty||0),
-      }));
+const items = CART.map(it=>({
+  product_id: it.product_id,
+  name: it.name,
+  price: Number(it.price||0),
+  qty: Number(it.qty||0),
+  flavor: String(it.flavor || ""),
+  addons: Array.isArray(it.addons) ? it.addons : []
+}));
 
       const t = cartTotals();
 
@@ -1820,28 +1838,15 @@ document.getElementById("hoursModal")?.addEventListener("click", (e)=>{
 });
 
 
-document.addEventListener("DOMContentLoaded", async ()=>{
-  try{
-    await loadSettings();
-    await loadProducts();
-    await loadCategories();
-    applyReviewsLink();
-    buildCategories();
-    render();
-    renderCart();
-  }catch(err){
-    console.error("Erro ao iniciar loja:", err);
-
-    const content = $("content");
-    if(content && !content.innerHTML.trim()){
-      content.innerHTML = `
-        <div class="mutedTxt" style="padding:12px">
-          A loja não conseguiu carregar os produtos.<br>
-          Abra o Console (F12) para ver o erro.
-        </div>
-      `;
-    }
-  }
+    document.addEventListener("DOMContentLoaded", async ()=>{
+      await loadSettings();
+      await loadProducts();
+      await loadCategories();
+      await loadSettings();
+      applyReviewsLink();
+      buildCategories();
+      render();
+      renderCart();
 
 
 
@@ -2003,12 +2008,26 @@ $("prodPlus").addEventListener("click", ()=>{
 
 $("addFromModal").addEventListener("click", ()=>{
   if(!MODAL_PRODUCT) return;
-  addToCart(MODAL_PRODUCT, MODAL_QTY, MODAL_ADDONS);
+
+  const hasFlavors = Array.isArray(MODAL_PRODUCT.flavors) && MODAL_PRODUCT.flavors.some(x => String(x || "").trim());
+  if(hasFlavors && !String(MODAL_FLAVOR || "").trim()){
+    toast("Escolha o sabor.");
+    return;
+  }
+
+  addToCart(MODAL_PRODUCT, MODAL_QTY, MODAL_ADDONS, MODAL_FLAVOR);
 });
 
 $("addAndClose").addEventListener("click", ()=>{
   if(!MODAL_PRODUCT) return;
-  const ok = addToCart(MODAL_PRODUCT, MODAL_QTY, MODAL_ADDONS);;
+
+  const hasFlavors = Array.isArray(MODAL_PRODUCT.flavors) && MODAL_PRODUCT.flavors.some(x => String(x || "").trim());
+  if(hasFlavors && !String(MODAL_FLAVOR || "").trim()){
+    toast("Escolha o sabor.");
+    return;
+  }
+
+  const ok = addToCart(MODAL_PRODUCT, MODAL_QTY, MODAL_ADDONS, MODAL_FLAVOR);
   if(ok) closeProdModal();
 });
 
