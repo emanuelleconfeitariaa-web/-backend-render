@@ -1,39 +1,45 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
-const path = require("path");
-
-let server;
-
-function createWindow(relativeFile) {
-  const win = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    backgroundColor: "#f6ebe5",
-    webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-      contextIsolation: true,
-      nodeIntegration: false
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Emanuelle Confeitaria</title>
+  <style>
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      background:#f6ebe5;
+      color:#2b1b17;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
     }
-  });
-
-  // ✅ SEMPRE carrega HTML da pasta renderer
-  win.loadFile(path.join(__dirname, relativeFile));
-  return win;
-}
-
-app.whenReady().then(async () => {
-  // ✅ inicia a API (não abre como página)
-  server = require(path.join(__dirname, "app/server/server.js"));
-  await server.start();
-
-  // ✅ abre o ADMIN (tela certa)
-  createWindow("app/renderer/admin/index.html");
-
-  ipcMain.handle("open-store", async () => {
-    createWindow("app/renderer/store/index.html");
-  });
-});
-
-app.on("window-all-closed", async () => {
-  if (server) await server.stop();
-  app.quit();
-});
+    .box{
+      background:#fff;
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:16px;
+      padding:24px;
+      max-width:520px;
+      text-align:center;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+    }
+    h1{
+      margin:0 0 10px;
+      font-size:22px;
+    }
+    p{
+      margin:0;
+      line-height:1.5;
+      opacity:.85;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Emanuelle Confeitaria</h1>
+    <p>Aplicação desktop iniciada pelo Electron.</p>
+    <p>Use o arquivo <b>main.js</b> para abrir o Admin e a Loja.</p>
+  </div>
+</body>
+</html>
