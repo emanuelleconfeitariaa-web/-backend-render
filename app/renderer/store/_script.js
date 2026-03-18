@@ -627,18 +627,69 @@ function applyReviewsLink(){
 }
 
 
-    async function loadProducts(){
-  const res = await fetch(API + "/api/products");
-  const arr = await res.json();
+async function loadProducts(){
+  const content = $("content");
 
-  // ✅ remove duplicados pelo id
-  const map = new Map();
-  (arr || []).forEach(p => {
-    const key = String(p.id ?? "");
-    if(key) map.set(key, p);
-  });
+  try{
+    const res = await fetch(API + "/api/products", { cache: "no-store" });
 
-  PRODUCTS = [...map.values()];
+    const rawText = await res.text();
+
+    if(!res.ok){
+      throw new Error("Falha em /api/products: HTTP " + res.status + " - " + rawText.slice(0, 180));
+    }
+
+    let data;
+    try{
+      data = rawText ? JSON.parse(rawText) : [];
+    }catch(e){
+      throw new Error("Resposta inválida em /api/products: " + rawText.slice(0, 180));
+    }
+
+    const arr = Array.isArray(data)
+      ? data
+      : Array.isArray(data.products)
+        ? data.products
+        : Array.isArray(data.items)
+          ? data.items
+          : Array.isArray(data.data)
+            ? data.data
+            : [];
+
+    const map = new Map();
+
+    (arr || []).forEach((p, i) => {
+      const key = String(p?.id ?? p?._id ?? "").trim();
+
+      if(key){
+        map.set(key, { ...p, id: key });
+      }else{
+        map.set("idx_" + i, { ...p, id: "idx_" + i });
+      }
+    });
+
+    PRODUCTS = [...map.values()];
+
+    console.log("Produtos carregados:", PRODUCTS.length, PRODUCTS[0] || null);
+
+    if(!PRODUCTS.length && content){
+      content.innerHTML = `<div class="mutedTxt" style="padding:12px">Nenhum produto retornado pela API.</div>`;
+    }
+  }catch(err){
+    console.error("Erro ao carregar produtos:", err);
+    PRODUCTS = [];
+
+    if(content){
+      content.innerHTML = `
+        <div class="mutedTxt" style="padding:12px">
+          Erro ao carregar produtos.<br>
+          Abra o Console (F12) para ver o detalhe.
+        </div>
+      `;
+    }
+
+    throw err;
+  }
 }
 
 function setActiveCategoryChip(cat, smooth = true){
@@ -1769,15 +1820,28 @@ document.getElementById("hoursModal")?.addEventListener("click", (e)=>{
 });
 
 
-    document.addEventListener("DOMContentLoaded", async ()=>{
-      await loadSettings();
-      await loadProducts();
-      await loadCategories();
-      await loadSettings();
-      applyReviewsLink();
-      buildCategories();
-      render();
-      renderCart();
+document.addEventListener("DOMContentLoaded", async ()=>{
+  try{
+    await loadSettings();
+    await loadProducts();
+    await loadCategories();
+    applyReviewsLink();
+    buildCategories();
+    render();
+    renderCart();
+  }catch(err){
+    console.error("Erro ao iniciar loja:", err);
+
+    const content = $("content");
+    if(content && !content.innerHTML.trim()){
+      content.innerHTML = `
+        <div class="mutedTxt" style="padding:12px">
+          A loja não conseguiu carregar os produtos.<br>
+          Abra o Console (F12) para ver o erro.
+        </div>
+      `;
+    }
+  }
 
 
 
