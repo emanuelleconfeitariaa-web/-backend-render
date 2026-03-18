@@ -928,6 +928,11 @@ app.post("/api/products", async (req, res) => {
       images: Array.isArray(body.images) ? body.images : [],
 
       addons: Array.isArray(body.addons) ? body.addons : [],
+
+      flavors: Array.isArray(body.flavors)
+      ? body.flavors.map(x => String(x || "").trim()).filter(Boolean)
+      : [],
+
       discount_percent: Number(body.discount_percent || 0),
 
       sort_order: Number(body.sort_order || 0),
@@ -969,23 +974,21 @@ app.put("/api/products/:id", async (req, res) => {
       {
         name: String(body.name || "").trim(),
         price: Number(body.price || 0),
-
         category: categoryName,
         subcategory: String(body.subcategory || "").trim(),
         description: String(body.description || ""),
-
         featured: !!body.featured,
-
         stock_enabled: body.stock_enabled !== false,
         stock_qty: Number(body.stock_qty || 0),
         low_stock_alert: Number(body.low_stock_alert || 5),
-
         paused: !!body.paused,
-
         image_url: String(body.image_url || ""),
         images: Array.isArray(body.images) ? body.images : [],
-
         addons: Array.isArray(body.addons) ? body.addons : [],
+        flavors: Array.isArray(body.flavors)
+         ? body.flavors.map(x => String(x || "").trim()).filter(Boolean)
+         : [],
+
         discount_percent: Number(body.discount_percent || 0),
 
         sort_order: Number(body.sort_order || 0),

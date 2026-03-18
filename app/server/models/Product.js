@@ -29,6 +29,11 @@ const ProductSchema = new mongoose.Schema(
     images: { type: [String], default: [] },
 
     addons: { type: [AddonItemSchema], default: [] },
+
+    flavors: {
+    type: [String],
+    default: []
+     },
     discount_percent: { type: Number, default: 0 },
 
     sort_order: { type: Number, default: 0 },
