@@ -27,6 +27,7 @@ let FILTER_SHOW = "ALL";
 let DYNAMIC_SHIPPING = null;
 let FEATURED_CATS = new Set();
 let SHIPPING_QUOTE_TIMER = null;
+let CUSTOMER_GEO = null; // { lat, lon }
 
 function setVal(id, v){
   const el = document.getElementById(id);
@@ -83,6 +84,8 @@ function renderModalFlavors(p){
     });
   });
 }
+
+
 
 function productFlavorLabel(flavor){
   const f = String(flavor || "").trim();
@@ -180,6 +183,64 @@ function discountedPrice(price, discountPercent){
   if(!d) return p;
   return Math.round(p * (1 - d/100) * 100) / 100;
 }
+
+
+
+
+
+async function useExactLocation(){
+  const geoMsg = $("geoMsg");
+  if(geoMsg){
+    geoMsg.style.display = "block";
+    geoMsg.textContent = "Solicitando sua localização...";
+  }
+
+  if(!navigator.geolocation){
+    if(geoMsg){
+      geoMsg.textContent = "Seu navegador não suporta localização.";
+    }
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      CUSTOMER_GEO = {
+        lat: Number(pos.coords.latitude),
+        lon: Number(pos.coords.longitude)
+      };
+
+      if(geoMsg){
+        geoMsg.textContent = "Localização capturada com sucesso.";
+      }
+
+      if(String($("type")?.value || "") === "ENTREGA"){
+        await quoteShippingByAddress();
+      }
+    },
+    (err) => {
+      CUSTOMER_GEO = null;
+
+      let msg = "Não foi possível obter sua localização.";
+      if(err && err.code === 1) msg = "Permissão de localização negada.";
+      if(err && err.code === 2) msg = "Localização indisponível.";
+      if(err && err.code === 3) msg = "Tempo esgotado ao obter localização.";
+
+      if(geoMsg){
+        geoMsg.style.display = "block";
+        geoMsg.textContent = msg;
+      }
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+  );
+}
+
+
+
+
 
 
 function openProdModal(p){
@@ -379,16 +440,22 @@ let scrollSpyTicking = false;
 function updateActiveCategoryFromScroll() {
   if (IS_AUTO_SCROLLING) return;
 
+  const frame = document.querySelector(".frame");
   const bar = document.getElementById("catsBar");
-  const barBottom = bar ? bar.getBoundingClientRect().bottom : 60;
-  const threshold = barBottom + 8;
+  if(!frame || !bar) return;
+
+  const frameRect = frame.getBoundingClientRect();
+  const barRect = bar.getBoundingClientRect();
+  const threshold = barRect.bottom - frameRect.top + 8;
 
   const sections = document.querySelectorAll(".catBlock[data-cat-section]");
   let currentCat = null;
 
   sections.forEach(sec => {
-    const rect = sec.getBoundingClientRect();
-    if (rect.top <= threshold && rect.bottom > threshold) {
+    const secTop = sec.offsetTop - frame.scrollTop;
+    const secBottom = secTop + sec.offsetHeight;
+
+    if (secTop <= threshold && secBottom > threshold) {
       currentCat = sec.getAttribute("data-cat-section");
     }
   });
@@ -398,40 +465,24 @@ function updateActiveCategoryFromScroll() {
   }
 }
 
-
-
 function syncActiveCategoryDuringAutoScroll() {
-  const bar = document.getElementById("catsBar");
-  const barBottom = bar ? bar.getBoundingClientRect().bottom : 60;
-  const threshold = barBottom + 8;
-
-  const sections = document.querySelectorAll(".catBlock[data-cat-section]");
-  let currentCat = null;
-
-  sections.forEach(sec => {
-    const rect = sec.getBoundingClientRect();
-    if (rect.top <= threshold && rect.bottom > threshold) {
-      currentCat = sec.getAttribute("data-cat-section");
-    }
-  });
-
-  if (currentCat && currentCat !== ACTIVE_CATEGORY) {
-    setActiveCategoryChip(currentCat, false);
-  }
+  updateActiveCategoryFromScroll();
 }
 
 
 
 
 // Escuta a rolagem do dedo na tela e atualiza a barrinha
-window.addEventListener("scroll", () => {
-    if (!scrollSpyTicking) {
-        window.requestAnimationFrame(() => {
-            updateActiveCategoryFromScroll();
-            scrollSpyTicking = false;
-        });
-        scrollSpyTicking = true;
-    }
+const frameEl = document.querySelector(".frame");
+
+frameEl?.addEventListener("scroll", () => {
+  if (!scrollSpyTicking) {
+    requestAnimationFrame(() => {
+      updateActiveCategoryFromScroll();
+      scrollSpyTicking = false;
+    });
+    scrollSpyTicking = true;
+  }
 }, { passive: true });
 
 
@@ -742,44 +793,35 @@ function setActiveCategorySection(cat){
 
 
 function scrollToCategory(cat){
+  const frame = document.querySelector(".frame");
+  const bar = document.getElementById("catsBar");
   const target = document.querySelector(`.catBlock[data-cat-section="${CSS.escape(cat)}"]`);
-  if(!target) return;
+
+  if(!frame || !bar || !target) return;
 
   IS_AUTO_SCROLLING = true;
   setActiveCategoryChip(cat, true);
 
-  const bar = document.getElementById("catsBar");
-  const headerOffset = (bar ? bar.offsetHeight : 50) + 12;
+  const frameRect = frame.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
 
-  const elementPosition = target.getBoundingClientRect().top;
-  const offsetPosition = elementPosition + window.scrollY - headerOffset;
+  const headerOffset = bar.offsetHeight + 10;
 
-  let followTimer = null;
+  const top =
+    frame.scrollTop +
+    (targetRect.top - frameRect.top) -
+    headerOffset;
 
-  const onFollow = () => {
-    syncActiveCategoryDuringAutoScroll();
-
-    clearTimeout(followTimer);
-    followTimer = setTimeout(() => {
-      window.removeEventListener("scroll", onFollow);
-      IS_AUTO_SCROLLING = false;
-      updateActiveCategoryFromScroll();
-    }, 120);
-  };
-
-  window.addEventListener("scroll", onFollow, { passive: true });
-
-  window.scrollTo({
-    top: offsetPosition,
+  frame.scrollTo({
+    top,
     behavior: "smooth"
   });
 
-  // fallback caso o navegador não dispare scroll como esperado
-  setTimeout(() => {
-    window.removeEventListener("scroll", onFollow);
+  clearTimeout(scrollToCategory._t);
+  scrollToCategory._t = setTimeout(() => {
     IS_AUTO_SCROLLING = false;
     updateActiveCategoryFromScroll();
-  }, 1200);
+  }, 500);
 }
 
 function buildCategories(){
@@ -1101,11 +1143,10 @@ async function quoteShippingByAddress(){
     return;
   }
 
-  if(!address){
+  if(!CUSTOMER_GEO && !address){
     DYNAMIC_SHIPPING = null;
     if(msg){
-      const fallback = Number(SETTINGS?.default_shipping || 0);
-      msg.textContent = `Informe o endereço para calcular o frete.`;
+      msg.textContent = "Informe o endereço ou use sua localização para calcular o frete.";
       msg.style.display = "block";
     }
     renderCart();
@@ -1118,10 +1159,14 @@ async function quoteShippingByAddress(){
   }
 
   try{
+    const payload = CUSTOMER_GEO
+      ? { lat: CUSTOMER_GEO.lat, lon: CUSTOMER_GEO.lon }
+      : { address };
+
     const res = await fetch(API + "/api/shipping/quote", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ address })
+      body: JSON.stringify(payload)
     });
 
     const data = await res.json().catch(()=>null);
@@ -1535,6 +1580,10 @@ const payload = {
   shipping: Number(t.shipping || 0),
   subtotal: Number(t.subtotal || 0),
   total: Number(t.total || 0),
+  customer_location: CUSTOMER_GEO ? {
+  lat: Number(CUSTOMER_GEO.lat),
+  lon: Number(CUSTOMER_GEO.lon)
+} : null,
   items
 };
 
@@ -1849,7 +1898,6 @@ document.getElementById("hoursModal")?.addEventListener("click", (e)=>{
       renderCart();
 
 
-
      $("q")?.addEventListener("input", ()=>{
         SEARCH = $("q").value.trim();
         render();
@@ -1888,6 +1936,8 @@ if(cartBtn){
 
 document.getElementById("closeDrawer")?.addEventListener("click", closeDrawer);
 });    
+
+
 
 
 $("checkoutBtn").addEventListener("click", ()=>{
@@ -1932,6 +1982,14 @@ $("type")?.addEventListener("change", async ()=>{
 
 
 $("addr")?.addEventListener("input", ()=>{
+  CUSTOMER_GEO = null;
+
+  const geoMsg = $("geoMsg");
+  if(geoMsg){
+    geoMsg.style.display = "none";
+    geoMsg.textContent = "";
+  }
+
   if(String($("type")?.value || "") === "ENTREGA"){
     scheduleShippingQuote(900);
   }
@@ -1960,7 +2018,7 @@ $("addr")?.addEventListener("blur", async ()=>{
 
 $("filterBtn").addEventListener("click", openFilter);
 $("closeFilter").addEventListener("click", closeFilter);
-
+$("useLocationBtn")?.addEventListener("click", useExactLocation);
 $("filterBack").addEventListener("click", (e)=>{
   if(e.target === $("filterBack")) closeFilter();
 });
