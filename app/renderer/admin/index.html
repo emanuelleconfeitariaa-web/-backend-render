@@ -3536,7 +3536,13 @@ async function deleteProduct(){
           <div class="item" role="button" tabindex="0" data-client="${c.id}" style="${selected ? "outline:2px solid rgba(122,74,62,.35)" : ""}">
             <div class="itemLeft">
               <div class="itemTitle">${escapeHtml(c.name || "Cliente")}</div>
-              <div class="itemSub">${escapeHtml(c.phone||"")}<br/>${escapeHtml(c.address||"")}</div>
+              <div class="itemSub">${escapeHtml(c.phone||"")}<br/>${
+  escapeHtml(
+    typeof c.address === "string"
+      ? c.address
+      : (c.address?.street || "")
+  )
+}</div>
             </div>
             <div class="itemRight">
               <span class="pill">${Array.isArray(c.coupons)?c.coupons.filter(x=>x && x.active!==false).length:0} cupom(ns)</span>
@@ -3577,7 +3583,10 @@ async function deleteProduct(){
       creatingNewClient = false;
       $("cName").value = c.name || "";
       $("cPhone").value = c.phone || "";
-      $("cAddr").value = c.address || "";
+      $("cAddr").value =
+      typeof c.address === "string"
+    ? c.address
+    : (c.address?.street || "");
       renderCoupons(c);
       loadClientOrders(c.phone);
       renderClients();
