@@ -58,27 +58,32 @@
 }
 
     *{ box-sizing:border-box; }
-    body{
-      margin:0;
-      font-family: system-ui, Segoe UI, Roboto, Arial;
-      background: var(--pageBg);
-      color: var(--text);
-      color: var(--storeText);
-    }
+body{
+  margin:0;
+  font-family: system-ui, Segoe UI, Roboto, Arial;
+  background: var(--pageBg);
+  color: var(--text);
+  color: var(--storeText);
+  overflow: hidden;
+}
 
-    .shell{
-      max-width: var(--container);
-      margin: 18px auto;
-      padding: 0 10px 90px;
-    }
+.shell{
+  max-width: var(--container);
+  margin: 18px auto;
+  padding: 0 10px 0;
+  height: 100vh;
+}
 
 .frame{
   background: rgba(255,255,255,.55);
   border: 1px solid rgba(0,0,0,.08);
   border-radius: 16px;
-  overflow: visible;
+  overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: 0 12px 40px rgba(0,0,0,.08);
   backdrop-filter: blur(10px);
+  height: calc(100vh - 36px);
+  -webkit-overflow-scrolling: touch;
 }
 
 
@@ -495,14 +500,6 @@
   border-bottom: 1px solid rgba(0,0,0,.06);
 }
 
-/* ===== Barra das categorias (tarja) ===== */
-.catsBar{
-  background: var(--productsBg, rgba(255,255,255,.40));
-  padding: 10px 12px;
-  border-top: 1px solid rgba(0,0,0,.06);
-  border-bottom: 1px solid rgba(0,0,0,.06);
-}
-        
 
 
 .catBlock{
@@ -1473,31 +1470,37 @@ body{
 
 
 
-
-
 /* ===== MOBILE BONITO ===== */
 @media (max-width: 768px){
 
+ @media (max-width: 768px){
   html, body{
-    overflow-x: hidden;
-  }
-
-  body{
-    background: #f4d4d7;
+    height: 100%;
+    overflow: hidden;
   }
 
   .shell{
     margin: 0;
-    padding: 0 0 90px;
+    padding: 0;
+    max-width: 100%;
+    height: 100vh;
   }
 
   .frame{
+    height: 100vh;
     border-radius: 0;
     border-left: 0;
     border-right: 0;
     box-shadow: none;
-    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
+
+  .catsBar{
+    top: 0;
+    border-radius: 0;
+  }
+}
 
   /* topo */
   .banner{
@@ -1696,28 +1699,31 @@ body{
 .catsBar{
   position: sticky;
   top: 0;
-  z-index: 80;
+  z-index: 200;
 
   display: flex;
+  gap: 8px;
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
-  gap: 8px;
+
   padding: 10px 12px;
+  margin: 0;
 
   background: var(--productsBg, rgba(255,255,255,.96));
+  border-top: 1px solid rgba(0,0,0,.06);
   border-bottom: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-
-  margin: 0;
-  border-radius: 0;
-  box-shadow: 0 4px 14px rgba(0,0,0,.08);
 }
 
 .catsBar::-webkit-scrollbar{
   display: none;
 }
+
+
 
 .catChip{
   width: auto;
@@ -1949,19 +1955,34 @@ body{
 
 
 
+/* ===== FIXAR BARRA DE CATEGORIAS ===== */
+/* ===== barra de categorias fixa no topo ===== */
+.catsBar{
+  position: sticky;
+  top: 0;
+  z-index: 300;
 
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
 
+  padding: 10px 12px;
+  margin: 0;
 
+  background: var(--productsBg, rgba(255,255,255,.96));
+  border-top: 1px solid rgba(0,0,0,.06);
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
 
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
 
-
-
-
-
-
-
-
-
+.catsBar::-webkit-scrollbar{
+  display: none;
+}
 
 
 
@@ -2018,7 +2039,6 @@ body{
   <div class="iconBtn" id="filterBtn" title="Filtro">⚙️</div>
   <div class="iconBtn" id="scrollTopBtn" title="Topo">⇧</div>
 </div>
-
 
       <!-- ABAS CATEGORIAS -->
       <div class="catsBar" id="catsBar"></div>
@@ -2134,10 +2154,16 @@ body{
           </div>
         </div>
 
-<div style="margin-top:12px" id="addrBox" style="display:none">
-          <label class="mutedTxt"><b>Endereço para entrega</b></label>
-          <input id="addr" placeholder="Rua, número, bairro...">
-        </div>
+<div style="margin-top:12px" id="addrBox">
+  <label class="mutedTxt"><b>Endereço para entrega</b></label>
+  <input id="addr" placeholder="Rua, número, bairro...">
+
+  <button type="button" class="mBtn" id="useLocationBtn" style="margin-top:8px;">
+    Usar minha localização exata
+  </button>
+
+  <div id="geoMsg" class="hint" style="margin-top:6px; display:none;"></div>
+</div>
 
         <div style="margin-top:12px">
           <label class="mutedTxt"><b>Observações</b></label>
@@ -2278,7 +2304,7 @@ body{
 
 <div id="toast"></div>
 
-  <script src="_script.js"></script>
+  <script src="script.js"></script>
 
 </body>
 </html>
