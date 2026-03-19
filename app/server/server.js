@@ -632,9 +632,8 @@ app.post("/api/shipping/quote", async (req, res) => {
     const originLon = Number(settings?.delivery_origin_lon || 0);
 
     const customerAddress = String(body.address || "").trim();
-    if(!customerAddress){
-      return res.status(400).json({ ok:false, error:"Endereço de entrega não informado." });
-    }
+    const customerLat = Number(body.lat || 0);
+    const customerLon = Number(body.lon || 0);
 
     if(!apiKey){
       return res.status(400).json({ ok:false, error:"Geoapify API Key não configurada." });
@@ -653,14 +652,31 @@ app.post("/api/shipping/quote", async (req, res) => {
       sourceLon = originGeo.lon;
     }
 
-    const destGeo = await geoapifyGeocode(customerAddress, apiKey);
-    const distanceKm = await geoapifyRouteDistanceKm(
-      sourceLat,
-      sourceLon,
-      destGeo.lat,
-      destGeo.lon,
-      apiKey
-    );
+let destLat = 0;
+let destLon = 0;
+
+if(customerLat && customerLon){
+  destLat = customerLat;
+  destLon = customerLon;
+} else {
+  const customerAddress = String(o.address || "").trim();
+
+  if(!customerAddress){
+    return res.status(400).json({ ok:false, error:"Endereço de entrega não informado." });
+  }
+
+  const destGeo = await geoapifyGeocode(customerAddress, apiKey);
+  destLat = destGeo.lat;
+  destLon = destGeo.lon;
+}
+
+distance_km = await geoapifyRouteDistanceKm(
+  sourceLat,
+  sourceLon,
+  destLat,
+  destLon,
+  apiKey
+);
 
     const ruleResult = resolveShippingRule(distanceKm, settings);
 
@@ -679,7 +695,7 @@ app.post("/api/shipping/quote", async (req, res) => {
       shipping_price: Number(ruleResult.shipping_price || 0),
       matched_rule: ruleResult.matched_rule || null,
       used_fallback: !!ruleResult.used_fallback,
-      destination: destGeo.formatted || customerAddress
+      destination: destinationText
     });
   } catch (e) {
     return res.status(500).json({
@@ -1379,6 +1395,8 @@ app.post("/api/orders", async (req, res) => {
         const originAddress = String(settingsNow?.delivery_origin_address || "").trim();
         const originLat = Number(settingsNow?.delivery_origin_lat || 0);
         const originLon = Number(settingsNow?.delivery_origin_lon || 0);
+        const customerLat = Number(o.customer_location?.lat || 0);
+        const customerLon = Number(o.customer_location?.lon || 0);
         const customerAddress = String(o.address || "").trim();
 
         if(!customerAddress){
