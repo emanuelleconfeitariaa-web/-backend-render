@@ -377,46 +377,47 @@ function deepMergeSettings(CUR, IN) {
 
 
 
-async function upsertClientFromOrder(order) {
-  const phone = String(order.customer_phone || "").trim();
-  if (!phone) return;
-
-  const existing = await Client.findOne({ phone });
-
-const nextData = {
-  name: String(order.customer_name || "").trim() || "Sem nome",
-  phone
-};
-
-  if (existing) {
-await Client.create({
-  ...nextData,
-  email: "",
-  notes: "",
-  address: {
-    street: "",
+function parseAddressText(addressText){
+  const txt = String(addressText || "").trim();
+  return {
+    street: txt,
     number: "",
     neighborhood: "",
     city: "",
     complement: "",
     zip: ""
-  },
-  coupons: []
-});
+  };
+}
+
+async function upsertClientFromOrder(order) {
+  const phone = normPhone(order.customer_phone || "");
+  if (!phone) return;
+
+  const existing = await Client.findOne({ phone });
+
+  const nextData = {
+    name: String(order.customer_name || "").trim() || "Sem nome",
+    phone,
+    email: "",
+    notes: ""
+  };
+
+  const addressObj = parseAddressText(order.address || "");
+
+  if (existing) {
+    await Client.findByIdAndUpdate(existing._id, {
+      ...nextData,
+      address: {
+        ...(existing.address || {}),
+        street: addressObj.street || (existing.address?.street || "")
+      }
+    });
     return;
   }
 
   await Client.create({
     ...nextData,
-    email: "",
-    address: {
-      street: "",
-      number: "",
-      neighborhood: "",
-      city: "",
-      complement: "",
-      zip: ""
-    },
+    address: addressObj,
     coupons: []
   });
 }
@@ -1151,20 +1152,33 @@ app.get("/api/clients/benefits", async (req, res) => {
 app.post("/api/clients", async (req, res) => {
   try {
     const body = req.body || {};
+    const rawAddress = body.address;
+
+    const addressObj =
+      typeof rawAddress === "string"
+        ? {
+            street: String(rawAddress || "").trim(),
+            number: "",
+            neighborhood: "",
+            city: "",
+            complement: "",
+            zip: ""
+          }
+        : {
+            street: String(rawAddress?.street || ""),
+            number: String(rawAddress?.number || ""),
+            neighborhood: String(rawAddress?.neighborhood || ""),
+            city: String(rawAddress?.city || ""),
+            complement: String(rawAddress?.complement || ""),
+            zip: String(rawAddress?.zip || "")
+          };
 
     const client = await Client.create({
       name: String(body.name || "").trim(),
-      phone: String(body.phone || "").trim(),
+      phone: normPhone(body.phone || ""),
       email: String(body.email || "").trim(),
       notes: String(body.notes || ""),
-      address: {
-        street: String(body.address?.street || ""),
-        number: String(body.address?.number || ""),
-        neighborhood: String(body.address?.neighborhood || ""),
-        city: String(body.address?.city || ""),
-        complement: String(body.address?.complement || ""),
-        zip: String(body.address?.zip || "")
-      },
+      address: addressObj,
       coupons: Array.isArray(body.coupons) ? body.coupons : []
     });
 
@@ -1179,22 +1193,35 @@ app.post("/api/clients", async (req, res) => {
 app.put("/api/clients/:id", async (req, res) => {
   try {
     const body = req.body || {};
+    const rawAddress = body.address;
+
+    const addressObj =
+      typeof rawAddress === "string"
+        ? {
+            street: String(rawAddress || "").trim(),
+            number: "",
+            neighborhood: "",
+            city: "",
+            complement: "",
+            zip: ""
+          }
+        : {
+            street: String(rawAddress?.street || ""),
+            number: String(rawAddress?.number || ""),
+            neighborhood: String(rawAddress?.neighborhood || ""),
+            city: String(rawAddress?.city || ""),
+            complement: String(rawAddress?.complement || ""),
+            zip: String(rawAddress?.zip || "")
+          };
 
     const client = await Client.findByIdAndUpdate(
       req.params.id,
       {
         name: String(body.name || "").trim(),
-        phone: String(body.phone || "").trim(),
+        phone: normPhone(body.phone || ""),
         email: String(body.email || "").trim(),
         notes: String(body.notes || ""),
-        address: {
-          street: String(body.address?.street || ""),
-          number: String(body.address?.number || ""),
-          neighborhood: String(body.address?.neighborhood || ""),
-          city: String(body.address?.city || ""),
-          complement: String(body.address?.complement || ""),
-          zip: String(body.address?.zip || "")
-        },
+        address: addressObj,
         coupons: Array.isArray(body.coupons) ? body.coupons : []
       },
       { new: true, runValidators: true }
