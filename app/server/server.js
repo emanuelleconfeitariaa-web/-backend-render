@@ -1547,6 +1547,7 @@ const order = await Order.create({
   customer_name: o.customer_name || "",
   customer_phone: o.customer_phone || "",
   address: o.address || "",
+  location: o.location || null,
   payment: o.payment || "",
   notes: o.notes || "",
 
