@@ -1412,63 +1412,59 @@ app.post("/api/orders", async (req, res) => {
     let shipping = 0;
     let distance_km = null;
 
-    if(isDelivery){
-      const shippingMode = String(settingsNow?.shipping_mode || "fixed");
+if(isDelivery){
+  const shippingMode = String(settingsNow?.shipping_mode || "fixed");
 
-      if(shippingMode === "fixed"){
-        shipping = Number(settingsNow?.default_shipping || 0);
-      } else {
-        const apiKey = String(settingsNow?.geoapify_api_key || "").trim();
-        const originAddress = String(settingsNow?.delivery_origin_address || "").trim();
-        const originLat = Number(settingsNow?.delivery_origin_lat || 0);
-        const originLon = Number(settingsNow?.delivery_origin_lon || 0);
-        const customerLat = Number(o.customer_location?.lat || 0);
-        const customerLon = Number(o.customer_location?.lon || 0);
-        const customerAddress = String(o.address || "").trim();
+  if(shippingMode === "fixed"){
+    shipping = Number(settingsNow?.default_shipping || 0);
+  } else {
+    try{
+      const apiKey = String(settingsNow?.geoapify_api_key || "").trim();
+      const originAddress = String(settingsNow?.delivery_origin_address || "").trim();
+      const originLat = Number(settingsNow?.delivery_origin_lat || 0);
+      const originLon = Number(settingsNow?.delivery_origin_lon || 0);
+      const customerAddress = String(o.address || "").trim();
 
-        if(!customerAddress){
-          return res.status(400).json({ ok:false, error:"Endereço de entrega não informado." });
-        }
-
-        if(!apiKey){
-          return res.status(400).json({ ok:false, error:"Geoapify API Key não configurada." });
-        }
-
+      if(customerAddress && apiKey){
         let sourceLat = originLat;
         let sourceLon = originLon;
 
-        if(!(sourceLat && sourceLon)){
-          if(!originAddress){
-            return res.status(400).json({ ok:false, error:"Origem da loja não configurada." });
-          }
-
+        if(!(sourceLat && sourceLon) && originAddress){
           const originGeo = await geoapifyGeocode(originAddress, apiKey);
           sourceLat = originGeo.lat;
           sourceLon = originGeo.lon;
         }
 
-        const destGeo = await geoapifyGeocode(customerAddress, apiKey);
-        distance_km = await geoapifyRouteDistanceKm(
-          sourceLat,
-          sourceLon,
-          destGeo.lat,
-          destGeo.lon,
-          apiKey
-        );
+        if(sourceLat && sourceLon){
+          const destGeo = await geoapifyGeocode(customerAddress, apiKey);
+          distance_km = await geoapifyRouteDistanceKm(
+            sourceLat,
+            sourceLon,
+            destGeo.lat,
+            destGeo.lon,
+            apiKey
+          );
 
-        const ruleResult = resolveShippingRule(distance_km, settingsNow);
+          const ruleResult = resolveShippingRule(distance_km, settingsNow);
 
-        if(!ruleResult.ok){
-          return res.status(400).json({
-            ok: false,
-            error: ruleResult.error,
-            distance_km: Number(distance_km.toFixed(2))
-          });
+          if(ruleResult.ok){
+            shipping = Number(ruleResult.shipping_price || 0);
+          } else {
+            shipping = Number(o.shipping || 0);
+          }
+        } else {
+          shipping = Number(o.shipping || 0);
         }
-
-        shipping = Number(ruleResult.shipping_price || 0);
+      } else {
+        shipping = Number(o.shipping || 0);
       }
+    }catch(e){
+      console.error("Falha ao calcular frete automático:", e);
+      shipping = Number(o.shipping || 0);
+      distance_km = null;
     }
+  }
+}
 
     // desconto enviado pelo checkout (opcional)
     let discount = Number(o.discount || 0);
