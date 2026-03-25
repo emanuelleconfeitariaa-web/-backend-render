@@ -30,19 +30,18 @@ app.use(cors({
     if (!origin) return cb(null, true);
     if (allowed.includes(origin)) return cb(null, true);
 
-    if (
+    const dynamicAllowed =
       origin.includes("aistudio.google.com") ||
-      origin.includes("googleusercontent.com")
-    ) {
-      return cb(null, true);
-    }
+      origin.includes("googleusercontent.com") ||
+      origin.includes(".run.app");
+
+    if (dynamicAllowed) return cb(null, true);
 
     return cb(new Error("Not allowed by CORS: " + origin));
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
-
 
 function nowIso(){ return new Date().toISOString(); }
 
