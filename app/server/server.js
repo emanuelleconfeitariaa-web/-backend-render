@@ -27,7 +27,16 @@ app.use(cors({
       "null"
     ];
 
-    if (!origin || allowed.includes(origin)) return cb(null, true);
+    if (!origin) return cb(null, true);
+    if (allowed.includes(origin)) return cb(null, true);
+
+    if (
+      origin.includes("aistudio.google.com") ||
+      origin.includes("googleusercontent.com")
+    ) {
+      return cb(null, true);
+    }
+
     return cb(new Error("Not allowed by CORS: " + origin));
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
