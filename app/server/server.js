@@ -13,7 +13,8 @@ const Setting = require("./models/Setting");
 const Order = require("./models/Order");
 const Client = require("./models/Client");
 const app = express();
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "35mb" }));
+app.use(express.urlencoded({ extended: true, limit: "35mb" }));
 
 app.use(cors({
   origin: (origin, cb) => {
