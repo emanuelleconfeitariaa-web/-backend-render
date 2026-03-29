@@ -399,34 +399,51 @@ function parseAddressText(addressText){
 }
 
 async function upsertClientFromOrder(order) {
-  const phone = normPhone(order.customer_phone || "");
+  const phone = String(order.customer_phone || "").trim();
   if (!phone) return;
+
+  const name = String(order.customer_name || "").trim() || "Sem nome";
+  const rawAddress = String(order.address || "").trim();
+
+  const nextAddress = {
+    street: rawAddress,
+    number: "",
+    neighborhood: "",
+    city: "",
+    complement: "",
+    zip: ""
+  };
 
   const existing = await Client.findOne({ phone });
 
-  const nextData = {
-    name: String(order.customer_name || "").trim() || "Sem nome",
-    phone,
-    email: "",
-    notes: ""
-  };
-
-  const addressObj = parseAddressText(order.address || "");
-
   if (existing) {
-    await Client.findByIdAndUpdate(existing._id, {
-      ...nextData,
-      address: {
-        ...(existing.address || {}),
-        street: addressObj.street || (existing.address?.street || "")
-      }
-    });
+    const update = {
+      name,
+      phone
+    };
+
+    // só atualiza endereço se o pedido trouxe endereço
+    if (rawAddress) {
+      update.address = nextAddress;
+    }
+
+    await Client.findByIdAndUpdate(existing._id, update);
     return;
   }
 
   await Client.create({
-    ...nextData,
-    address: addressObj,
+    name,
+    phone,
+    email: "",
+    notes: "",
+    address: rawAddress ? nextAddress : {
+      street: "",
+      number: "",
+      neighborhood: "",
+      city: "",
+      complement: "",
+      zip: ""
+    },
     coupons: []
   });
 }
