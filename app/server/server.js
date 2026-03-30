@@ -916,13 +916,50 @@ app.delete("/api/categories/:id", async (req, res) => {
 // ====== PRODUCTS ======
 app.get("/api/products", async (req, res) => {
   try {
-    const list = await Product.find().sort({ sort_order: 1, name: 1 });
+    const full = String(req.query.full || "") === "1";
+
+    const fields = full
+      ? null
+      : "name price category subcategory description featured stock_enabled stock_qty low_stock_alert paused active discount_percent addons flavors image_url images sort_order";
+
+    const docs = await Product.find({}, fields).sort({ sort_order: 1, name: 1 });
+
+    const list = docs.map((doc) => {
+      const p = doc.toJSON();
+
+      if (!full) {
+        p.images = Array.isArray(p.images)
+          ? p.images.slice(0, 1)
+          : [];
+      }
+
+      return p;
+    });
+
     res.json(list);
   } catch (err) {
     console.error("Erro ao listar produtos:", err);
     res.status(500).json({ error: "Erro ao listar produtos" });
   }
 });
+
+
+app.get("/api/products/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ error: "Produto não encontrado" });
+    }
+
+    res.json(product);
+  } catch (err) {
+    console.error("Erro ao buscar produto:", err);
+    res.status(500).json({ error: "Erro ao buscar produto" });
+  }
+});
+
+
 
 
 
