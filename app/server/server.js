@@ -882,17 +882,17 @@ const customerLon = Number(
     let destLon = 0;
     let destinationText = customerAddress;
 
-    if(customerLat && customerLon){
-      destLat = customerLat;
-      destLon = customerLon;
-    }else{
-      if(!customerAddress){
-        return res.status(400).json({ ok:false, error:"Endereço de entrega não informado." });
-      }
+if(customerLat && customerLon){
+  destLat = customerLat;
+  destLon = customerLon;
+}else{
+  if(!customerAddress){
+    return res.status(400).json({ ok:false, error:"Endereço de entrega não informado." });
+  }
 
-      const destGeo = await geocodeBrazilAddress(customerAddress);
-      destLat = Number(destGeo.lat || 0);
-      destLon = Number(destGeo.lon || 0);
+  const destGeo = await geocodeBrazilAddress(customerAddress);
+  destLat = Number(destGeo.lat || 0);
+  destLon = Number(destGeo.lon || 0);
       destinationText = String(destGeo.formatted || customerAddress);
     }
 
