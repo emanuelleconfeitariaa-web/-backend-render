@@ -371,32 +371,51 @@ async function nominatimGeocode(address){
 }
 
 
+function addressLooksDetailed(address){
+  const text = String(address || "").trim();
+
+  // considera "detalhado" se tiver número ou rua/avenida/travessa/etc
+  return (
+    /\d/.test(text) ||
+    /\b(rua|r\.|avenida|av\.|travessa|tv\.|alameda|rodovia|estrada|praça|praca)\b/i.test(text)
+  );
+}
+
 async function geocodeBrazilAddress(address){
   const text = String(address || "").trim();
   if(!text) throw new Error("Endereço vazio.");
 
   const cep = extractCep(text);
+  const hasDetailedAddress = addressLooksDetailed(text);
 
+  // PRIORIDADE 1:
+  // se o cliente digitou rua/número/endereço mais completo,
+  // tenta primeiro geocodificar o texto completo
+  if(hasDetailedAddress){
+    try{
+      return await nominatimGeocode(text);
+    }catch(_err){
+      // continua para fallback por CEP
+    }
+  }
+
+  // PRIORIDADE 2:
+  // se houver CEP, usa BrasilAPI e depois busca estruturada
   if(cep){
     try{
       const cepData = await brasilApiCepLookup(cep);
 
-      // prioridade 1: coordenadas diretas da BrasilAPI
-      if(cepData.lat && cepData.lon){
-        return {
-          lat: cepData.lat,
-          lon: cepData.lon,
-          formatted: [
-            cepData.street,
-            cepData.neighborhood,
-            cepData.city,
-            cepData.state,
-            cepData.cep
-          ].filter(Boolean).join(", ")
-        };
-      }
+      // monta um endereço mais rico com o que foi digitado + dados do CEP
+      const parts = splitBrazilAddressParts(text);
 
-      // prioridade 2: busca estruturada com os dados do CEP
+      const streetFromText = String(parts.street || "").trim();
+      const cityFromText = String(parts.city || "").trim();
+      const stateFromText = String(parts.state || "").trim();
+
+      const street = streetFromText || String(cepData.street || "").trim();
+      const city = cityFromText || String(cepData.city || "").trim();
+      const state = stateFromText || String(cepData.state || "").trim();
+
       const params = new URLSearchParams({
         format: "jsonv2",
         limit: "1",
@@ -405,9 +424,9 @@ async function geocodeBrazilAddress(address){
         country: "Brasil"
       });
 
-      if(cepData.street) params.set("street", cepData.street);
-      if(cepData.city) params.set("city", cepData.city);
-      if(cepData.state) params.set("state", cepData.state);
+      if(street) params.set("street", street);
+      if(city) params.set("city", city);
+      if(state) params.set("state", state);
       if(cepData.cep) params.set("postalcode", cepData.cep);
 
       const resp = await fetch(
@@ -432,12 +451,29 @@ async function geocodeBrazilAddress(address){
           };
         }
       }
+
+      // PRIORIDADE 3:
+      // só usa a coordenada aproximada do CEP como último fallback
+      if(cepData.lat && cepData.lon){
+        return {
+          lat: cepData.lat,
+          lon: cepData.lon,
+          formatted: [
+            cepData.street,
+            cepData.neighborhood,
+            cepData.city,
+            cepData.state,
+            cepData.cep
+          ].filter(Boolean).join(", ")
+        };
+      }
     }catch(_err){
-      // cai no fallback geral abaixo
+      // continua para fallback final abaixo
     }
   }
 
-  // prioridade 3: texto livre/estruturado a partir do que foi digitado
+  // FALLBACK FINAL:
+  // tenta texto livre/estruturado do que foi digitado
   return await nominatimGeocode(text);
 }
 
