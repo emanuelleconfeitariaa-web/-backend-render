@@ -239,26 +239,85 @@ function resolveShippingRule(distanceKm, settings){
 }
 
 
-async function geoapifyGeocode(address, apiKey){
+
+
+
+async function brasilApiCepLookup(cep){
+  const cleanCep = String(cep || "").replace(/\D+/g, "");
+  if(cleanCep.length !== 8){
+    throw new Error("CEP inválido.");
+  }
+
+  const url = "https://brasilapi.com.br/api/cep/v2/" + encodeURIComponent(cleanCep);
+  const resp = await fetch(url);
+
+  if(!resp.ok){
+    throw new Error("Falha ao consultar CEP.");
+  }
+
+  const data = await resp.json();
+
+  return {
+    cep: cleanCep,
+    street: String(data.street || "").trim(),
+    neighborhood: String(data.neighborhood || "").trim(),
+    city: String(data.city || "").trim(),
+    state: String(data.state || "").trim(),
+    lat: Number(data.location?.coordinates?.latitude || 0),
+    lon: Number(data.location?.coordinates?.longitude || 0)
+  };
+}
+
+function extractCep(text){
+  const m = String(text || "").match(/\b\d{5}-?\d{3}\b/);
+  return m ? m[0].replace(/\D+/g, "") : "";
+}
+
+function mountAddressFromCepData(cepData, number, complement){
+  const parts = [
+    cepData.street,
+    number,
+    cepData.neighborhood,
+    cepData.city,
+    cepData.state,
+    cepData.cep
+  ].map(v => String(v || "").trim()).filter(Boolean);
+
+  if(complement){
+    parts.splice(2, 0, String(complement).trim());
+  }
+
+  return parts.join(", ");
+}
+
+async function nominatimGeocode(address){
   const text = String(address || "").trim();
   if(!text) throw new Error("Endereço vazio.");
 
   const url =
-    "https://api.geoapify.com/v1/geocode/search?" +
+    "https://nominatim.openstreetmap.org/search?" +
     new URLSearchParams({
-      text,
-      format: "json",
+      q: text,
+      format: "jsonv2",
       limit: "1",
-      apiKey
+      addressdetails: "1",
+      countrycodes: "br"
     }).toString();
 
-  const resp = await fetch(url);
+  const resp = await fetch(url, {
+    headers: {
+      "User-Agent": "EmanuelleConfeitaria/1.0 (delivery lookup)",
+      "Accept": "application/json"
+    }
+  });
+
   if(!resp.ok){
     throw new Error("Falha ao geocodificar endereço.");
   }
 
   const data = await resp.json();
-  const first = data?.results?.[0];
+  const first = Array.isArray(data) ? data[0] : null;
+
   if(!first){
     throw new Error("Endereço não encontrado.");
   }
@@ -266,30 +325,58 @@ async function geoapifyGeocode(address, apiKey){
   return {
     lat: Number(first.lat),
     lon: Number(first.lon),
-    formatted: first.formatted || text
+    formatted: String(first.display_name || text)
   };
 }
 
+async function geocodeBrazilAddress(address){
+  const text = String(address || "").trim();
+  if(!text) throw new Error("Endereço vazio.");
 
+  const cep = extractCep(text);
+  if(cep){
+    try{
+      const cepData = await brasilApiCepLookup(cep);
 
+      if(cepData.lat && cepData.lon){
+        return {
+          lat: cepData.lat,
+          lon: cepData.lon,
+          formatted: mountAddressFromCepData(cepData, "", "")
+        };
+      }
 
-async function geoapifyRouteDistanceKm(originLat, originLon, destLat, destLon, apiKey){
-  const url = "https://api.geoapify.com/v1/routematrix?apiKey=" + encodeURIComponent(apiKey);
+      const fallbackAddress = mountAddressFromCepData(cepData, "", "");
+      if(fallbackAddress){
+        return await nominatimGeocode(fallbackAddress);
+      }
+    }catch(_err){
+      // continua no fallback geral abaixo
+    }
+  }
 
-  const body = {
-    mode: "drive",
-    sources: [
-      { location: [Number(originLon), Number(originLat)] }
-    ],
-    targets: [
-      { location: [Number(destLon), Number(destLat)] }
-    ]
-  };
+  return await nominatimGeocode(text);
+}
+
+async function osrmRouteDistanceKm(originLat, originLon, destLat, destLon){
+  const coords =
+    `${Number(originLon)},${Number(originLat)};${Number(destLon)},${Number(destLat)}`;
+
+  const url =
+    "https://router.project-osrm.org/route/v1/driving/" +
+    coords +
+    "?" +
+    new URLSearchParams({
+      overview: "false",
+      alternatives: "false",
+      steps: "false"
+    }).toString();
 
   const resp = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
+    headers: {
+      "Accept": "application/json",
+      "User-Agent": "EmanuelleConfeitaria/1.0 (delivery route)"
+    }
   });
 
   if(!resp.ok){
@@ -297,19 +384,14 @@ async function geoapifyRouteDistanceKm(originLat, originLon, destLat, destLon, a
   }
 
   const data = await resp.json();
+  const distanceMeters = data?.routes?.[0]?.distance;
 
-  const distanceMeters =
-    data?.sources_to_targets?.[0]?.[0]?.distance ??
-    data?.results?.[0]?.distance ??
-    null;
-
-  if(distanceMeters === null || !isFinite(Number(distanceMeters))){
+  if(!isFinite(Number(distanceMeters))){
     throw new Error("Não foi possível calcular a distância.");
   }
 
   return Number(distanceMeters) / 1000;
 }
-
 
 
 // ====== HELPERS ======
@@ -604,17 +686,12 @@ app.post("/api/shipping/geocode-origin", async (req, res) => {
   try {
     const body = req.body || {};
     const address = String(body.address || "").trim();
-    const apiKey = String(body.apiKey || "").trim();
 
     if(!address){
       return res.status(400).json({ ok:false, error:"Endereço da loja não informado." });
     }
 
-    if(!apiKey){
-      return res.status(400).json({ ok:false, error:"Geoapify API Key não informada." });
-    }
-
-    const geo = await geoapifyGeocode(address, apiKey);
+    const geo = await geocodeBrazilAddress(address);
 
     return res.json({
       ok: true,
@@ -634,16 +711,15 @@ app.post("/api/shipping/geocode-origin", async (req, res) => {
 
 
 
-
 app.post("/api/shipping/quote", async (req, res) => {
   try {
-    const settings = buildSettings(await readSettingsFromMongo());
+    const settingsNow = buildSettings(await readSettingsFromMongo());
     const body = req.body || {};
 
-    const shippingMode = String(settings?.shipping_mode || "fixed");
+    const shippingMode = String(settingsNow?.shipping_mode || "fixed");
 
     if (shippingMode === "fixed") {
-      const fixed = Number(settings?.default_shipping || 0);
+      const fixed = Number(settingsNow?.default_shipping || 0);
       return res.json({
         ok: true,
         mode: "fixed",
@@ -653,59 +729,50 @@ app.post("/api/shipping/quote", async (req, res) => {
       });
     }
 
-    const apiKey = String(settings?.geoapify_api_key || "").trim();
-    const originAddress = String(settings?.delivery_origin_address || "").trim();
-    const originLat = Number(settings?.delivery_origin_lat || 0);
-    const originLon = Number(settings?.delivery_origin_lon || 0);
+    const originAddress = String(settingsNow?.delivery_origin_address || "").trim();
+    let sourceLat = Number(settingsNow?.delivery_origin_lat || 0);
+    let sourceLon = Number(settingsNow?.delivery_origin_lon || 0);
 
     const customerAddress = String(body.address || "").trim();
     const customerLat = Number(body.lat || 0);
     const customerLon = Number(body.lon || 0);
-
-    if(!apiKey){
-      return res.status(400).json({ ok:false, error:"Geoapify API Key não configurada." });
-    }
-
-    let sourceLat = originLat;
-    let sourceLon = originLon;
 
     if(!(sourceLat && sourceLon)){
       if(!originAddress){
         return res.status(400).json({ ok:false, error:"Origem da loja não configurada." });
       }
 
-      const originGeo = await geoapifyGeocode(originAddress, apiKey);
-      sourceLat = originGeo.lat;
-      sourceLon = originGeo.lon;
+      const originGeo = await geocodeBrazilAddress(originAddress);
+      sourceLat = Number(originGeo.lat || 0);
+      sourceLon = Number(originGeo.lon || 0);
     }
 
-let destLat = 0;
-let destLon = 0;
+    let destLat = 0;
+    let destLon = 0;
+    let destinationText = customerAddress;
 
-if(customerLat && customerLon){
-  destLat = customerLat;
-  destLon = customerLon;
-} else {
-  const customerAddress = String(o.address || "").trim();
+    if(customerLat && customerLon){
+      destLat = customerLat;
+      destLon = customerLon;
+    }else{
+      if(!customerAddress){
+        return res.status(400).json({ ok:false, error:"Endereço de entrega não informado." });
+      }
 
-  if(!customerAddress){
-    return res.status(400).json({ ok:false, error:"Endereço de entrega não informado." });
-  }
+      const destGeo = await geocodeBrazilAddress(customerAddress);
+      destLat = Number(destGeo.lat || 0);
+      destLon = Number(destGeo.lon || 0);
+      destinationText = String(destGeo.formatted || customerAddress);
+    }
 
-  const destGeo = await geoapifyGeocode(customerAddress, apiKey);
-  destLat = destGeo.lat;
-  destLon = destGeo.lon;
-}
+    const distanceKm = await osrmRouteDistanceKm(
+      sourceLat,
+      sourceLon,
+      destLat,
+      destLon
+    );
 
-distance_km = await geoapifyRouteDistanceKm(
-  sourceLat,
-  sourceLon,
-  destLat,
-  destLon,
-  apiKey
-);
-
-    const ruleResult = resolveShippingRule(distanceKm, settings);
+    const ruleResult = resolveShippingRule(distanceKm, settingsNow);
 
     if(!ruleResult.ok){
       return res.status(400).json({
