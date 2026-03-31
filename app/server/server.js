@@ -290,19 +290,60 @@ function mountAddressFromCepData(cepData, number, complement){
   return parts.join(", ");
 }
 
+function splitBrazilAddressParts(address){
+  const text = String(address || "").trim();
+  const cep = extractCep(text);
+
+  const noCep = text.replace(/\b\d{5}-?\d{3}\b/g, "").replace(/\s+/g, " ").trim();
+  const parts = noCep.split(",").map(s => s.trim()).filter(Boolean);
+
+  // tentativa simples:
+  // rua, numero, bairro, cidade, estado
+  let street = "";
+  let city = "";
+  let state = "";
+
+  if(parts.length >= 1) street = parts[0];
+  if(parts.length >= 2 && /\d+/.test(parts[1])) street += " " + parts[1];
+  if(parts.length >= 4) city = parts[parts.length - 2];
+  if(parts.length >= 5) state = parts[parts.length - 1];
+
+  // fallback comum para endereços curtos: "Paripueira, AL, 57935-000"
+  if(!city && parts.length >= 1) city = parts[0];
+  if(!state && parts.length >= 2) state = parts[1];
+
+  return { street, city, state, postalcode: cep };
+}
+
 async function nominatimGeocode(address){
   const text = String(address || "").trim();
   if(!text) throw new Error("Endereço vazio.");
 
-  const url =
-    "https://nominatim.openstreetmap.org/search?" +
-    new URLSearchParams({
-      q: text,
-      format: "jsonv2",
-      limit: "1",
-      addressdetails: "1",
-      countrycodes: "br"
-    }).toString();
+  const parts = splitBrazilAddressParts(text);
+
+  const params = new URLSearchParams({
+    format: "jsonv2",
+    limit: "1",
+    addressdetails: "1",
+    countrycodes: "br",
+    country: "Brasil"
+  });
+
+  // usa busca estruturada quando possível
+  if(parts.street) params.set("street", parts.street);
+  if(parts.city) params.set("city", parts.city);
+  if(parts.state) params.set("state", parts.state);
+  if(parts.postalcode) params.set("postalcode", parts.postalcode);
+
+  // se não conseguiu estruturar nada útil, cai para busca livre
+  const hasStructured =
+    parts.street || parts.city || parts.state || parts.postalcode;
+
+  if(!hasStructured){
+    params.set("q", text);
+  }
+
+  const url = "https://nominatim.openstreetmap.org/search?" + params.toString();
 
   const resp = await fetch(url, {
     headers: {
@@ -329,32 +370,74 @@ async function nominatimGeocode(address){
   };
 }
 
+
 async function geocodeBrazilAddress(address){
   const text = String(address || "").trim();
   if(!text) throw new Error("Endereço vazio.");
 
   const cep = extractCep(text);
+
   if(cep){
     try{
       const cepData = await brasilApiCepLookup(cep);
 
+      // prioridade 1: coordenadas diretas da BrasilAPI
       if(cepData.lat && cepData.lon){
         return {
           lat: cepData.lat,
           lon: cepData.lon,
-          formatted: mountAddressFromCepData(cepData, "", "")
+          formatted: [
+            cepData.street,
+            cepData.neighborhood,
+            cepData.city,
+            cepData.state,
+            cepData.cep
+          ].filter(Boolean).join(", ")
         };
       }
 
-      const fallbackAddress = mountAddressFromCepData(cepData, "", "");
-      if(fallbackAddress){
-        return await nominatimGeocode(fallbackAddress);
+      // prioridade 2: busca estruturada com os dados do CEP
+      const params = new URLSearchParams({
+        format: "jsonv2",
+        limit: "1",
+        addressdetails: "1",
+        countrycodes: "br",
+        country: "Brasil"
+      });
+
+      if(cepData.street) params.set("street", cepData.street);
+      if(cepData.city) params.set("city", cepData.city);
+      if(cepData.state) params.set("state", cepData.state);
+      if(cepData.cep) params.set("postalcode", cepData.cep);
+
+      const resp = await fetch(
+        "https://nominatim.openstreetmap.org/search?" + params.toString(),
+        {
+          headers: {
+            "User-Agent": "EmanuelleConfeitaria/1.0 (delivery lookup)",
+            "Accept": "application/json"
+          }
+        }
+      );
+
+      if(resp.ok){
+        const data = await resp.json();
+        const first = Array.isArray(data) ? data[0] : null;
+
+        if(first){
+          return {
+            lat: Number(first.lat),
+            lon: Number(first.lon),
+            formatted: String(first.display_name || text)
+          };
+        }
       }
     }catch(_err){
-      // continua no fallback geral abaixo
+      // cai no fallback geral abaixo
     }
   }
 
+  // prioridade 3: texto livre/estruturado a partir do que foi digitado
   return await nominatimGeocode(text);
 }
 
