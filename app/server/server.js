@@ -816,9 +816,21 @@ app.post("/api/shipping/quote", async (req, res) => {
     let sourceLat = Number(settingsNow?.delivery_origin_lat || 0);
     let sourceLon = Number(settingsNow?.delivery_origin_lon || 0);
 
-    const customerAddress = String(body.address || "").trim();
-    const customerLat = Number(body.lat || 0);
-    const customerLon = Number(body.lon || 0);
+const customerAddress = String(body.address || "").trim();
+
+const customerLat = Number(
+  body.lat ||
+  body.location?.lat ||
+  0
+);
+
+const customerLon = Number(
+  body.lon ||
+  body.lng ||
+  body.location?.lon ||
+  body.location?.lng ||
+  0
+);
 
     if(!(sourceLat && sourceLon)){
       if(!originAddress){
