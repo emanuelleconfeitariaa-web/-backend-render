@@ -1835,7 +1835,7 @@ return res.json({ ok: true, order });
   }
 });
 
-const VALID_STATUS = ["NOVO","ACEITO","RECUSADO","CONCLUIDO","CANCELADO"];
+const allowed = ["NOVO", "ACEITO", "SAIU_PARA_ENTREGA", "RECUSADO", "CANCELADO", "CONCLUIDO"];
 
 app.put("/api/orders/:id/status", async (req, res) => {
   try {
