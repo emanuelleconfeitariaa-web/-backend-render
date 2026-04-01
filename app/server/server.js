@@ -1835,7 +1835,7 @@ return res.json({ ok: true, order });
   }
 });
 
-const allowed = ["NOVO", "ACEITO", "SAIU_PARA_ENTREGA", "RECUSADO", "CANCELADO", "CONCLUIDO"];
+const VALID_STATUS = ["NOVO", "ACEITO", "SAIU_PARA_ENTREGA", "RECUSADO", "CANCELADO", "CONCLUIDO"];
 
 app.put("/api/orders/:id/status", async (req, res) => {
   try {
@@ -1861,7 +1861,6 @@ app.put("/api/orders/:id/status", async (req, res) => {
     res.status(500).json({ ok: false, error: "Erro ao atualizar status" });
   }
 });
-
 
 // marcar como pago + concluir
 app.put("/api/orders/:id/pay", async (req, res) => {
