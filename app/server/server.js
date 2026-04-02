@@ -504,6 +504,24 @@ async function osrmRouteDistanceKm(originLat, originLon, destLat, destLon){
 
 
 
+function buildGoogleMapsSearchUrl(address){
+  const q = String(address || "").trim();
+  if(!q) return "";
+  return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+}
+
+function buildGoogleMapsCoordsUrl(lat, lng){
+  const nLat = Number(lat);
+  const nLng = Number(lng);
+  if(!isFinite(nLat) || !isFinite(nLng)) return "";
+  return `https://www.google.com/maps?q=${nLat},${nLng}`;
+}
+
+
+
+
+
+
 // ====== HELPERS ======
 function toId(v){ return String(v); }
 
@@ -1622,12 +1640,26 @@ app.post("/api/orders", async (req, res) => {
 
     const subtotal = items.reduce((acc,it)=> acc + (Number(it.price||0) * Number(it.qty||0)), 0);
 
-    const orderType = String(o.type || "RETIRADA").toUpperCase();
-    const isDelivery = orderType === "ENTREGA";
+const orderType = String(o.type || "RETIRADA").toUpperCase();
+const isDelivery = orderType === "ENTREGA";
 
-    // ===== REVALIDAÇÃO DE FRETE NO BACKEND =====
-    let shipping = 0;
-    let distance_km = null;
+const deliveryAddress = {
+  zip: String(o.delivery_address?.zip || "").trim(),
+  street: String(o.delivery_address?.street || "").trim(),
+  number: String(o.delivery_address?.number || "").trim(),
+  complement: String(o.delivery_address?.complement || "").trim(),
+  neighborhood: String(o.delivery_address?.neighborhood || "").trim(),
+  city: String(o.delivery_address?.city || "").trim(),
+  state: String(o.delivery_address?.state || "").trim()
+};
+
+let finalLocation = null;
+let addressLabel = String(o.address || "").trim();
+let mapUrl = String(o.map_url || "").trim();
+
+// ===== REVALIDAÇÃO DE FRETE NO BACKEND =====
+let shipping = 0;
+let distance_km = null;
 
     if(isDelivery){
       const shippingMode = String(settingsNow?.shipping_mode || "fixed");
@@ -1644,6 +1676,30 @@ app.post("/api/orders", async (req, res) => {
         if(!customerAddress){
           return res.status(400).json({ ok:false, error:"Endereço de entrega não informado." });
         }
+
+
+const reqLat = Number(
+  o.location?.lat ??
+  o.location?.latitude ??
+  null
+);
+
+const reqLng = Number(
+  o.location?.lng ??
+  o.location?.lon ??
+  o.location?.longitude ??
+  null
+);
+
+if(isFinite(reqLat) && isFinite(reqLng)){
+  finalLocation = {
+    lat: reqLat,
+    lng: reqLng
+  };
+  addressLabel = customerAddress || addressLabel;
+  mapUrl = buildGoogleMapsCoordsUrl(reqLat, reqLng);
+}
+
 
         if(!apiKey){
           return res.status(400).json({ ok:false, error:"Geoapify API Key não configurada." });
@@ -1683,6 +1739,28 @@ app.post("/api/orders", async (req, res) => {
 
         shipping = Number(ruleResult.shipping_price || 0);
       }
+
+if(!finalLocation){
+  try{
+    const destGeoFallback = await geocodeBrazilAddress(customerAddress);
+    finalLocation = {
+      lat: Number(destGeoFallback.lat),
+      lng: Number(destGeoFallback.lon)
+    };
+    addressLabel = String(destGeoFallback.formatted || customerAddress || "").trim();
+    mapUrl = buildGoogleMapsCoordsUrl(finalLocation.lat, finalLocation.lng);
+  }catch(_e){
+    if(!mapUrl){
+      mapUrl = buildGoogleMapsSearchUrl(customerAddress);
+    }
+    if(!addressLabel){
+      addressLabel = customerAddress;
+    }
+  }
+}
+
+      
+
     }
 
     // desconto enviado pelo checkout (opcional)
@@ -1762,6 +1840,16 @@ const order = await Order.create({
   customer_name: o.customer_name || "",
   customer_phone: o.customer_phone || "",
   address: o.address || "",
+  delivery_address: deliveryAddress,
+  location: finalLocation ? {
+    lat: Number(finalLocation.lat),
+    lng: Number(finalLocation.lng)
+  } : {
+    lat: null,
+    lng: null
+  },
+  map_url: mapUrl || "",
+  address_label: addressLabel || "",
   payment: o.payment || "",
   notes: o.notes || "",
 
