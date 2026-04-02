@@ -1828,10 +1828,11 @@ app.post("/api/orders/bulk", async (req, res) => {
 
 app.post("/api/orders", async (req, res) => {
   try{
-    reloadProductsFromDisk();
-    reloadClientsFromDisk();
-    reloadOrdersFromDisk();
-    reloadSettingsFromDisk();
+    const products = await Product.find();
+    const clients = await Client.find();
+    const settingsNow = buildSettings(await readSettingsFromMongo());
+    const o = req.body || {};
+    const items = Array.isArray(o.items) ? o.items : [];
 
     const o = req.body || {};
     const items = Array.isArray(o.items) ? o.items : [];
