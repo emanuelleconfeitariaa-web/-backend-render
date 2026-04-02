@@ -29,8 +29,7 @@ const ProductSchema = new mongoose.Schema(
     images: { type: [String], default: [] },
 
     addons: { type: [AddonItemSchema], default: [] },
-
-    flavors: {
+        flavors: {
     type: [String],
     default: []
      },
