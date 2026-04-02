@@ -41,12 +41,30 @@ const OrderSchema = new mongoose.Schema(
       default: "RETIRADA"
     },
 
-    customer_name: { type: String, default: "", trim: true },
-    customer_phone: { type: String, default: "", trim: true },
-    address: { type: String, default: "" },
+customer_name: { type: String, default: "", trim: true },
+customer_phone: { type: String, default: "", trim: true },
+address: { type: String, default: "" },
 
-    payment: { type: String, default: "" },
-    notes: { type: String, default: "" },
+delivery_address: {
+  zip: { type: String, default: "" },
+  street: { type: String, default: "" },
+  number: { type: String, default: "" },
+  complement: { type: String, default: "" },
+  neighborhood: { type: String, default: "" },
+  city: { type: String, default: "" },
+  state: { type: String, default: "" }
+},
+
+location: {
+  lat: { type: Number, default: null },
+  lng: { type: Number, default: null }
+},
+
+map_url: { type: String, default: "" },
+address_label: { type: String, default: "" },
+
+payment: { type: String, default: "" },
+notes: { type: String, default: "" },
 
     scheduled_for: { type: String, default: null },
     need_nfce: { type: Boolean, default: false },
