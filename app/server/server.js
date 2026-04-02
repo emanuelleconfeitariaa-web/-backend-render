@@ -28,21 +28,13 @@ app.use(cors({
       "null"
     ];
 
-    if (!origin) return cb(null, true);
-    if (allowed.includes(origin)) return cb(null, true);
-
-    const dynamicAllowed =
-      origin.includes("aistudio.google.com") ||
-      origin.includes("googleusercontent.com") ||
-      origin.includes(".run.app");
-
-    if (dynamicAllowed) return cb(null, true);
-
+    if (!origin || allowed.includes(origin)) return cb(null, true);
     return cb(new Error("Not allowed by CORS: " + origin));
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
+
 
 function nowIso(){ return new Date().toISOString(); }
 
@@ -240,8 +232,6 @@ function resolveShippingRule(distanceKm, settings){
 
 
 
-
-
 async function brasilApiCepLookup(cep){
   const cleanCep = String(cep || "").replace(/\D+/g, "");
   if(cleanCep.length !== 8){
@@ -289,6 +279,7 @@ function mountAddressFromCepData(cepData, number, complement){
 
   return parts.join(", ");
 }
+
 
 function splitBrazilAddressParts(address){
   const text = String(address || "").trim();
@@ -369,8 +360,6 @@ async function nominatimGeocode(address){
     formatted: String(first.display_name || text)
   };
 }
-
-
 function addressLooksDetailed(address){
   const text = String(address || "").trim();
 
@@ -513,6 +502,8 @@ async function osrmRouteDistanceKm(originLat, originLon, destLat, destLon){
 }
 
 
+
+
 // ====== HELPERS ======
 function toId(v){ return String(v); }
 
@@ -587,18 +578,6 @@ function deepMergeSettings(CUR, IN) {
 
 
 
-function parseAddressText(addressText){
-  const txt = String(addressText || "").trim();
-  return {
-    street: txt,
-    number: "",
-    neighborhood: "",
-    city: "",
-    complement: "",
-    zip: ""
-  };
-}
-
 async function upsertClientFromOrder(order) {
   const phone = String(order.customer_phone || "").trim();
   if (!phone) return;
@@ -648,7 +627,6 @@ async function upsertClientFromOrder(order) {
     coupons: []
   });
 }
-
 
 
 
@@ -948,6 +926,9 @@ app.get("/api/settings", async (_req, res) => {
       store_url: full.store_url,
       preview_whatsapp_url: full.preview_whatsapp_url,
       instagram_url: full.instagram_url,
+      pix_label: full.pix_label,
+      pix_key: full.pix_key,
+      payment_pix_key: full.payment_pix_key,
       theme: full.theme,
       store_ui: full.store_ui,
       shipping_mode: full.shipping_mode,
@@ -1114,21 +1095,22 @@ app.delete("/api/categories/:id", async (req, res) => {
 // ====== PRODUCTS ======
 app.get("/api/products", async (req, res) => {
   try {
-    const full = String(req.query.full || "") === "1";
-
-    const fields = full
-      ? null
-      : "name price category subcategory description featured stock_enabled stock_qty low_stock_alert paused active discount_percent addons flavors image_url images sort_order";
+    const fields =
+      "name price category subcategory description featured stock_enabled stock_qty low_stock_alert paused active discount_percent addons flavors image_url images sort_order";
 
     const docs = await Product.find({}, fields).sort({ sort_order: 1, name: 1 });
 
     const list = docs.map((doc) => {
       const p = doc.toJSON();
 
-      if (!full) {
-        p.images = Array.isArray(p.images)
-          ? p.images.slice(0, 1)
-          : [];
+      p.images = Array.isArray(p.images)
+        ? p.images.map(x => String(x || "").trim()).filter(Boolean).slice(0, 2)
+        : [];
+
+      p.image_url = String(p.image_url || "").trim();
+
+      if (!p.image_url && p.images.length) {
+        p.image_url = p.images[0];
       }
 
       return p;
@@ -1140,6 +1122,7 @@ app.get("/api/products", async (req, res) => {
     res.status(500).json({ error: "Erro ao listar produtos" });
   }
 });
+
 
 
 app.get("/api/products/:id", async (req, res) => {
@@ -1156,7 +1139,6 @@ app.get("/api/products/:id", async (req, res) => {
     res.status(500).json({ error: "Erro ao buscar produto" });
   }
 });
-
 
 
 
@@ -1413,33 +1395,20 @@ app.get("/api/clients/benefits", async (req, res) => {
 app.post("/api/clients", async (req, res) => {
   try {
     const body = req.body || {};
-    const rawAddress = body.address;
-
-    const addressObj =
-      typeof rawAddress === "string"
-        ? {
-            street: String(rawAddress || "").trim(),
-            number: "",
-            neighborhood: "",
-            city: "",
-            complement: "",
-            zip: ""
-          }
-        : {
-            street: String(rawAddress?.street || ""),
-            number: String(rawAddress?.number || ""),
-            neighborhood: String(rawAddress?.neighborhood || ""),
-            city: String(rawAddress?.city || ""),
-            complement: String(rawAddress?.complement || ""),
-            zip: String(rawAddress?.zip || "")
-          };
 
     const client = await Client.create({
       name: String(body.name || "").trim(),
-      phone: normPhone(body.phone || ""),
+      phone: String(body.phone || "").trim(),
       email: String(body.email || "").trim(),
       notes: String(body.notes || ""),
-      address: addressObj,
+      address: {
+        street: String(body.address?.street || ""),
+        number: String(body.address?.number || ""),
+        neighborhood: String(body.address?.neighborhood || ""),
+        city: String(body.address?.city || ""),
+        complement: String(body.address?.complement || ""),
+        zip: String(body.address?.zip || "")
+      },
       coupons: Array.isArray(body.coupons) ? body.coupons : []
     });
 
@@ -1454,35 +1423,22 @@ app.post("/api/clients", async (req, res) => {
 app.put("/api/clients/:id", async (req, res) => {
   try {
     const body = req.body || {};
-    const rawAddress = body.address;
-
-    const addressObj =
-      typeof rawAddress === "string"
-        ? {
-            street: String(rawAddress || "").trim(),
-            number: "",
-            neighborhood: "",
-            city: "",
-            complement: "",
-            zip: ""
-          }
-        : {
-            street: String(rawAddress?.street || ""),
-            number: String(rawAddress?.number || ""),
-            neighborhood: String(rawAddress?.neighborhood || ""),
-            city: String(rawAddress?.city || ""),
-            complement: String(rawAddress?.complement || ""),
-            zip: String(rawAddress?.zip || "")
-          };
 
     const client = await Client.findByIdAndUpdate(
       req.params.id,
       {
         name: String(body.name || "").trim(),
-        phone: normPhone(body.phone || ""),
+        phone: String(body.phone || "").trim(),
         email: String(body.email || "").trim(),
         notes: String(body.notes || ""),
-        address: addressObj,
+        address: {
+          street: String(body.address?.street || ""),
+          number: String(body.address?.number || ""),
+          neighborhood: String(body.address?.neighborhood || ""),
+          city: String(body.address?.city || ""),
+          complement: String(body.address?.complement || ""),
+          zip: String(body.address?.zip || "")
+        },
         coupons: Array.isArray(body.coupons) ? body.coupons : []
       },
       { new: true, runValidators: true }
@@ -1673,59 +1629,61 @@ app.post("/api/orders", async (req, res) => {
     let shipping = 0;
     let distance_km = null;
 
-if(isDelivery){
-  const shippingMode = String(settingsNow?.shipping_mode || "fixed");
+    if(isDelivery){
+      const shippingMode = String(settingsNow?.shipping_mode || "fixed");
 
-  if(shippingMode === "fixed"){
-    shipping = Number(settingsNow?.default_shipping || 0);
-  } else {
-    try{
-      const apiKey = String(settingsNow?.geoapify_api_key || "").trim();
-      const originAddress = String(settingsNow?.delivery_origin_address || "").trim();
-      const originLat = Number(settingsNow?.delivery_origin_lat || 0);
-      const originLon = Number(settingsNow?.delivery_origin_lon || 0);
-      const customerAddress = String(o.address || "").trim();
+      if(shippingMode === "fixed"){
+        shipping = Number(settingsNow?.default_shipping || 0);
+      } else {
+        const apiKey = String(settingsNow?.geoapify_api_key || "").trim();
+        const originAddress = String(settingsNow?.delivery_origin_address || "").trim();
+        const originLat = Number(settingsNow?.delivery_origin_lat || 0);
+        const originLon = Number(settingsNow?.delivery_origin_lon || 0);
+        const customerAddress = String(o.address || "").trim();
 
-      if(customerAddress && apiKey){
+        if(!customerAddress){
+          return res.status(400).json({ ok:false, error:"Endereço de entrega não informado." });
+        }
+
+        if(!apiKey){
+          return res.status(400).json({ ok:false, error:"Geoapify API Key não configurada." });
+        }
+
         let sourceLat = originLat;
         let sourceLon = originLon;
 
-        if(!(sourceLat && sourceLon) && originAddress){
+        if(!(sourceLat && sourceLon)){
+          if(!originAddress){
+            return res.status(400).json({ ok:false, error:"Origem da loja não configurada." });
+          }
+
           const originGeo = await geoapifyGeocode(originAddress, apiKey);
           sourceLat = originGeo.lat;
           sourceLon = originGeo.lon;
         }
 
-        if(sourceLat && sourceLon){
-          const destGeo = await geoapifyGeocode(customerAddress, apiKey);
-          distance_km = await geoapifyRouteDistanceKm(
-            sourceLat,
-            sourceLon,
-            destGeo.lat,
-            destGeo.lon,
-            apiKey
-          );
+        const destGeo = await geoapifyGeocode(customerAddress, apiKey);
+        distance_km = await geoapifyRouteDistanceKm(
+          sourceLat,
+          sourceLon,
+          destGeo.lat,
+          destGeo.lon,
+          apiKey
+        );
 
-          const ruleResult = resolveShippingRule(distance_km, settingsNow);
+        const ruleResult = resolveShippingRule(distance_km, settingsNow);
 
-          if(ruleResult.ok){
-            shipping = Number(ruleResult.shipping_price || 0);
-          } else {
-            shipping = Number(o.shipping || 0);
-          }
-        } else {
-          shipping = Number(o.shipping || 0);
+        if(!ruleResult.ok){
+          return res.status(400).json({
+            ok: false,
+            error: ruleResult.error,
+            distance_km: Number(distance_km.toFixed(2))
+          });
         }
-      } else {
-        shipping = Number(o.shipping || 0);
+
+        shipping = Number(ruleResult.shipping_price || 0);
       }
-    }catch(e){
-      console.error("Falha ao calcular frete automático:", e);
-      shipping = Number(o.shipping || 0);
-      distance_km = null;
     }
-  }
-}
 
     // desconto enviado pelo checkout (opcional)
     let discount = Number(o.discount || 0);
@@ -1804,7 +1762,6 @@ const order = await Order.create({
   customer_name: o.customer_name || "",
   customer_phone: o.customer_phone || "",
   address: o.address || "",
-  location: o.location || null,
   payment: o.payment || "",
   notes: o.notes || "",
 
@@ -1861,6 +1818,7 @@ app.put("/api/orders/:id/status", async (req, res) => {
     res.status(500).json({ ok: false, error: "Erro ao atualizar status" });
   }
 });
+
 
 // marcar como pago + concluir
 app.put("/api/orders/:id/pay", async (req, res) => {
