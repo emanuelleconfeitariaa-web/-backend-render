@@ -1554,6 +1554,230 @@ app.delete("/api/clients/:id/coupons/:couponId", async (req, res) => {
   }
 });
 
+
+
+function buildGoogleMapsSearchUrl(address){
+  const q = String(address || "").trim();
+  if(!q) return "";
+  return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+}
+
+function buildGoogleMapsCoordsUrl(lat, lng){
+  const nLat = Number(lat);
+  const nLng = Number(lng);
+  if(!isFinite(nLat) || !isFinite(nLng)) return "";
+  return `https://www.google.com/maps?q=${nLat},${nLng}`;
+}
+
+function getSettingsObject(){
+  reloadSettingsFromDisk();
+  return settings || {};
+}
+
+function parseAddressTextFromBody(body){
+  const direct = String(body?.address || "").trim();
+  if(direct) return direct;
+
+  const a = body?.delivery_address || {};
+  const zip = String(a.zip || "").trim();
+  const street = String(a.street || "").trim();
+  const number = String(a.number || "").trim();
+  const complement = String(a.complement || "").trim();
+  const neighborhood = String(a.neighborhood || "").trim();
+  const city = String(a.city || "").trim();
+  const state = String(a.state || "").trim();
+
+  const line1 = [street, number].filter(Boolean).join(", ");
+  const line2 = [complement, neighborhood].filter(Boolean).join(" - ");
+  const line3 = [city, state].filter(Boolean).join(" / ");
+  const line4 = zip ? ("CEP: " + zip) : "";
+
+  return [line1, line2, line3, line4].filter(Boolean).join(" | ");
+}
+
+function normalizeDeliveryAddress(input){
+  const a = input || {};
+  return {
+    zip: String(a.zip || "").trim(),
+    street: String(a.street || "").trim(),
+    number: String(a.number || "").trim(),
+    complement: String(a.complement || "").trim(),
+    neighborhood: String(a.neighborhood || "").trim(),
+    city: String(a.city || "").trim(),
+    state: String(a.state || "").trim()
+  };
+}
+
+function normalizeShippingRules(raw){
+  const arr = Array.isArray(raw) ? raw : [];
+  return arr
+    .map(r => ({
+      up_to_km: Number(r?.up_to_km),
+      price: Number(r?.price)
+    }))
+    .filter(r => isFinite(r.up_to_km) && isFinite(r.price))
+    .sort((a,b)=> a.up_to_km - b.up_to_km);
+}
+
+function resolveShippingRule(distanceKm, rules){
+  const d = Number(distanceKm || 0);
+  const list = normalizeShippingRules(rules);
+
+  for(const r of list){
+    if(d <= r.up_to_km){
+      return Number(r.price || 0);
+    }
+  }
+  return null;
+}
+
+async function geoapifyGeocode(address, apiKey){
+  const url =
+    "https://api.geoapify.com/v1/geocode/search?text=" +
+    encodeURIComponent(address) +
+    "&limit=1&filter=countrycode:br&format=json&apiKey=" +
+    encodeURIComponent(apiKey);
+
+  const res = await fetch(url);
+  const data = await res.json().catch(()=>null);
+
+  if(!res.ok || !data?.results?.length){
+    throw new Error("Falha ao geocodificar endereço.");
+  }
+
+  const first = data.results[0];
+  return {
+    lat: Number(first.lat),
+    lon: Number(first.lon),
+    formatted: String(first.formatted || address || "").trim()
+  };
+}
+
+async function geoapifyRouteDistanceKm(fromLat, fromLon, toLat, toLon, apiKey){
+  const url =
+    "https://api.geoapify.com/v1/routing?waypoints=" +
+    encodeURIComponent(`${fromLat},${fromLon}|${toLat},${toLon}`) +
+    "&mode=drive&details=route_details&apiKey=" +
+    encodeURIComponent(apiKey);
+
+  const res = await fetch(url);
+  const data = await res.json().catch(()=>null);
+
+  const meters = Number(data?.features?.[0]?.properties?.distance || 0);
+  if(!res.ok || !isFinite(meters) || meters <= 0){
+    throw new Error("Falha ao calcular rota.");
+  }
+
+  return meters / 1000;
+}
+
+
+
+
+
+
+
+app.post("/api/shipping/quote", async (req, res) => {
+  try{
+    const s = getSettingsObject();
+    const address = parseAddressTextFromBody(req.body || {});
+    const location = req.body?.location || null;
+
+    if(!address){
+      return res.status(400).json({ ok:false, error:"Endereço obrigatório" });
+    }
+
+    const apiKey = String(s.geoapify_api_key || "").trim();
+    if(!apiKey){
+      return res.status(400).json({ ok:false, error:"Geoapify não configurado" });
+    }
+
+    const sourceLat = Number(s.delivery_origin_lat);
+    const sourceLon = Number(s.delivery_origin_lon);
+    const sourceAddress = String(s.delivery_origin_address || "").trim();
+
+    if(!isFinite(sourceLat) || !isFinite(sourceLon)){
+      return res.status(400).json({ ok:false, error:"Origem da entrega não configurada" });
+    }
+
+    let destLat = null;
+    let destLon = null;
+    let formatted = address;
+
+    const reqLat = Number(location?.lat ?? null);
+    const reqLng = Number(location?.lng ?? location?.lon ?? null);
+
+    if(isFinite(reqLat) && isFinite(reqLng)){
+      destLat = reqLat;
+      destLon = reqLng;
+    }else{
+      const geo = await geoapifyGeocode(address, apiKey);
+      destLat = Number(geo.lat);
+      destLon = Number(geo.lon);
+      formatted = geo.formatted || address;
+    }
+
+    const distance_km = await geoapifyRouteDistanceKm(
+      sourceLat,
+      sourceLon,
+      destLat,
+      destLon,
+      apiKey
+    );
+
+    const shippingMode = String(s.shipping_mode || "fixed").trim().toLowerCase();
+
+    let shipping_price = 0;
+
+    if(shippingMode === "km"){
+      const priceByRule = resolveShippingRule(distance_km, s.shipping_by_km);
+      if(priceByRule !== null){
+        shipping_price = Number(priceByRule || 0);
+      }else{
+        shipping_price = Number(s.shipping_fallback_price || 0);
+      }
+    }else{
+      shipping_price = Number(s.default_shipping || 0);
+    }
+
+    const maxKm = Number(s.shipping_max_km || 0);
+    const outMode = String(s.shipping_out_of_area_mode || "fallback").trim().toLowerCase();
+
+    if(maxKm > 0 && distance_km > maxKm){
+      if(outMode === "block"){
+        return res.status(400).json({
+          ok:false,
+          error:"Endereço fora da área de entrega",
+          distance_km
+        });
+      }
+      shipping_price = Number(s.shipping_fallback_price || shipping_price || 0);
+    }
+
+    return res.json({
+      ok:true,
+      shipping_price: Number(shipping_price || 0),
+      distance_km: Number(distance_km || 0),
+      address: formatted,
+      map_url: buildGoogleMapsCoordsUrl(destLat, destLon),
+      location: { lat: destLat, lng: destLon },
+      origin_address: sourceAddress
+    });
+  }catch(err){
+    console.error("Erro em /api/shipping/quote:", err);
+    return res.status(500).json({ ok:false, error: err?.message || "Erro ao calcular frete" });
+  }
+});
+
+
+
+
+
+
+
+
+
+
 // ====== ORDERS ======
 app.get("/api/orders", async (_req, res) => {
   try {
@@ -1603,14 +1827,33 @@ app.post("/api/orders/bulk", async (req, res) => {
 
 
 app.post("/api/orders", async (req, res) => {
-  try {
-    const products = await Product.find();
-    const clients = await Client.find();
-    const settingsNow = buildSettings(await readSettingsFromMongo());
+  try{
+    reloadProductsFromDisk();
+    reloadClientsFromDisk();
+    reloadOrdersFromDisk();
+    reloadSettingsFromDisk();
+
     const o = req.body || {};
     const items = Array.isArray(o.items) ? o.items : [];
 
-    // baixa de estoque automática
+    const orderType = String(o.type || "RETIRADA").toUpperCase();
+    const isDelivery = orderType === "ENTREGA";
+
+    const deliveryAddress = normalizeDeliveryAddress(o.delivery_address);
+    let address = String(o.address || "").trim() || parseAddressTextFromBody(o);
+
+    let finalLocation = null;
+    let addressLabel = address;
+    let mapUrl = String(o.map_url || "").trim();
+
+    const reqLat = Number(o.location?.lat ?? null);
+    const reqLng = Number(o.location?.lng ?? o.location?.lon ?? null);
+
+    if(isFinite(reqLat) && isFinite(reqLng)){
+      finalLocation = { lat: reqLat, lng: reqLng };
+      mapUrl = mapUrl || buildGoogleMapsCoordsUrl(reqLat, reqLng);
+    }
+
     for (const it of items) {
       const prod = products.find(p => toId(p.id) === toId(it.product_id));
       if (!prod) continue;
@@ -1626,148 +1869,19 @@ app.post("/api/orders", async (req, res) => {
         if (current < qty) {
           return res.status(400).json({ ok:false, error:`Estoque insuficiente para: ${prod.name}. Disponível: ${current}` });
         }
+
         prod.stock_qty = current - qty;
       }
     }
 
-    for (const prod of products) {
- await Product.findByIdAndUpdate(prod._id, {
-    stock_qty: Number(prod.stock_qty || 0),
-    paused: !!prod.paused
-  });
-}
-
+    writeJson(PRODUCTS_FILE, products);
 
     const subtotal = items.reduce((acc,it)=> acc + (Number(it.price||0) * Number(it.qty||0)), 0);
 
-const orderType = String(o.type || "RETIRADA").toUpperCase();
-const isDelivery = orderType === "ENTREGA";
-
-const deliveryAddress = {
-  zip: String(o.delivery_address?.zip || "").trim(),
-  street: String(o.delivery_address?.street || "").trim(),
-  number: String(o.delivery_address?.number || "").trim(),
-  complement: String(o.delivery_address?.complement || "").trim(),
-  neighborhood: String(o.delivery_address?.neighborhood || "").trim(),
-  city: String(o.delivery_address?.city || "").trim(),
-  state: String(o.delivery_address?.state || "").trim()
-};
-
-let finalLocation = null;
-let addressLabel = String(o.address || "").trim();
-let mapUrl = String(o.map_url || "").trim();
-
-// ===== REVALIDAÇÃO DE FRETE NO BACKEND =====
-let shipping = 0;
-let distance_km = null;
-
-    if(isDelivery){
-      const shippingMode = String(settingsNow?.shipping_mode || "fixed");
-
-      if(shippingMode === "fixed"){
-        shipping = Number(settingsNow?.default_shipping || 0);
-      } else {
-        const apiKey = String(settingsNow?.geoapify_api_key || "").trim();
-        const originAddress = String(settingsNow?.delivery_origin_address || "").trim();
-        const originLat = Number(settingsNow?.delivery_origin_lat || 0);
-        const originLon = Number(settingsNow?.delivery_origin_lon || 0);
-        const customerAddress = String(o.address || "").trim();
-
-        if(!customerAddress){
-          return res.status(400).json({ ok:false, error:"Endereço de entrega não informado." });
-        }
-
-
-const reqLat = Number(
-  o.location?.lat ??
-  o.location?.latitude ??
-  null
-);
-
-const reqLng = Number(
-  o.location?.lng ??
-  o.location?.lon ??
-  o.location?.longitude ??
-  null
-);
-
-if(isFinite(reqLat) && isFinite(reqLng)){
-  finalLocation = {
-    lat: reqLat,
-    lng: reqLng
-  };
-  addressLabel = customerAddress || addressLabel;
-  mapUrl = buildGoogleMapsCoordsUrl(reqLat, reqLng);
-}
-
-
-        if(!apiKey){
-          return res.status(400).json({ ok:false, error:"Geoapify API Key não configurada." });
-        }
-
-        let sourceLat = originLat;
-        let sourceLon = originLon;
-
-        if(!(sourceLat && sourceLon)){
-          if(!originAddress){
-            return res.status(400).json({ ok:false, error:"Origem da loja não configurada." });
-          }
-
-          const originGeo = await geoapifyGeocode(originAddress, apiKey);
-          sourceLat = originGeo.lat;
-          sourceLon = originGeo.lon;
-        }
-
-        const destGeo = await geoapifyGeocode(customerAddress, apiKey);
-        distance_km = await geoapifyRouteDistanceKm(
-          sourceLat,
-          sourceLon,
-          destGeo.lat,
-          destGeo.lon,
-          apiKey
-        );
-
-        const ruleResult = resolveShippingRule(distance_km, settingsNow);
-
-        if(!ruleResult.ok){
-          return res.status(400).json({
-            ok: false,
-            error: ruleResult.error,
-            distance_km: Number(distance_km.toFixed(2))
-          });
-        }
-
-        shipping = Number(ruleResult.shipping_price || 0);
-      }
-
-if(!finalLocation){
-  try{
-    const destGeoFallback = await geocodeBrazilAddress(customerAddress);
-    finalLocation = {
-      lat: Number(destGeoFallback.lat),
-      lng: Number(destGeoFallback.lon)
-    };
-    addressLabel = String(destGeoFallback.formatted || customerAddress || "").trim();
-    mapUrl = buildGoogleMapsCoordsUrl(finalLocation.lat, finalLocation.lng);
-  }catch(_e){
-    if(!mapUrl){
-      mapUrl = buildGoogleMapsSearchUrl(customerAddress);
-    }
-    if(!addressLabel){
-      addressLabel = customerAddress;
-    }
-  }
-}
-
-      
-
-    }
-
-    // desconto enviado pelo checkout (opcional)
+    let shipping = Number(o.shipping || 0);
     let discount = Number(o.discount || 0);
-
-    // cupom automático por telefone
     let coupon_applied = null;
+
     const phoneNorm = normPhone(o.customer_phone || "");
 
     if(phoneNorm){
@@ -1820,63 +1934,81 @@ if(!finalLocation){
         best.uses_left = 0;
         best.active = false;
 
-      if (c && c._id) {
-      await Client.findByIdAndUpdate(c._id, { coupons: c.coupons || [] });
-                      }
-
+        writeJson(CLIENTS_FILE, clients);
       }
     }
 
     discount = Math.max(0, Math.min(Number(discount||0), subtotal + shipping));
     const total = Math.max(0, subtotal + shipping - discount);
 
-const order = await Order.create({
-  created_at: nowIso(),
-  status: "NOVO",
-  paid: false,
-  paid_at: null,
+    if(isDelivery){
+      const s = settings || {};
+      const apiKey = String(s.geoapify_api_key || "").trim();
 
-  type: orderType,
-  customer_name: o.customer_name || "",
-  customer_phone: o.customer_phone || "",
-  address: o.address || "",
-  delivery_address: deliveryAddress,
-  location: finalLocation ? {
-    lat: Number(finalLocation.lat),
-    lng: Number(finalLocation.lng)
-  } : {
-    lat: null,
-    lng: null
-  },
-  map_url: mapUrl || "",
-  address_label: addressLabel || "",
-  payment: o.payment || "",
-  notes: o.notes || "",
+      if(address && apiKey && !finalLocation){
+        try{
+          const geo = await geoapifyGeocode(address, apiKey);
+          finalLocation = {
+            lat: Number(geo.lat),
+            lng: Number(geo.lon)
+          };
+          addressLabel = String(geo.formatted || address || "").trim();
+          mapUrl = mapUrl || buildGoogleMapsCoordsUrl(finalLocation.lat, finalLocation.lng);
+        }catch(_e){
+          mapUrl = mapUrl || buildGoogleMapsSearchUrl(address);
+        }
+      }else if(address && !mapUrl){
+        mapUrl = buildGoogleMapsSearchUrl(address);
+      }
+    }
 
-  scheduled_for: o.scheduled_for || null,
+    const order = {
+      id: Date.now().toString() + Math.floor(Math.random()*1000),
+      created_at: nowIso(),
+      status: "NOVO",
+      paid: false,
+      paid_at: null,
 
-  need_nfce: !!o.need_nfce,
-  cpf: o.cpf || "",
+      type: orderType,
+      customer_name: o.customer_name || "",
+      customer_phone: o.customer_phone || "",
+      address: address || "",
+      delivery_address: deliveryAddress,
+      location: finalLocation ? {
+        lat: Number(finalLocation.lat),
+        lng: Number(finalLocation.lng)
+      } : {
+        lat: null,
+        lng: null
+      },
+      map_url: mapUrl || "",
+      address_label: addressLabel || address || "",
+      payment: o.payment || "",
+      notes: o.notes || "",
 
-  distance_km: distance_km !== null ? Number(distance_km.toFixed(2)) : null,
-  shipping,
-  discount,
-  coupon_applied,
-  subtotal,
-  total,
-  items
-});
+      scheduled_for: o.scheduled_for || null,
 
-await upsertClientFromOrder(order);
+      need_nfce: !!o.need_nfce,
+      cpf: o.cpf || "",
 
-return res.json({ ok: true, order });
+      distance_km: o.distance_km ?? null,
+      shipping,
+      discount,
+      coupon_applied,
+      subtotal,
+      total,
+      items
+    };
 
+    orders.push(order);
+    writeJson(ORDERS_FILE, orders);
 
+    upsertClientFromOrder(order);
 
-
-  } catch (e) {
-    console.error("create order error:", e);
-    return res.status(500).json({ ok:false, error: String(e?.message || e) });
+    res.json({ ok:true, order });
+  }catch(err){
+    console.error("Erro em /api/orders:", err);
+    res.status(500).json({ ok:false, error: err?.message || "Erro ao criar pedido" });
   }
 });
 
