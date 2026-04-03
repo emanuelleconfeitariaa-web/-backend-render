@@ -1825,15 +1825,11 @@ app.post("/api/orders/bulk", async (req, res) => {
 
 
 
-
 app.post("/api/orders", async (req, res) => {
   try{
     const products = await Product.find();
     const clients = await Client.find();
     const settingsNow = buildSettings(await readSettingsFromMongo());
-    const o = req.body || {};
-    const items = Array.isArray(o.items) ? o.items : [];
-
     const o = req.body || {};
     const items = Array.isArray(o.items) ? o.items : [];
 
@@ -1856,7 +1852,7 @@ app.post("/api/orders", async (req, res) => {
     }
 
     for (const it of items) {
-      const prod = products.find(p => toId(p.id) === toId(it.product_id));
+      const prod = products.find(p => toId(p.id || p._id) === toId(it.product_id));
       if (!prod) continue;
 
       if(!!prod.paused){
@@ -1872,10 +1868,9 @@ app.post("/api/orders", async (req, res) => {
         }
 
         prod.stock_qty = current - qty;
+        await prod.save();
       }
     }
-
-    writeJson(PRODUCTS_FILE, products);
 
     const subtotal = items.reduce((acc,it)=> acc + (Number(it.price||0) * Number(it.qty||0)), 0);
 
@@ -1935,7 +1930,7 @@ app.post("/api/orders", async (req, res) => {
         best.uses_left = 0;
         best.active = false;
 
-        writeJson(CLIENTS_FILE, clients);
+        if(c) await c.save();
       }
     }
 
@@ -1943,7 +1938,7 @@ app.post("/api/orders", async (req, res) => {
     const total = Math.max(0, subtotal + shipping - discount);
 
     if(isDelivery){
-      const s = settings || {};
+      const s = settingsNow || {};
       const apiKey = String(s.geoapify_api_key || "").trim();
 
       if(address && apiKey && !finalLocation){
@@ -1963,8 +1958,7 @@ app.post("/api/orders", async (req, res) => {
       }
     }
 
-    const order = {
-      id: Date.now().toString() + Math.floor(Math.random()*1000),
+    const order = await Order.create({
       created_at: nowIso(),
       status: "NOVO",
       paid: false,
@@ -1999,12 +1993,9 @@ app.post("/api/orders", async (req, res) => {
       subtotal,
       total,
       items
-    };
+    });
 
-    orders.push(order);
-    writeJson(ORDERS_FILE, orders);
-
-    upsertClientFromOrder(order);
+    await upsertClientFromOrder(order);
 
     res.json({ ok:true, order });
   }catch(err){
