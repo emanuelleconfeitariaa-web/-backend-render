@@ -1114,7 +1114,7 @@ app.delete("/api/categories/:id", async (req, res) => {
 app.get("/api/products", async (req, res) => {
   try {
     const fields =
-      "name price category subcategory description featured stock_enabled stock_qty low_stock_alert paused active discount_percent addons flavors image_url images sort_order";
+     "name price category subcategory description featured stock_enabled stock_qty low_stock_alert paused active discount_percent addons flavors flavor_label image_url images sort_order";
 
     const docs = await Product.find({}, fields).sort({ sort_order: 1, name: 1 });
 
