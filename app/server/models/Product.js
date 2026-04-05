@@ -33,6 +33,7 @@ const ProductSchema = new mongoose.Schema(
     type: [String],
     default: []
      },
+    flavor_label: { type: String, default: "" },
     discount_percent: { type: Number, default: 0 },
 
     sort_order: { type: Number, default: 0 },
