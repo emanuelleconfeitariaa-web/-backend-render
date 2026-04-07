@@ -1663,6 +1663,7 @@ let distance_km = null;
 
 if(isDelivery){
   const shippingMode = String(settingsNow?.shipping_mode || "fixed");
+  const customerAddress = String(o.address || "").trim();
 
   if(shippingMode === "fixed"){
     shipping = Number(settingsNow?.default_shipping || 0);
@@ -1670,7 +1671,6 @@ if(isDelivery){
     const originAddress = String(settingsNow?.delivery_origin_address || "").trim();
     const originLat = Number(settingsNow?.delivery_origin_lat || 0);
     const originLon = Number(settingsNow?.delivery_origin_lon || 0);
-    const customerAddress = String(o.address || "").trim();
 
     if(!customerAddress){
       return res.status(400).json({ ok:false, error:"Endereço de entrega não informado." });
