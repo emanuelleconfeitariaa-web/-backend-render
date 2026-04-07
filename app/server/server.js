@@ -918,10 +918,13 @@ if(customerLat && customerLon){
       used_fallback: !!ruleResult.used_fallback,
       destination: destinationText
     });
-  } catch (e) {
-    return res.status(500).json({
+ } catch (e) {
+     return res.json({
       ok: false,
-      error: String(e?.message || e)
+      error: String(e?.message || e),
+    distance_km: null,
+    shipping_price: 0,
+    matched_rule: null
     });
   }
 });
@@ -1698,38 +1701,47 @@ if(isDelivery){
       mapUrl = buildGoogleMapsCoordsUrl(reqLat, reqLng);
     }
 
-    let sourceLat = originLat;
-    let sourceLon = originLon;
+    try{
+      let sourceLat = originLat;
+      let sourceLon = originLon;
 
-    if(!(sourceLat && sourceLon)){
-      if(!originAddress){
-        return res.status(400).json({ ok:false, error:"Origem da loja não configurada." });
+      if(!(sourceLat && sourceLon)){
+        if(!originAddress){
+          throw new Error("Origem da loja não configurada.");
+        }
+
+        const originGeo = await geocodeBrazilAddress(originAddress);
+        sourceLat = Number(originGeo.lat || 0);
+        sourceLon = Number(originGeo.lon || 0);
       }
 
-      const originGeo = await geocodeBrazilAddress(originAddress);
-      sourceLat = Number(originGeo.lat);
-      sourceLon = Number(originGeo.lon);
+      const destGeo = await geocodeBrazilAddress(customerAddress);
+      distance_km = await osrmRouteDistanceKm(
+        sourceLat,
+        sourceLon,
+        Number(destGeo.lat || 0),
+        Number(destGeo.lon || 0)
+      );
+
+      const ruleResult = resolveShippingRule(distance_km, settingsNow);
+
+      if(!ruleResult.ok){
+        throw new Error(ruleResult.error || "Não foi possível calcular o frete.");
+      }
+
+      shipping = Number(ruleResult.shipping_price || 0);
+    }catch(_err){
+      distance_km = null;
+      shipping = 0;
+
+      if(!mapUrl){
+        mapUrl = buildGoogleMapsSearchUrl(customerAddress);
+      }
+
+      if(!addressLabel){
+        addressLabel = customerAddress;
+      }
     }
-
-    const destGeo = await geocodeBrazilAddress(customerAddress);
-    distance_km = await osrmRouteDistanceKm(
-      sourceLat,
-      sourceLon,
-      Number(destGeo.lat),
-      Number(destGeo.lon)
-    );
-
-    const ruleResult = resolveShippingRule(distance_km, settingsNow);
-
-    if(!ruleResult.ok){
-      return res.status(400).json({
-        ok: false,
-        error: ruleResult.error,
-        distance_km: Number(distance_km.toFixed(2))
-      });
-    }
-
-    shipping = Number(ruleResult.shipping_price || 0);
   }
 
   if(!finalLocation){
@@ -1751,7 +1763,6 @@ if(isDelivery){
     }
   }
 }
-
     // desconto enviado pelo checkout (opcional)
     let discount = Number(o.discount || 0);
 
